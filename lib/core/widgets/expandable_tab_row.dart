@@ -34,7 +34,10 @@ class ExpandableTab {
   final bool isSeparator;
 
   const ExpandableTab({this.title, this.icon}) : isSeparator = false;
-  const ExpandableTab.separator() : title = null, icon = null, isSeparator = true;
+  const ExpandableTab.separator()
+      : title = null,
+        icon = null,
+        isSeparator = true;
 }
 
 // ── Main widget ─────────────────────────────────────────────────
@@ -70,19 +73,24 @@ class _ExpandableTabsState extends State<ExpandableTabs> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = widget.activeColor ?? (isDark ? DarkColors.primary : DarkColors.primary);
-    
+    final activeColor = widget.activeColor ??
+        (isDark ? DarkColors.primary : DarkColors.primary);
+
     return Container(
       padding: widget.padding ?? const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: isDark ? DarkColors.surface2 : Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isDark ? DarkColors.primary.withValues(alpha: 0.18) : DarkColors.primary.withValues(alpha: 0.12),
+          color: isDark
+              ? DarkColors.primary.withValues(alpha: 0.18)
+              : DarkColors.primary.withValues(alpha: 0.12),
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark ? DarkColors.primary.withValues(alpha: 0.15) : DarkColors.primary.withValues(alpha: 0.10),
+            color: isDark
+                ? DarkColors.primary.withValues(alpha: 0.15)
+                : DarkColors.primary.withValues(alpha: 0.10),
             blurRadius: 24,
             offset: const Offset(0, 4),
           ),
@@ -94,60 +102,67 @@ class _ExpandableTabsState extends State<ExpandableTabs> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(widget.tabs.length, (index) {
-          final tab = widget.tabs[index];
-          if (tab.isSeparator) {
-            return Container(
-              width: 1,
-              height: 22,
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              color: isDark ? Colors.white.withValues(alpha: 0.08) : DarkColors.primary.withValues(alpha: 0.12),
-            );
-          }
-          
-          final isActive = _selectedIndex == index;
-          return GestureDetector(
-            onTap: () {
-              setState(() => _selectedIndex = index);
-              widget.onChange(index);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 320),
-              curve: const Cubic(0.34, 1.56, 0.64, 1),
-              padding: EdgeInsets.symmetric(horizontal: isActive ? 14 : 10, vertical: 8),
-              decoration: BoxDecoration(
-                color: isActive ? activeColor.withValues(alpha: 0.12) : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    tab.icon,
-                    size: 20,
-                    color: isActive ? activeColor : (isDark ? Colors.white38 : Colors.black38),
-                  ),
-                  if (isActive)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 6),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120),
-                        child: Text(
-                          tab.title!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            color: activeColor,
-                            letterSpacing: 0.15,
+            final tab = widget.tabs[index];
+            if (tab.isSeparator) {
+              return Container(
+                width: 1,
+                height: 22,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : DarkColors.primary.withValues(alpha: 0.12),
+              );
+            }
+
+            final isActive = _selectedIndex == index;
+            return GestureDetector(
+              onTap: () {
+                setState(() => _selectedIndex = index);
+                widget.onChange(index);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 320),
+                curve: const Cubic(0.34, 1.56, 0.64, 1),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isActive ? 14 : 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? activeColor.withValues(alpha: 0.12)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      tab.icon,
+                      size: 20,
+                      color: isActive
+                          ? activeColor
+                          : (isDark ? Colors.white38 : Colors.black38),
+                    ),
+                    if (isActive)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 120),
+                          child: Text(
+                            tab.title!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: activeColor,
+                              letterSpacing: 0.15,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          }),
         ),
       ),
     );
@@ -156,7 +171,6 @@ class _ExpandableTabsState extends State<ExpandableTabs> {
 
 // ── Main widget ─────────────────────────────────────────────────
 class ExpandableTabRow extends StatefulWidget {
-
   final List<ExpandableTabItem> tabs;
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
@@ -259,12 +273,14 @@ class _ExpandableTabRowState extends State<ExpandableTabRow>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeColor = widget.activeColor ??
         (isDark ? DarkColors.primary : DarkColors.primary);
-    final rowBg = widget.rowBackground ??
-        (isDark ? DarkColors.surface2 : Colors.white);
-    final borderColor =
-        isDark ? DarkColors.primary.withValues(alpha: 0.18) : DarkColors.primary.withValues(alpha: 0.12);
-    final shadowColor =
-        isDark ? DarkColors.primary.withValues(alpha: 0.15) : DarkColors.primary.withValues(alpha: 0.10);
+    final rowBg =
+        widget.rowBackground ?? (isDark ? DarkColors.surface2 : Colors.white);
+    final borderColor = isDark
+        ? DarkColors.primary.withValues(alpha: 0.18)
+        : DarkColors.primary.withValues(alpha: 0.12);
+    final shadowColor = isDark
+        ? DarkColors.primary.withValues(alpha: 0.15)
+        : DarkColors.primary.withValues(alpha: 0.10);
 
     return Container(
       padding: const EdgeInsets.all(6),
@@ -361,7 +377,9 @@ class _ExpandableTabButton extends StatelessWidget {
           vertical: 8,
         ),
         decoration: BoxDecoration(
-          color: isActive ? activeColor.withValues(alpha: 0.12) : Colors.transparent,
+          color: isActive
+              ? activeColor.withValues(alpha: 0.12)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

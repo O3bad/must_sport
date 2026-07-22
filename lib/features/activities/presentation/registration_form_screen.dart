@@ -16,17 +16,17 @@ class RegistrationFormScreen extends StatefulWidget {
 }
 
 class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
-  final _formKey   = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final _phoneCtrl = TextEditingController();
-  final _msgCtrl   = TextEditingController();
-  String  _faculty   = '';
-  String  _semester  = 'Spring 2026';
-  String  _level     = 'Beginner';
-  bool    _medical   = false;
-  bool    _terms     = false;
-  bool    _loading   = false;
-  bool    _submitted = false;
-  String? _error;  // FIX #1: declare _error field (was undefined at line 90)
+  final _msgCtrl = TextEditingController();
+  String _faculty = '';
+  String _semester = 'Spring 2026';
+  String _level = 'Beginner';
+  bool _medical = false;
+  bool _terms = false;
+  bool _loading = false;
+  bool _submitted = false;
+  String? _error; // FIX #1: declare _error field (was undefined at line 90)
 
   // ── Team member controllers (team sports only) ──
   final List<Map<String, TextEditingController>> _teamMembers = [];
@@ -45,8 +45,8 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
 
   void _addTeamMember() {
     _teamMembers.add({
-      'name':    TextEditingController(),
-      'id':      TextEditingController(),
+      'name': TextEditingController(),
+      'id': TextEditingController(),
       'faculty': TextEditingController(),
     });
     setState(() {});
@@ -79,12 +79,15 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
       _showError(l.errorPleaseAgreeTerms);
       return;
     }
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
 
     // FIX #2 & #3: capture context-dependent objects before the async gap
-    final appState  = context.read<AppState>();
-    final regState  = context.read<ActivityRegistrationState>();
-    final user      = appState.user;
+    final appState = context.read<AppState>();
+    final regState = context.read<ActivityRegistrationState>();
+    final user = appState.user;
 
     await Future.delayed(const Duration(milliseconds: 800));
 
@@ -98,20 +101,23 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
     }
 
     final reg = ActivityRegistration(
-      id:           regState.generateId(),
+      id: regState.generateId(),
       studentEmail: user.email,
-      studentName:  user.name,
-      studentId:    user.studentId,
-      faculty:      _faculty.isEmpty ? user.faculty : _faculty,
-      phone:        _phoneCtrl.text.trim(),
-      semester:     _semester,
-      level:        _level,
-      message:      _msgCtrl.text.trim(),
-      activity:     widget.activity,
-      createdAt:    DateTime.now(),
+      studentName: user.name,
+      studentId: user.studentId,
+      faculty: _faculty.isEmpty ? user.faculty : _faculty,
+      phone: _phoneCtrl.text.trim(),
+      semester: _semester,
+      level: _level,
+      message: _msgCtrl.text.trim(),
+      activity: widget.activity,
+      createdAt: DateTime.now(),
     );
     regState.addRegistration(reg);
-    setState(() { _loading = false; _submitted = true; });
+    setState(() {
+      _loading = false;
+      _submitted = true;
+    });
   }
 
   void _showError(String msg) {
@@ -127,12 +133,12 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final primary = context.primaryColor;
-    final second  = context.secondaryColor;
-    final txt     = context.textColor;
-    final muted   = context.mutedColor;
-    final border  = context.borderColor;
-    final bg      = context.bgColor;
-    final user    = context.read<AppState>().user;
+    final second = context.secondaryColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
+    final border = context.borderColor;
+    final bg = context.bgColor;
+    final user = context.read<AppState>().user;
 
     final experiences = [
       l.experienceBeginner,
@@ -169,20 +175,30 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
               ),
               padding: const EdgeInsets.all(14),
               child: Row(children: [
-                Text(widget.activity.emoji, style: const TextStyle(fontSize: 38)),
+                Text(widget.activity.emoji,
+                    style: const TextStyle(fontSize: 38)),
                 const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(widget.activity.name,
-                      maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.heading(15, color: txt, context: context)),
-                  const SizedBox(height: 2),
-                  Text(widget.activity.schedule,
-                      maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.body(16, color: muted, context: context)),
-                  Text(l.coachPrefix(widget.activity.coach),
-                      maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.body(16, color: muted, context: context)),
-                ])),
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      Text(widget.activity.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.heading(15,
+                              color: txt, context: context)),
+                      const SizedBox(height: 2),
+                      Text(widget.activity.schedule,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body(16,
+                              color: muted, context: context)),
+                      Text(l.coachPrefix(widget.activity.coach),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body(16,
+                              color: muted, context: context)),
+                    ])),
               ]),
             ),
             const SizedBox(height: 24),
@@ -190,19 +206,24 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
             // ── Capacity / general error banner ──────────────────────────
             if (_error != null) ...[
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: context.errorColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: context.errorColor.withValues(alpha: 0.35)),
+                  border: Border.all(
+                      color: context.errorColor.withValues(alpha: 0.35)),
                 ),
                 child: Row(children: [
-                  Icon(Icons.error_outline, color: context.errorColor, size: 20),
+                  Icon(Icons.error_outline,
+                      color: context.errorColor, size: 20),
                   const SizedBox(width: 10),
-                  Expanded(child: Text(_error!,
-                      maxLines: 5,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.body(13, color: context.errorColor, context: context))),
+                  Expanded(
+                      child: Text(_error!,
+                          maxLines: 5,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body(13,
+                              color: context.errorColor, context: context))),
                 ]),
               ),
               const SizedBox(height: 16),
@@ -213,9 +234,13 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
 
             // ── Read-only fields ─────────────────────────────────────────
             Row(children: [
-              Expanded(child: _ReadOnlyField(label: l.fullNameLabel, value: user.name)),
+              Expanded(
+                  child:
+                      _ReadOnlyField(label: l.fullNameLabel, value: user.name)),
               const SizedBox(width: 12),
-              Expanded(child: _ReadOnlyField(label: l.studentId, value: user.studentId)),
+              Expanded(
+                  child: _ReadOnlyField(
+                      label: l.studentId, value: user.studentId)),
             ]),
             const SizedBox(height: 12),
             _ReadOnlyField(label: l.email, value: user.email),
@@ -232,7 +257,8 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return l.fieldLabelPhone;
                 if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(v.trim())) {
-                  return l.errorVodafoneNumber; // Using an existing valid phone error key
+                  return l
+                      .errorVodafoneNumber; // Using an existing valid phone error key
                 }
                 return null;
               },
@@ -241,31 +267,42 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
 
             // ── Faculty + Semester ───────────────────────────────────────
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                _FieldLabel(l.fieldLabelFaculty),
-                const SizedBox(height: 6),
-                _DropdownField(
-                  value: _faculty.isEmpty ? null : _faculty,
-                  hint: l.selectFaculty,
-                  items: kFaculties,
-                  onChanged: (v) => setState(() => _faculty = v ?? ''),
-                ),
-                if (_faculty.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(l.errorSelectFaculty, 
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.body(15, color: context.errorColor, context: context)),
-                  ),
-              ])),
+              Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                    _FieldLabel(l.fieldLabelFaculty),
+                    const SizedBox(height: 6),
+                    _DropdownField(
+                      value: _faculty.isEmpty ? null : _faculty,
+                      hint: l.selectFaculty,
+                      items: kFaculties,
+                      onChanged: (v) => setState(() => _faculty = v ?? ''),
+                    ),
+                    if (_faculty.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(l.errorSelectFaculty,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.body(15,
+                                color: context.errorColor, context: context)),
+                      ),
+                  ])),
               const SizedBox(width: 12),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                _FieldLabel(l.fieldLabelSemester),
-                const SizedBox(height: 6),
-                _DropdownField(value: _semester, hint: l.semesterHint, items: _semesters,
-                    onChanged: (v) => setState(() => _semester = v ?? _semester)),
-              ])),
+              Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                    _FieldLabel(l.fieldLabelSemester),
+                    const SizedBox(height: 6),
+                    _DropdownField(
+                        value: _semester,
+                        hint: l.semesterHint,
+                        items: _semesters,
+                        onChanged: (v) =>
+                            setState(() => _semester = v ?? _semester)),
+                  ])),
             ]),
             const SizedBox(height: 12),
 
@@ -281,10 +318,16 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
                   onTap: () => setState(() => _level = exp),
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? context.secondaryColor : context.surfaceColor,
-                      border: Border.all(color: isSelected ? context.secondaryColor : context.borderColor),
+                      color: isSelected
+                          ? context.secondaryColor
+                          : context.surfaceColor,
+                      border: Border.all(
+                          color: isSelected
+                              ? context.secondaryColor
+                              : context.borderColor),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: FittedBox(
@@ -292,8 +335,11 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
                       child: Text(
                         exp,
                         style: AppTextStyles.body(15,
-                            color: isSelected ? context.bgColor : context.mutedColor,
-                            weight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            color: isSelected
+                                ? context.bgColor
+                                : context.mutedColor,
+                            weight:
+                                isSelected ? FontWeight.w700 : FontWeight.w500,
                             context: context),
                       ),
                     ),
@@ -323,60 +369,87 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
                     border: Border.all(color: primary.withValues(alpha: 0.25)),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(children: [
-                      Text(l.memberNum(i + 1),
-                          style: AppTextStyles.body(15, color: primary, weight: FontWeight.w700, context: context)),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () => _removeTeamMember(i),
-                        child: Container(
-                          width: 26, height: 26,
-                          decoration: BoxDecoration(
-                            color: context.errorColor.withValues(alpha: 0.10),
-                            borderRadius: BorderRadius.circular(8),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(children: [
+                          Text(l.memberNum(i + 1),
+                              style: AppTextStyles.body(15,
+                                  color: primary,
+                                  weight: FontWeight.w700,
+                                  context: context)),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: () => _removeTeamMember(i),
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              decoration: BoxDecoration(
+                                color:
+                                    context.errorColor.withValues(alpha: 0.10),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(Icons.close,
+                                  size: 14, color: context.errorColor),
+                            ),
                           ),
-                          child: Icon(Icons.close, size: 14, color: context.errorColor),
+                        ]),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          controller: m['name'],
+                          style: AppTextStyles.body(16,
+                              color: txt, context: context),
+                          decoration: _inputDec(context, hint: l.fullNameLabel),
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? l.errorNameShort
+                              : null,
                         ),
-                      ),
-                    ]),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: m['name'],
-                      style: AppTextStyles.body(16, color: txt, context: context),
-                      decoration: _inputDec(context, hint: l.fullNameLabel),
-                      validator: (v) => (v == null || v.trim().isEmpty) ? l.errorNameShort : null,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: m['id'],
-                          style: AppTextStyles.body(16, color: txt, context: context),
-                          decoration: _inputDec(context, hint: l.studentId),
-                          validator: (v) => (v == null || v.trim().isEmpty) ? l.studentId : null,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextFormField(
-                          controller: m['faculty'],
-                          style: AppTextStyles.body(16, color: txt, context: context),
-                          decoration: _inputDec(context, hint: l.facultyLabel),
-                          validator: (v) => (v == null || v.trim().isEmpty) ? l.errorSelectFaculty : null,
-                        ),
-                      ),
-                    ]),
-                  ]),
+                        const SizedBox(height: 8),
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: m['id'],
+                                  style: AppTextStyles.body(16,
+                                      color: txt, context: context),
+                                  decoration:
+                                      _inputDec(context, hint: l.studentId),
+                                  validator: (v) =>
+                                      (v == null || v.trim().isEmpty)
+                                          ? l.studentId
+                                          : null,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: m['faculty'],
+                                  style: AppTextStyles.body(16,
+                                      color: txt, context: context),
+                                  decoration:
+                                      _inputDec(context, hint: l.facultyLabel),
+                                  validator: (v) =>
+                                      (v == null || v.trim().isEmpty)
+                                          ? l.errorSelectFaculty
+                                          : null,
+                                ),
+                              ),
+                            ]),
+                      ]),
                 );
               }),
               TextButton.icon(
                 onPressed: _addTeamMember,
                 icon: Icon(Icons.add_circle_outline, color: primary, size: 18),
                 label: Text(l.addAnotherMember,
-                    style: AppTextStyles.body(15, color: primary, weight: FontWeight.w600, context: context)),
+                    style: AppTextStyles.body(15,
+                        color: primary,
+                        weight: FontWeight.w600,
+                        context: context)),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
                 ),
               ),
               const SizedBox(height: 8),
@@ -390,8 +463,7 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
               controller: _msgCtrl,
               maxLines: 4,
               style: AppTextStyles.body(16, color: txt, context: context),
-              decoration: _inputDec(context,
-                  hint: l.statementHint),
+              decoration: _inputDec(context, hint: l.statementHint),
             ),
             const SizedBox(height: 20),
 
@@ -427,22 +499,30 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
     );
   }
 
-  InputDecoration _inputDec(BuildContext context, {required String? hint}) => InputDecoration(
-    hintText: hint,
-    hintStyle: AppTextStyles.body(16, color: context.mutedColor, context: context),
-    filled: true,
-    fillColor: context.surfaceColor,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: context.borderColor)),
-    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: context.primaryColor, width: 1.5)),
-    errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: context.errorColor)),
-    focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: context.errorColor, width: 1.5)),
-    errorStyle: AppTextStyles.body(15, color: context.errorColor, context: context),
-  );
+  InputDecoration _inputDec(BuildContext context, {required String? hint}) =>
+      InputDecoration(
+        hintText: hint,
+        hintStyle:
+            AppTextStyles.body(16, color: context.mutedColor, context: context),
+        filled: true,
+        fillColor: context.surfaceColor,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: context.borderColor)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: context.primaryColor, width: 1.5)),
+        errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: context.errorColor)),
+        focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: context.errorColor, width: 1.5)),
+        errorStyle:
+            AppTextStyles.body(15, color: context.errorColor, context: context),
+      );
 }
 
 // ─── SUCCESS SCREEN ───────────────────────────────────────────────────────────
@@ -455,7 +535,7 @@ class _SuccessScreen extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final second = context.secondaryColor;
     // final txt    = context.textColor;
-    final muted  = context.mutedColor;
+    final muted = context.mutedColor;
 
     return Scaffold(
       backgroundColor: context.bgColor,
@@ -464,32 +544,43 @@ class _SuccessScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.celebration_rounded, size: 72, color: Color(0xFFA8FF3E)),
+              const Icon(Icons.celebration_rounded,
+                  size: 72, color: Color(0xFFA8FF3E)),
               const SizedBox(height: 20),
               Text(l.applicationSubmitted,
-                  style: AppTextStyles.display(28, color: second, context: context), textAlign: TextAlign.center),
+                  style: AppTextStyles.display(28,
+                      color: second, context: context),
+                  textAlign: TextAlign.center),
               const SizedBox(height: 12),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(children: [
-                  TextSpan(text: l.appSubmittedDesc('${activity.emoji} ${activity.name}'),
-                      style: AppTextStyles.body(15, color: muted, context: context)),
+                  TextSpan(
+                      text: l.appSubmittedDesc(
+                          '${activity.emoji} ${activity.name}'),
+                      style: AppTextStyles.body(15,
+                          color: muted, context: context)),
                 ]),
               ),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                  onPressed: () =>
+                      Navigator.of(context).popUntil((route) => route.isFirst),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: second,
                     foregroundColor: context.bgColor,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                   child: Text(l.backToActivities,
-                      style: AppTextStyles.body(15, color: context.bgColor, weight: FontWeight.w700, context: context)),
+                      style: AppTextStyles.body(15,
+                          color: context.bgColor,
+                          weight: FontWeight.w700,
+                          context: context)),
                 ),
               ),
             ]),
@@ -506,7 +597,8 @@ class _SectionLabel extends StatelessWidget {
   const _SectionLabel(this.text);
   @override
   Widget build(BuildContext context) => Text(text,
-      style: AppTextStyles.heading(15, color: context.textColor, context: context));
+      style: AppTextStyles.heading(15,
+          color: context.textColor, context: context));
 }
 
 class _FieldLabel extends StatelessWidget {
@@ -521,26 +613,28 @@ class _ReadOnlyField extends StatelessWidget {
   final String label, value;
   const _ReadOnlyField({required this.label, required this.value});
   @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    _FieldLabel(label),
-    const SizedBox(height: 6),
-    Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: context.surfaceColor.withValues(alpha: 0.5),
-        border: Border.all(color: context.borderColor),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: FittedBox(
-        alignment: Alignment.centerLeft,
-        fit: BoxFit.scaleDown,
-        child: Text(value, 
-            maxLines: 1,
-            style: AppTextStyles.body(16, color: context.mutedColor, context: context)),
-      ),
-    ),
-  ]);
+  Widget build(BuildContext context) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _FieldLabel(label),
+        const SizedBox(height: 6),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: context.surfaceColor.withValues(alpha: 0.5),
+            border: Border.all(color: context.borderColor),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: FittedBox(
+            alignment: Alignment.centerLeft,
+            fit: BoxFit.scaleDown,
+            child: Text(value,
+                maxLines: 1,
+                style: AppTextStyles.body(16,
+                    color: context.mutedColor, context: context)),
+          ),
+        ),
+      ]);
 }
 
 class _DropdownField extends StatelessWidget {
@@ -548,34 +642,47 @@ class _DropdownField extends StatelessWidget {
   final String hint;
   final List<String> items;
   final void Function(String?) onChanged;
-  const _DropdownField({required this.value, required this.hint, required this.items, required this.onChanged});
+  const _DropdownField(
+      {required this.value,
+      required this.hint,
+      required this.items,
+      required this.onChanged});
 
   @override
   Widget build(BuildContext context) => DropdownButtonFormField<String>(
-    initialValue: value,
-    isExpanded: true,
-    hint: Text(hint, 
-        maxLines: 1, 
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.body(16, color: context.mutedColor, context: context)),
-    style: AppTextStyles.body(16, color: context.textColor, context: context),
-    dropdownColor: context.surfaceColor,
-    decoration: InputDecoration(
-      filled: true,
-      fillColor: context.surfaceColor,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: context.borderColor)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: context.primaryColor, width: 1.5)),
-    ),
-    items: items.map((i) => DropdownMenuItem(value: i,
-        child: Text(i, 
-            maxLines: 1, 
+        initialValue: value,
+        isExpanded: true,
+        hint: Text(hint,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.body(16, color: context.textColor, context: context)))).toList(),
-    onChanged: onChanged,
-  );
+            style: AppTextStyles.body(16,
+                color: context.mutedColor, context: context)),
+        style:
+            AppTextStyles.body(16, color: context.textColor, context: context),
+        dropdownColor: context.surfaceColor,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: context.surfaceColor,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: context.borderColor)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: context.primaryColor, width: 1.5)),
+        ),
+        items: items
+            .map((i) => DropdownMenuItem(
+                value: i,
+                child: Text(i,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.body(16,
+                        color: context.textColor, context: context))))
+            .toList(),
+        onChanged: onChanged,
+      );
 }
 
 class _CheckboxRow extends StatelessWidget {
@@ -583,17 +690,28 @@ class _CheckboxRow extends StatelessWidget {
   final void Function(bool?) onChanged;
   final String label;
   final Color color;
-  const _CheckboxRow({required this.value, required this.onChanged, required this.label, required this.color});
+  const _CheckboxRow(
+      {required this.value,
+      required this.onChanged,
+      required this.label,
+      required this.color});
 
   @override
-  Widget build(BuildContext context) => Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Checkbox(value: value, onChanged: onChanged,
-        activeColor: color,
-        side: BorderSide(color: context.borderColor),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
-    Expanded(child: Padding(
-      padding: const EdgeInsets.only(top: 11),
-      child: Text(label, style: AppTextStyles.body(15, color: context.mutedColor, context: context)),
-    )),
-  ]);
+  Widget build(BuildContext context) =>
+      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Checkbox(
+            value: value,
+            onChanged: onChanged,
+            activeColor: color,
+            side: BorderSide(color: context.borderColor),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.only(top: 11),
+          child: Text(label,
+              style: AppTextStyles.body(15,
+                  color: context.mutedColor, context: context)),
+        )),
+      ]);
 }

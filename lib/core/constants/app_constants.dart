@@ -1,9 +1,39 @@
 // lib/core/constants/app_constants.dart
 
+/// Build-time configuration for the debug-only demo-account hint.
+///
+/// Deliberately empty by default. Demo passwords used to live in
+/// `CacheService._kDemoUsers`, which meant they were compiled into the release
+/// binary and `CacheService.login()` would accept them — so anyone who unzipped
+/// the APK could sign in as the bundled admin account.
+///
+/// Supply them per build instead:
+///   flutter run --dart-define=demoStudentPassword=... --dart-define=demoAdminPassword=...
+///
+/// An empty value means the hint prefills only the email address, which is the
+/// right behaviour for release builds.
+class DemoAccounts {
+  static const String studentEmail = 'student@must.edu.eg';
+  static const String adminEmail = 'admin@must.edu.eg';
+  static const String coachEmail = 'coach@must.edu.eg';
+
+  static const String studentPassword =
+      String.fromEnvironment('demoStudentPassword');
+  static const String adminPassword =
+      String.fromEnvironment('demoAdminPassword');
+  static const String coachPassword =
+      String.fromEnvironment('demoCoachPassword');
+
+  /// True when at least one demo password was supplied for this build.
+  static bool get anyPasswordsConfigured =>
+      studentPassword.isNotEmpty ||
+      adminPassword.isNotEmpty ||
+      coachPassword.isNotEmpty;
+}
+
 class AppStrings {
-  static const String appName = 'MUST Activities';
-  static const String appNameAr = 'أنشطة MUST';
-  static const String universityName = 'Misr University for Science & Technology';
+  static const String universityName =
+      'Misr University for Science & Technology';
   static const String universityNameAr = 'جامعة مصر للعلوم والتكنولوجيا';
 }
 
@@ -89,19 +119,27 @@ class FirestoreCollections {
 class AssetLinks {
   // These are links the user needs for assets
   static const Map<String, String> freeAssets = {
-    'Lottie Sports Animation': 'https://lottiefiles.com/animations/sports-activity',
-    'Lottie Arts Animation': 'https://lottiefiles.com/animations/art-creativity',
+    'Lottie Sports Animation':
+        'https://lottiefiles.com/animations/sports-activity',
+    'Lottie Arts Animation':
+        'https://lottiefiles.com/animations/art-creativity',
     'Lottie Success': 'https://lottiefiles.com/animations/success-check',
     'Lottie Loading': 'https://lottiefiles.com/animations/loading',
-    'Football Icon Pack (SVG)': 'https://www.svgrepo.com/collection/sports-icons',
-    'University Illustrations': 'https://undraw.co/illustrations (search: education)',
+    'Football Icon Pack (SVG)':
+        'https://www.svgrepo.com/collection/sports-icons',
+    'University Illustrations':
+        'https://undraw.co/illustrations (search: education)',
     'Background Patterns': 'https://www.heropatterns.com/',
-    'MUST Logo SVG': 'https://must.edu.eg/app/uploads/2025/02/1740307452_295_53683_logo.svg',
+    'MUST Logo SVG':
+        'https://must.edu.eg/app/uploads/2025/02/1740307452_295_53683_logo.svg',
     'Cairo Font (Arabic)': 'https://fonts.google.com/specimen/Cairo',
     'Poppins Font (English)': 'https://fonts.google.com/specimen/Poppins',
-    'Rive Animation Editor': 'https://rive.app/ (create custom mascot animation)',
-    'Figma Design System': 'https://www.figma.com/community/file/1035203688168086460 (University UI Kit)',
-    'Sport Icons Figma': 'https://www.figma.com/community/file/1069994235088927521 (Sport Icons)',
+    'Rive Animation Editor':
+        'https://rive.app/ (create custom mascot animation)',
+    'Figma Design System':
+        'https://www.figma.com/community/file/1035203688168086460 (University UI Kit)',
+    'Sport Icons Figma':
+        'https://www.figma.com/community/file/1069994235088927521 (Sport Icons)',
     'Confetti Package': 'Already in pubspec - pub.dev/packages/confetti',
   };
 }

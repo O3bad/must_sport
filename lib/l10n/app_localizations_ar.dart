@@ -39,7 +39,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get passwordHint => '••••••••';
 
   @override
-  String get demoCredentials => 'بيانات تجريبية';
+  String get demoAccounts => 'حسابات تجريبية';
 
   @override
   String get student => 'طالب';
@@ -159,6 +159,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notificationPrefs => 'تفضيلات الإشعارات';
 
   @override
+  String get pushNotifications => 'الإشعارات الفورية';
+
+  @override
+  String get pushNotificationsDesc =>
+      'استقبل تنبيهات التسجيل والحجز والفعاليات. إيقاف هذا يمنع كل الإشعارات الفورية.';
+
+  @override
   String get reservationReminders => 'تذكيرات الحجز';
 
   @override
@@ -184,6 +191,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get privacy => 'الخصوصية';
+
+  @override
+  String get legal => 'الشؤون القانونية';
+
+  @override
+  String get cookieBannerTitle => 'ملفات تعريف الارتباط على نسخة الويب';
+
+  @override
+  String get cookieBannerBody =>
+      'نستخدم التخزين لإبقائك مسجّل الدخول ولتذكّر تفضيلاتك. لا توجد إعلانات ولا تتبّع عبر المواقع.';
+
+  @override
+  String get cookieBannerAccept => 'قبول';
+
+  @override
+  String get cookieBannerDecline => 'رفض';
+
+  @override
+  String get cookieBannerLearnMore => 'اقرأ سياسة ملفات تعريف الارتباط';
+
+  @override
+  String get legalDocumentsSubtitle => 'السياسات والشروط وحقوقك في بياناتك';
 
   @override
   String get showMyProfile => 'إظهار ملفي الشخصي';
@@ -536,6 +565,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noStudentsYet => 'لا يوجد طلاب بعد';
 
   @override
+  String get noRankedStudentsYet => 'لا يوجد طلاب مصنفون بعد';
+
+  @override
+  String get bookingFailedTryAgain => 'فشل الحجز. حاول مرة أخرى.';
+
+  @override
   String get notificationsTitle => 'التنبيهات';
 
   @override
@@ -769,6 +804,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorSignUpFailed => 'فشل إنشاء الحساب. حاول مرة أخرى.';
+
+  @override
+  String get errorAuthDisabled =>
+      'تسجيل الدخول بالبريد الإلكتروني وكلمة المرور معطّل حاليًا في هذا التطبيق. يرجى التواصل مع الدعم.';
+
+  @override
+  String get errorProfileWriteFailed =>
+      'تم إنشاء حسابك، لكن تعذر حفظ ملفك الشخصي. حاول مرة أخرى.';
+
+  @override
+  String get errorProfileWriteForbidden =>
+      'تم إنشاء حسابك، لكن رفض الخادم حفظ ملفك الشخصي. حاول مرة أخرى.';
 
   @override
   String get checkEmail => 'تحقق من بريدك الإلكتروني';
@@ -1421,4 +1468,113 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notificationSent => 'تم إرسال الإشعار!';
+
+  @override
+  String get signupTermsConsent =>
+      'أوافق على شروط الخدمة وسياسة الخصوصية، وأؤكد أن عمري لا يقل عن ١٨ عامًا.';
+
+  @override
+  String get signupTermsConsentError => 'يجب الموافقة على الشروط لإنشاء حساب.';
+
+  @override
+  String get deleteAccount => 'حذف الحساب';
+
+  @override
+  String get deleteAccountSectionTitle => 'الحساب';
+
+  @override
+  String get deleteAccountWarning =>
+      'حذف حسابك يزيل نهائيًا ملفك الشخصي وحجوزاتك وسجل مشاركتك من تطبيق MUSTER Sport.';
+
+  @override
+  String get deleteAccountConfirmTitle => 'حذف حسابك؟';
+
+  @override
+  String get deleteAccountConfirmBody =>
+      'سيؤدي هذا إلى مسح حسابك وجميع البيانات المرتبطة به نهائيًا. لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get deleteAccountTypeToConfirm => 'اكتب DELETE للتأكيد';
+
+  @override
+  String get deleteAccountConfirmWord => 'DELETE';
+
+  @override
+  String get deleteAccountPasswordPrompt => 'أدخل كلمة المرور للتأكيد';
+
+  @override
+  String get deleteAccountCancel => 'إلغاء';
+
+  @override
+  String get deleteAccountFinalConfirm => 'حذف نهائي';
+
+  @override
+  String get deleteAccountInProgress => 'جارٍ حذف حسابك…';
+
+  @override
+  String get deleteAccountSuccess => 'تم حذف حسابك.';
+
+  @override
+  String deleteAccountFailed(Object reason) {
+    return 'تعذّر حذف حسابك: $reason';
+  }
+
+  @override
+  String get licenses => 'تراخيص المصادر المفتوحة';
+
+  @override
+  String get licensesIntro =>
+      'بُني تطبيق MUSTER Sport على البرامج والخطوط مفتوحة المصدر التالية.';
+
+  @override
+  String get showPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get hidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String selectRole(Object role) {
+    return 'اختر الدور: $role';
+  }
+
+  @override
+  String get selected => 'محدد';
+
+  @override
+  String get notificationsEnabled => 'الإشعارات مفعّلة';
+
+  @override
+  String get notificationsDisabled => 'الإشعارات معطّلة';
+
+  @override
+  String expandSection(Object section) {
+    return 'توسيع $section';
+  }
+
+  @override
+  String collapseSection(Object section) {
+    return 'طي $section';
+  }
+
+  @override
+  String clearField(Object field) {
+    return 'مسح $field';
+  }
+
+  @override
+  String get removeAvatar => 'إزالة الصورة الشخصية';
+
+  @override
+  String get back => 'رجوع';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get loading => 'جارٍ التحميل';
+
+  @override
+  String navBadgeCount(Object count) {
+    return '$count جديد';
+  }
 }

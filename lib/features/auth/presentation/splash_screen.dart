@@ -26,11 +26,16 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    _ctrl  = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800));
-    _fade  = CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.6, curve: Curves.easeOut));
-    _scale = Tween<double>(begin: 0.6, end: 1.0).animate(
-        CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.7, curve: Curves.elasticOut)));
-    _glow  = CurvedAnimation(parent: _ctrl, curve: const Interval(0.5, 1.0, curve: Curves.easeInOut));
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1800));
+    _fade = CurvedAnimation(
+        parent: _ctrl, curve: const Interval(0.0, 0.6, curve: Curves.easeOut));
+    _scale = Tween<double>(begin: 0.6, end: 1.0).animate(CurvedAnimation(
+        parent: _ctrl,
+        curve: const Interval(0.0, 0.7, curve: Curves.elasticOut)));
+    _glow = CurvedAnimation(
+        parent: _ctrl,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeInOut));
     _ctrl.forward();
     _navTimer = Timer(const Duration(milliseconds: 2400), _navigate);
   }
@@ -45,14 +50,20 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
     // IMPROVEMENT #7: coaches route to CoachShell, not AdminShell
     Widget dest;
-    if (!state.isLoggedIn)   { dest = const LoginScreen();  }
-    else if (state.isAdmin)  { dest = const AdminShell();   }
-    else if (state.isCoach)  { dest = const CoachShell();   }
-    else                     { dest = const AppShell();     }
+    if (!state.isLoggedIn) {
+      dest = const LoginScreen();
+    } else if (state.isAdmin) {
+      dest = const AdminShell();
+    } else if (state.isCoach) {
+      dest = const CoachShell();
+    } else {
+      dest = const AppShell();
+    }
 
     Navigator.of(context).pushReplacement(PageRouteBuilder(
       pageBuilder: (_, a, __) => dest,
-      transitionsBuilder: (_, a, __, child) => FadeTransition(opacity: a, child: child),
+      transitionsBuilder: (_, a, __, child) =>
+          FadeTransition(opacity: a, child: child),
       transitionDuration: const Duration(milliseconds: 500),
     ));
   }
@@ -77,11 +88,13 @@ class _SplashScreenState extends State<SplashScreen>
           builder: (_, __) => Stack(children: [
             // Background glow blobs
             Positioned(
-              top: -60, left: -60,
+              top: -60,
+              left: -60,
               child: Opacity(
                 opacity: 0.18 * _glow.value,
                 child: Container(
-                  width: 260, height: 260,
+                  width: 260,
+                  height: 260,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: DarkColors.primary,
@@ -90,11 +103,13 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
             Positioned(
-              bottom: -80, right: -80,
+              bottom: -80,
+              right: -80,
               child: Opacity(
                 opacity: 0.12 * _glow.value,
                 child: Container(
-                  width: 300, height: 300,
+                  width: 300,
+                  height: 300,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: DarkColors.secondary,
@@ -116,17 +131,20 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Stack(alignment: Alignment.center, children: [
                       // Outer glow ring
                       Container(
-                        width: 128, height: 128,
+                        width: 128,
+                        height: 128,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: DarkColors.secondary.withValues(alpha: 0.30 * _glow.value),
+                              color: DarkColors.secondary
+                                  .withValues(alpha: 0.30 * _glow.value),
                               blurRadius: 70 * _glow.value,
                               spreadRadius: 20 * _glow.value,
                             ),
                             BoxShadow(
-                              color: DarkColors.primary.withValues(alpha: 0.18 * _glow.value),
+                              color: DarkColors.primary
+                                  .withValues(alpha: 0.18 * _glow.value),
                               blurRadius: 110 * _glow.value,
                               spreadRadius: 10 * _glow.value,
                             ),
@@ -135,11 +153,13 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       // Subtle ring border
                       Container(
-                        width: 108, height: 108,
+                        width: 108,
+                        height: 108,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: DarkColors.primary.withValues(alpha: 0.20 * _glow.value),
+                            color: DarkColors.primary
+                                .withValues(alpha: 0.20 * _glow.value),
                             width: 1.5,
                           ),
                         ),
@@ -148,21 +168,27 @@ class _SplashScreenState extends State<SplashScreen>
                       ScaleTransition(
                         scale: _scale,
                         child: Container(
-                          width: 88, height: 88,
+                          width: 88,
+                          height: 88,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [DarkColors.primary, Color(0xFF006880)],
-                              begin: Alignment.topLeft, end: Alignment.bottomRight,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(26),
                             boxShadow: [
                               BoxShadow(
-                                color: DarkColors.primary.withValues(alpha: 0.5),
-                                blurRadius: 28, spreadRadius: 2,
+                                color:
+                                    DarkColors.primary.withValues(alpha: 0.5),
+                                blurRadius: 28,
+                                spreadRadius: 2,
                               ),
                             ],
                           ),
-                          child: const Center(child: Icon(Icons.stadium_rounded, color: Colors.white, size: 44)),
+                          child: const Center(
+                              child: Icon(Icons.stadium_rounded,
+                                  color: Colors.white, size: 44)),
                         ),
                       ),
                     ]),
@@ -171,19 +197,18 @@ class _SplashScreenState extends State<SplashScreen>
                   const SizedBox(height: 32),
 
                   // ── App name ──────────────────────────────────────────
+                  // Solid brand colour rather than a gradient-filled wordmark:
+                  // a ShaderMask wordmark is decorative, and it renders the
+                  // same pixels regardless of the surrounding background.
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32),
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: ShaderMask(
-                        shaderCallback: (b) => const LinearGradient(
-                          colors: [DarkColors.primary, DarkColors.secondary],
-                        ).createShader(b),
-                        child: Text(
-                          l?.appTitle ?? 'MUSTER',
-                          maxLines: 1,
-                          style: AppTextStyles.display(44, color: Colors.white, letterSpacing: 6),
-                        ),
+                      child: Text(
+                        l?.appTitle ?? 'MUSTER',
+                        maxLines: 1,
+                        style: AppTextStyles.display(44,
+                            color: DarkColors.primary, letterSpacing: 6),
                       ),
                     ),
                   ),
@@ -206,9 +231,11 @@ class _SplashScreenState extends State<SplashScreen>
                         child: LinearProgressIndicator(
                           value: _glow.value,
                           minHeight: 3,
-                          backgroundColor: DarkColors.primary.withValues(alpha: 0.15),
+                          backgroundColor:
+                              DarkColors.primary.withValues(alpha: 0.15),
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Color.lerp(DarkColors.primary, DarkColors.secondary, _glow.value)!,
+                            Color.lerp(DarkColors.primary, DarkColors.secondary,
+                                _glow.value)!,
                           ),
                         ),
                       ),

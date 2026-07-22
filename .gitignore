@@ -27,3 +27,21 @@ assets/users_cache.json
 
 # Archives
 *.zip
+# Cloud Functions build output & deps
+functions/node_modules/
+functions/lib/
+*.tsbuildinfo
+.firebase/
+firebase-debug.log
+uids.txt
+
+# Secrets
+*.env
+.env.local
+*service-account*.json
+*serviceAccount*.json
+
+
+
+# Test coverage
+coverage/

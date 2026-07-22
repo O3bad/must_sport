@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {
+      "//": "Required by awardEventPoints in functions/src/index.ts: where('role','==','student').orderBy('points','desc').",
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "role", "order": "ASCENDING" },
+        { "fieldPath": "points", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

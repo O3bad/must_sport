@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/legal/legal_content.dart';
+import '../../../core/services/fcm_service.dart';
+import '../../../core/services/notification_preferences.dart';
 import '../../../core/state/activity_state.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/state/app_state.dart';
@@ -7,6 +10,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/widgets.dart';
 import '../../../l10n/app_localizations.dart';
 import 'about_screen.dart';
+import 'delete_account_screen.dart';
+import 'legal_document_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -18,27 +23,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late TextEditingController _nameCtrl;
   late TextEditingController _phoneCtrl;
   late TextEditingController _bioCtrl;
-  String _faculty  = '';
+  String _faculty = '';
   String _semester = '';
-  bool   _saving   = false;
-  bool   _saved    = false;
+  bool _saving = false;
+  bool _saved = false;
 
   // Notification toggles
+  bool _pushEnabled = true;
   bool _notifReservations = true;
   bool _notifRegistrations = true;
   bool _notifEvents = true;
-  bool _notifForms  = true;
+  bool _notifForms = true;
 
   // Privacy toggles
   bool _showProfile = true;
-  bool _showStats   = true;
+  bool _showStats = true;
 
   static const _semesters = ['Spring 2026', 'Fall 2026', 'Spring 2027'];
 
   static const _facultiesList = [
-    'IT Faculty','Engineering','Medicine','Pharmacy',
-    'Business','physical therapy','special_education','Nursing','dentistry',
-    'biotechnology','foreign_language','archaeology',
+    'IT Faculty',
+    'Engineering',
+    'Medicine',
+    'Pharmacy',
+    'Business',
+    'physical therapy',
+    'special_education',
+    'Nursing',
+    'dentistry',
+    'biotechnology',
+    'foreign_language',
+    'archaeology',
   ];
 
   List<String> get _faculties => _facultiesList;
@@ -47,11 +62,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     final user = context.read<AppState>().user;
-    _nameCtrl  = TextEditingController(text: user.name);
-    _phoneCtrl = TextEditingController(text: user.phone); // IMPROVEMENT #6: load saved phone
-    _bioCtrl   = TextEditingController(text: user.bio);   // IMPROVEMENT #6: load saved bio
-    _faculty   = user.faculty;
-    _semester  = user.semester.isEmpty ? 'Spring 2026' : user.semester;
+    _nameCtrl = TextEditingController(text: user.name);
+    _phoneCtrl = TextEditingController(
+        text: user.phone); // IMPROVEMENT #6: load saved phone
+    _bioCtrl =
+        TextEditingController(text: user.bio); // IMPROVEMENT #6: load saved bio
+    _faculty = user.faculty;
+    _semester = user.semester.isEmpty ? 'Spring 2026' : user.semester;
+    _loadNotificationPreferences();
+  }
+
+  Future<void> _loadNotificationPreferences() async {
+    await NotificationPreferences.instance.init();
+    if (!mounted) return;
+    setState(() {
+      _pushEnabled = NotificationPreferences.instance.isPushEnabled;
+      _notifReservations = NotificationPreferences.instance.showFormAlerts;
+      _notifEvents = NotificationPreferences.instance.showEventAlerts;
+    });
+  }
+
+  Future<void> _onPushChanged(bool value) async {
+    setState(() => _pushEnabled = value);
+    await NotificationPreferences.instance.setPushEnabled(value);
+    await FCMService().applyPushPreference(value);
   }
 
   @override
@@ -69,18 +103,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return;
     }
     final appState = context.read<AppState>();
-    final name     = _nameCtrl.text.trim();
-    final faculty  = _faculty;
+    final name = _nameCtrl.text.trim();
+    final faculty = _faculty;
     final semester = _semester;
+    final phone = _phoneCtrl.text.trim();
+    final bio = _bioCtrl.text.trim();
     setState(() => _saving = true);
     await Future.delayed(const Duration(milliseconds: 700));
     if (!mounted) return;
     appState.updateProfile(
-      name:     name,
-      faculty:  faculty,
+      name: name,
+      faculty: faculty,
       semester: semester,
+      phone: phone,
+      bio: bio,
     );
-    setState(() { _saving = false; _saved = true; });
+    setState(() {
+      _saving = false;
+      _saved = true;
+    });
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) setState(() => _saved = false);
     });
@@ -111,25 +152,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state  = context.watch<AppState>();
-    final l      = AppLocalizations.of(context)!;
-    final user   = state.user;
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
+    final state = context.watch<AppState>();
+    final l = AppLocalizations.of(context)!;
+    final user = state.user;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
     final border = context.borderColor;
-    final bg     = context.bgColor;
-    final surf   = context.surfaceColor;
+    final bg = context.bgColor;
+    final surf = context.surfaceColor;
     final primary = context.primaryColor;
-    final second  = context.secondaryColor;
-    final isDark  = context.isDark;
-    final hPad    = context.hPadding;
+    final second = context.secondaryColor;
+    final isDark = context.isDark;
+    final hPad = context.hPadding;
 
     return Scaffold(
       backgroundColor: bg,
       appBar: AppBar(
         backgroundColor: bg,
         surfaceTintColor: Colors.transparent,
-        title: Text(l.settings, style: AppTextStyles.display(20, color: txt, context: context)),
+        title: Text(l.settings,
+            style: AppTextStyles.display(20, color: txt, context: context)),
         actions: [
           if (_saved)
             Padding(
@@ -137,8 +179,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(Icons.check_circle, color: second, size: 18),
                 const SizedBox(width: 4),
-                Text(l.saved, style: AppTextStyles.body(16, color: second,
-                    weight: FontWeight.w600, context: context)),
+                Text(l.saved,
+                    style: AppTextStyles.body(16,
+                        color: second,
+                        weight: FontWeight.w600,
+                        context: context)),
               ]),
             ),
         ],
@@ -150,14 +195,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: EdgeInsets.fromLTRB(hPad, 20, hPad, 120),
         children: [
-
           // ── Profile picture ────────────────────────────────────────────
           Center(
             child: Stack(children: [
               GestureDetector(
                 onTap: _pickAvatar,
                 child: Container(
-                  width: 90, height: 90,
+                  width: 90,
+                  height: 90,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [primary, primary.withValues(alpha: 0.6)],
@@ -165,36 +210,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       end: Alignment.bottomRight,
                     ),
                     shape: BoxShape.circle,
-                    border: Border.all(color: primary.withValues(alpha: 0.4), width: 3),
-                    boxShadow: [BoxShadow(
-                        color: primary.withValues(alpha: 0.35), blurRadius: 20)],
+                    border: Border.all(
+                        color: primary.withValues(alpha: 0.4), width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                          color: primary.withValues(alpha: 0.35),
+                          blurRadius: 20)
+                    ],
                   ),
                   child: Center(
                     child: Text(user.initials,
-                        style: AppTextStyles.display(30, color: Colors.white, context: context)),
+                        style: AppTextStyles.display(30,
+                            color: Colors.white, context: context)),
                   ),
                 ),
               ),
               PositionedDirectional(
-                bottom: 0, end: 0,
+                bottom: 0,
+                end: 0,
                 child: GestureDetector(
                   onTap: _pickAvatar,
                   child: Container(
-                    width: 28, height: 28,
+                    width: 28,
+                    height: 28,
                     decoration: BoxDecoration(
                       color: second,
                       shape: BoxShape.circle,
                       border: Border.all(color: bg, width: 2),
                     ),
-                    child: const Icon(Icons.camera_alt, size: 14, color: Colors.black),
+                    child: const Icon(Icons.camera_alt,
+                        size: 14, color: Colors.black),
                   ),
                 ),
               ),
             ]),
           ),
           const SizedBox(height: 6),
-          Center(child: Text(l.tapToChangePhoto,
-              style: AppTextStyles.body(15, color: muted, context: context))),
+          Center(
+              child: Text(l.tapToChangePhoto,
+                  style:
+                      AppTextStyles.body(15, color: muted, context: context))),
           const SizedBox(height: 24),
 
           // ── Personal info ──────────────────────────────────────────────
@@ -210,31 +265,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
           context.isSmallPhone
               ? Column(children: [
                   Row(children: [
-                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      _FieldLabel(l.studentId.toUpperCase()),
-                      const SizedBox(height: 6),
-                      _ReadOnly(user.studentId),
-                    ])),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          _FieldLabel(l.studentId.toUpperCase()),
+                          const SizedBox(height: 6),
+                          _ReadOnly(user.studentId),
+                        ])),
                     const SizedBox(width: 12),
-                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      _FieldLabel(l.email.toUpperCase()),
-                      const SizedBox(height: 6),
-                      _ReadOnly(user.email, overflow: true),
-                    ])),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          _FieldLabel(l.email.toUpperCase()),
+                          const SizedBox(height: 6),
+                          _ReadOnly(user.email, overflow: true),
+                        ])),
                   ]),
                 ])
               : Row(children: [
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    _FieldLabel(l.studentId.toUpperCase()),
-                    const SizedBox(height: 6),
-                    _ReadOnly(user.studentId),
-                  ])),
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        _FieldLabel(l.studentId.toUpperCase()),
+                        const SizedBox(height: 6),
+                        _ReadOnly(user.studentId),
+                      ])),
                   const SizedBox(width: 14),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    _FieldLabel(l.email.toUpperCase()),
-                    const SizedBox(height: 6),
-                    _ReadOnly(user.email, overflow: true),
-                  ])),
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        _FieldLabel(l.email.toUpperCase()),
+                        const SizedBox(height: 6),
+                        _ReadOnly(user.email, overflow: true),
+                      ])),
                 ]),
           const SizedBox(height: 14),
 
@@ -250,47 +317,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
           context.isSmallPhone
               ? Column(children: [
                   Row(children: [
-                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      _FieldLabel(l.faculty.toUpperCase()),
-                      const SizedBox(height: 6),
-                      _DropdownField(
-                        value: _faculty,
-                        items: _faculties,
-                        onChanged: (v) => setState(() => _faculty = v ?? _faculty),
-                      ),
-                    ])),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          _FieldLabel(l.faculty.toUpperCase()),
+                          const SizedBox(height: 6),
+                          _DropdownField(
+                            value: _faculty,
+                            items: _faculties,
+                            onChanged: (v) =>
+                                setState(() => _faculty = v ?? _faculty),
+                          ),
+                        ])),
                     const SizedBox(width: 12),
-                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      _FieldLabel(l.semester.toUpperCase()),
-                      const SizedBox(height: 6),
-                      _DropdownField(
-                        value: _semester,
-                        items: _semesters,
-                        onChanged: (v) => setState(() => _semester = v ?? _semester),
-                      ),
-                    ])),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          _FieldLabel(l.semester.toUpperCase()),
+                          const SizedBox(height: 6),
+                          _DropdownField(
+                            value: _semester,
+                            items: _semesters,
+                            onChanged: (v) =>
+                                setState(() => _semester = v ?? _semester),
+                          ),
+                        ])),
                   ]),
                 ])
               : Row(children: [
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    _FieldLabel(l.faculty.toUpperCase()),
-                    const SizedBox(height: 6),
-                    _DropdownField(
-                      value: _faculty,
-                      items: kFaculties,
-                      onChanged: (v) => setState(() => _faculty = v ?? _faculty),
-                    ),
-                  ])),
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        _FieldLabel(l.faculty.toUpperCase()),
+                        const SizedBox(height: 6),
+                        _DropdownField(
+                          value: _faculty,
+                          items: kFaculties,
+                          onChanged: (v) =>
+                              setState(() => _faculty = v ?? _faculty),
+                        ),
+                      ])),
                   const SizedBox(width: 14),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    _FieldLabel(l.semester.toUpperCase()),
-                    const SizedBox(height: 6),
-                    _DropdownField(
-                      value: _semester,
-                      items: _semesters,
-                      onChanged: (v) => setState(() => _semester = v ?? _semester),
-                    ),
-                  ])),
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        _FieldLabel(l.semester.toUpperCase()),
+                        const SizedBox(height: 6),
+                        _DropdownField(
+                          value: _semester,
+                          items: _semesters,
+                          onChanged: (v) =>
+                              setState(() => _semester = v ?? _semester),
+                        ),
+                      ])),
                 ]),
           const SizedBox(height: 14),
 
@@ -314,13 +397,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(14),
             ),
             child: Column(children: [
-              _InfoRow('🎓  ${l.cgpa.toUpperCase()}', '${user.cgpa}'),
+              _InfoRow(l.cgpa.toUpperCase(), '${user.cgpa}'),
               Divider(height: 1, color: border),
-              _InfoRow('📚  ${l.creditHours}', user.creditHours),
+              _InfoRow(l.creditHours, user.creditHours),
               Divider(height: 1, color: border),
-              _InfoRow('🏅  ${l.points}', '${user.points}'),
+              _InfoRow(l.points, '${user.points}'),
               Divider(height: 1, color: border),
-              _InfoRow('🏆  ${l.rank}', '#${user.rank}'),
+              _InfoRow(l.rank, '#${user.rank}'),
             ]),
           ),
           const SizedBox(height: 28),
@@ -330,12 +413,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 14),
           Container(
             decoration: BoxDecoration(
-              color: surf, border: Border.all(color: border),
+              color: surf,
+              border: Border.all(color: border),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Column(children: [
               _Toggle(
-                emoji: '📅', label: l.reservationReminders,
+                icon: Icons.notifications_active_outlined,
+                label: l.pushNotifications,
+                sub: l.pushNotificationsDesc,
+                value: _pushEnabled,
+                color: primary,
+                onChanged: _onPushChanged,
+              ),
+              Divider(height: 1, color: border),
+              _Toggle(
+                icon: Icons.event_available_outlined,
+                label: l.reservationReminders,
                 sub: l.reservationRemindersDesc,
                 value: _notifReservations,
                 color: primary,
@@ -343,7 +437,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               Divider(height: 1, color: border),
               _Toggle(
-                emoji: '✅', label: l.registrationUpdates,
+                icon: Icons.assignment_turned_in_outlined,
+                label: l.registrationUpdates,
                 sub: l.registrationUpdatesDesc,
                 value: _notifRegistrations,
                 color: second,
@@ -351,7 +446,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               Divider(height: 1, color: border),
               _Toggle(
-                emoji: '🏆', label: l.upcomingEvents,
+                icon: Icons.emoji_events_outlined,
+                label: l.upcomingEvents,
                 sub: l.upcomingEventsDesc,
                 value: _notifEvents,
                 color: context.accentColor,
@@ -359,7 +455,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               Divider(height: 1, color: border),
               _Toggle(
-                emoji: '📋', label: l.requiredForms,
+                icon: Icons.assignment_outlined,
+                label: l.requiredForms,
                 sub: l.requiredFormsDesc,
                 value: _notifForms,
                 color: const Color(0xFF7C4DFF),
@@ -374,23 +471,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 14),
           Container(
             decoration: BoxDecoration(
-              color: surf, border: Border.all(color: border),
+              color: surf,
+              border: Border.all(color: border),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Column(children: [
               _Toggle(
-                emoji: '👁️', label: l.showMyProfile,
+                icon: Icons.visibility_outlined,
+                label: l.showMyProfile,
                 sub: l.showMyProfileDesc,
-                value: _showProfile, color: primary,
+                value: _showProfile,
+                color: primary,
                 onChanged: (v) => setState(() => _showProfile = v),
               ),
               Divider(height: 1, color: border),
               _Toggle(
-                emoji: '📊', label: l.showMyStats,
+                icon: Icons.insights_outlined,
+                label: l.showMyStats,
                 sub: l.showMyStatsDesc,
-                value: _showStats, color: second,
+                value: _showStats,
+                color: second,
                 onChanged: (v) => setState(() => _showStats = v),
               ),
+            ]),
+          ),
+          const SizedBox(height: 28),
+
+          // ── Legal documents (privacy / terms / refund / cookies) ──────
+          _SectionTitle(l.legal),
+          const SizedBox(height: 14),
+          Container(
+            decoration: BoxDecoration(
+              color: surf,
+              border: Border.all(color: border),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(children: [
+              for (var i = 0; i < LegalDocumentKind.values.length; i++) ...[
+                if (i > 0) Divider(height: 1, color: border),
+                Builder(builder: (context) {
+                  final kind = LegalDocumentKind.values[i];
+                  return ListTile(
+                    leading: Icon(_legalIcon(kind), size: 20, color: primary),
+                    title: Text(
+                      LegalContent.titleOf(
+                          kind, Localizations.localeOf(context).languageCode),
+                      style: AppTextStyles.body(15,
+                          color: txt,
+                          weight: FontWeight.w500,
+                          context: context),
+                    ),
+                    subtitle: i == 0
+                        ? Text(l.legalDocumentsSubtitle,
+                            style: AppTextStyles.body(12,
+                                color: muted, context: context))
+                        : null,
+                    trailing: Icon(
+                      Localizations.localeOf(context).languageCode == 'ar'
+                          ? Icons.chevron_left
+                          : Icons.chevron_right,
+                      color: muted,
+                      size: 18,
+                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LegalDocumentScreen(kind: kind),
+                      ),
+                    ),
+                  );
+                }),
+              ],
             ]),
           ),
           const SizedBox(height: 28),
@@ -400,7 +553,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 14),
           Container(
             decoration: BoxDecoration(
-              color: surf, border: Border.all(color: border),
+              color: surf,
+              border: Border.all(color: border),
               borderRadius: BorderRadius.circular(14),
             ),
             child: _LanguageSwitcher(),
@@ -412,69 +566,160 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 14),
           Container(
             decoration: BoxDecoration(
-              color: surf, border: Border.all(color: border),
+              color: surf,
+              border: Border.all(color: border),
               borderRadius: BorderRadius.circular(14),
             ),
             child: ListTile(
-              leading: Icon(isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, size: 20),
+              leading: Icon(
+                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                  size: 20),
               title: Text(isDark ? l.darkMode : l.lightMode,
-                  style: AppTextStyles.body(16, color: txt, weight: FontWeight.w500, context: context)),
+                  style: AppTextStyles.body(16,
+                      color: txt, weight: FontWeight.w500, context: context)),
               subtitle: Text(l.tapToSwitch,
-                  style: AppTextStyles.body(15, color: muted, context: context)),
+                  style:
+                      AppTextStyles.body(15, color: muted, context: context)),
               trailing: Switch(
                 value: isDark,
                 onChanged: (_) => context.read<ThemeProvider>().toggleTheme(),
                 activeThumbColor: primary,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             ),
           ),
           const SizedBox(height: 32),
 
           // ── About ────────────────────────────────────────────────────────
-          GestureDetector(
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const AboutScreen())),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
+          Semantics(
+            button: true,
+            label: Localizations.localeOf(context).languageCode == 'ar'
+                ? 'حول التطبيق'
+                : 'About this app',
+            child: ExcludeSemantics(
+              child: Material(
                 color: surf,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: border),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const AboutScreen())),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: surf,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: border),
+                    ),
+                    child: Row(children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(colors: [primary, second]),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Center(
+                            child: Icon(Icons.stadium_rounded,
+                                color: Colors.white, size: 18)),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                            Text(
+                              Localizations.localeOf(context).languageCode ==
+                                      'ar'
+                                  ? 'حول MUSTER'
+                                  : 'About MUSTER',
+                              style: AppTextStyles.body(15,
+                                  color: txt,
+                                  weight: FontWeight.w600,
+                                  context: context),
+                            ),
+                            Text(
+                              Localizations.localeOf(context).languageCode ==
+                                      'ar'
+                                  ? 'الفريق، الإصدار والمساهمون'
+                                  : 'Team, version & credits',
+                              style: AppTextStyles.body(12,
+                                  color: muted, context: context),
+                            ),
+                          ])),
+                      Icon(
+                        Localizations.localeOf(context).languageCode == 'ar'
+                            ? Icons.chevron_left
+                            : Icons.chevron_right,
+                        color: muted,
+                        size: 20,
+                      ),
+                    ]),
+                  ),
+                ),
               ),
-              child: Row(children: [
-                Container(
-                  width: 36, height: 36,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [primary, second]),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(child: Icon(Icons.stadium_rounded, color: Colors.white, size: 18)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(
-                    Localizations.localeOf(context).languageCode == 'ar'
-                        ? 'حول MUSTER'
-                        : 'About MUSTER',
-                    style: AppTextStyles.body(15, color: txt, weight: FontWeight.w600, context: context),
-                  ),
-                  Text(
-                    Localizations.localeOf(context).languageCode == 'ar'
-                        ? 'الفريق، الإصدار والمساهمون'
-                        : 'Team, version & credits',
-                    style: AppTextStyles.body(12, color: muted, context: context),
-                  ),
-                ])),
-                Icon(
-                  Localizations.localeOf(context).languageCode == 'ar'
-                      ? Icons.chevron_left
-                      : Icons.chevron_right,
-                  color: muted,
-                  size: 20,
-                ),
-              ]),
             ),
+          ),
+          const SizedBox(height: 14),
+
+          // ── Open Source Licenses ────────────────────────────────────────
+          _NavRow(
+            icon: Icons.balance_rounded,
+            title: l.licenses,
+            subtitle: l.licensesIntro,
+            onTap: () => showLicensePage(
+              context: context,
+              applicationName: 'MUSTER Sport',
+              applicationVersion: '1.0.0',
+              applicationLegalese: '© 2026 MUSTER Team — MUST University',
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // ── Delete account (Play in-app data removal requirement) ──────
+          _DangerRow(
+            icon: Icons.delete_forever_rounded,
+            title: l.deleteAccount,
+            subtitle: l.deleteAccountWarning,
+            onTap: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (dialogCtx) => AlertDialog(
+                  backgroundColor: dialogCtx.surfaceColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18)),
+                  title: Text(l.deleteAccountConfirmTitle,
+                      style: AppTextStyles.heading(17,
+                          color: dialogCtx.textColor, context: dialogCtx)),
+                  content: Text(l.deleteAccountConfirmBody,
+                      style: AppTextStyles.body(14,
+                          color: dialogCtx.mutedColor, context: dialogCtx)),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(dialogCtx).pop(false),
+                      child: Text(l.deleteAccountCancel,
+                          style: AppTextStyles.body(14,
+                              color: dialogCtx.mutedColor, context: dialogCtx)),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(dialogCtx).pop(true),
+                      child: Text(l.deleteAccount,
+                          style: AppTextStyles.body(14,
+                              weight: FontWeight.w700,
+                              color: dialogCtx.errorColor,
+                              context: dialogCtx)),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed != true || !context.mounted) return;
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DeleteAccountScreen()),
+              );
+            },
           ),
           const SizedBox(height: 20),
 
@@ -488,15 +733,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 foregroundColor: Colors.black,
                 elevation: 0,
                 disabledBackgroundColor: second.withValues(alpha: 0.5),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
               ),
               child: _saving
-                  ? SizedBox(width: 22, height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2.5,
+                  ? SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
                           color: Colors.black.withValues(alpha: 0.6)))
                   : Text(l.saveChanges,
-                      style: AppTextStyles.body(16, color: Colors.black,
-                          weight: FontWeight.w700, context: context)),
+                      style: AppTextStyles.body(16,
+                          color: Colors.black,
+                          weight: FontWeight.w700,
+                          context: context)),
             ),
           ),
         ],
@@ -508,55 +759,217 @@ class _SettingsScreenState extends State<SettingsScreen> {
       InputDecoration(
         hintText: hint,
         hintStyle: AppTextStyles.body(16, color: context.mutedColor),
-        filled: true, fillColor: context.surfaceColor,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
+        filled: true,
+        fillColor: context.surfaceColor,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: context.borderColor)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: context.primaryColor, width: 1.5)),
       );
 }
 
 // ─── AVATAR PICKER SHEET ─────────────────────────────────────────────────────
+/// Settings entry that navigates somewhere. Wrapped in [InkWell] so it is
+/// focusable and reachable by keyboard/switch access, with an explicit
+/// [Semantics] button role for screen readers.
+class _NavRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _NavRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: title,
+      child: ExcludeSemantics(
+        child: Material(
+          color: context.surfaceColor,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: context.borderColor),
+              ),
+              child: Row(children: [
+                Icon(icon, size: 20, color: context.primaryColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title,
+                          style: AppTextStyles.body(15,
+                              color: context.textColor,
+                              weight: FontWeight.w600,
+                              context: context)),
+                      const SizedBox(height: 2),
+                      Text(subtitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body(12,
+                              color: context.mutedSubtleColor,
+                              context: context)),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Localizations.localeOf(context).languageCode == 'ar'
+                      ? Icons.chevron_left
+                      : Icons.chevron_right,
+                  color: context.mutedColor,
+                  size: 20,
+                ),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Destructive settings entry. Uses the error colour for the icon and title so
+/// the consequence is clear before the row is activated.
+class _DangerRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _DangerRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: title,
+      child: ExcludeSemantics(
+        child: Material(
+          color: context.errorColor.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                    color: context.errorColor.withValues(alpha: 0.40)),
+              ),
+              child: Row(children: [
+                Icon(icon, size: 20, color: context.errorColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title,
+                          style: AppTextStyles.body(15,
+                              color: context.errorColor,
+                              weight: FontWeight.w700,
+                              context: context)),
+                      const SizedBox(height: 2),
+                      Text(subtitle,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body(12,
+                              color: context.mutedColor, context: context)),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Localizations.localeOf(context).languageCode == 'ar'
+                      ? Icons.chevron_left
+                      : Icons.chevron_right,
+                  color: context.errorColor,
+                  size: 20,
+                ),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _AvatarPickerSheet extends StatelessWidget {
   static const _colors = [
-    Color(0xFF00E5FF), Color(0xFFA8FF3E), Color(0xFFFFB800),
-    Color(0xFFFF4757), Color(0xFF7C4DFF), Color(0xFFFF6B35),
-    Color(0xFF00BCD4), Color(0xFF4CAF50),
+    Color(0xFF00E5FF),
+    Color(0xFFA8FF3E),
+    Color(0xFFFFB800),
+    Color(0xFFFF4757),
+    Color(0xFF7C4DFF),
+    Color(0xFFFF6B35),
+    Color(0xFF00BCD4),
+    Color(0xFF4CAF50),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final l      = AppLocalizations.of(context)!;
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
+    final l = AppLocalizations.of(context)!;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
     final border = context.borderColor;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 40, height: 4,
-            decoration: BoxDecoration(color: border,
-                borderRadius: BorderRadius.circular(2)),
+        Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+                color: border, borderRadius: BorderRadius.circular(2)),
             margin: const EdgeInsets.only(bottom: 20)),
-        Text(l.chooseAvatarColor,
-            style: AppTextStyles.heading(18, color: txt)),
+        Text(l.chooseAvatarColor, style: AppTextStyles.heading(18, color: txt)),
         const SizedBox(height: 6),
-        Text(l.uploadComingSoon,
-            style: AppTextStyles.body(16, color: muted)),
+        Text(l.uploadComingSoon, style: AppTextStyles.body(16, color: muted)),
         const SizedBox(height: 20),
-        Wrap(spacing: 16, runSpacing: 16, children: _colors.map((c) =>
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 52, height: 52,
-              decoration: BoxDecoration(
-                color: c, shape: BoxShape.circle,
-                boxShadow: [BoxShadow(color: c.withValues(alpha: 0.5), blurRadius: 12)],
-              ),
-            ),
-          ),
-        ).toList()),
+        Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: _colors
+                .map(
+                  (c) => GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: c,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                              color: c.withValues(alpha: 0.5), blurRadius: 12)
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+                .toList()),
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
@@ -568,7 +981,8 @@ class _AvatarPickerSheet extends StatelessWidget {
               foregroundColor: muted,
               side: BorderSide(color: border),
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
           ),
         ),
@@ -583,7 +997,8 @@ class _SectionTitle extends StatelessWidget {
   const _SectionTitle(this.text);
   @override
   Widget build(BuildContext context) => Text(text,
-      style: AppTextStyles.heading(15, color: context.textColor, context: context));
+      style: AppTextStyles.heading(15,
+          color: context.textColor, context: context));
 }
 
 class _FieldLabel extends StatelessWidget {
@@ -600,71 +1015,87 @@ class _ReadOnly extends StatelessWidget {
   const _ReadOnly(this.value, {this.overflow = false});
   @override
   Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-    decoration: BoxDecoration(
-      color: context.surfaceColor.withValues(alpha: 0.5),
-      border: Border.all(color: context.borderColor),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Text(value,
-        style: AppTextStyles.body(context.isSmallPhone ? 13 : 15, color: context.mutedColor, context: context),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis),
-  );
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        decoration: BoxDecoration(
+          color: context.surfaceColor.withValues(alpha: 0.5),
+          border: Border.all(color: context.borderColor),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(value,
+            style: AppTextStyles.body(context.isSmallPhone ? 13 : 15,
+                color: context.mutedColor, context: context),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
+      );
 }
 
 class _InputField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final TextInputType? keyboardType;
-  const _InputField({required this.controller, required this.hint,
-      this.keyboardType});
+  const _InputField(
+      {required this.controller, required this.hint, this.keyboardType});
   @override
   Widget build(BuildContext context) => TextField(
-    controller: controller,
-    keyboardType: keyboardType,
-    style: AppTextStyles.body(context.isSmallPhone ? 15 : 16, color: context.textColor, context: context),
-    decoration: InputDecoration(
-      hintText: hint,
-      hintStyle: AppTextStyles.body(16, color: context.mutedColor, context: context),
-      filled: true, fillColor: context.surfaceColor,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: context.borderColor)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: context.primaryColor, width: 1.5)),
-    ),
-  );
+        controller: controller,
+        keyboardType: keyboardType,
+        style: AppTextStyles.body(context.isSmallPhone ? 15 : 16,
+            color: context.textColor, context: context),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: AppTextStyles.body(16,
+              color: context.mutedColor, context: context),
+          filled: true,
+          fillColor: context.surfaceColor,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: context.borderColor)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: context.primaryColor, width: 1.5)),
+        ),
+      );
 }
 
 class _DropdownField extends StatelessWidget {
   final String value;
   final List<String> items;
   final void Function(String?) onChanged;
-  const _DropdownField({required this.value, required this.items,
-      required this.onChanged});
+  const _DropdownField(
+      {required this.value, required this.items, required this.onChanged});
   @override
   Widget build(BuildContext context) => DropdownButtonFormField<String>(
-    initialValue: value,
-    isExpanded: true,
-    style: AppTextStyles.body(context.isSmallPhone ? 13 : 15, color: context.textColor, context: context),
-    dropdownColor: context.surfaceColor,
-    decoration: InputDecoration(
-      filled: true, fillColor: context.surfaceColor,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: context.borderColor)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: context.primaryColor, width: 1.5)),
-    ),
-    items: items.map((i) => DropdownMenuItem(value: i,
-        child: Text(i, 
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.body(context.isSmallPhone ? 12 : 13, color: context.textColor, context: context)))).toList(),
-    onChanged: onChanged,
-  );
+        initialValue: value,
+        isExpanded: true,
+        style: AppTextStyles.body(context.isSmallPhone ? 13 : 15,
+            color: context.textColor, context: context),
+        dropdownColor: context.surfaceColor,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: context.surfaceColor,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: context.borderColor)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: context.primaryColor, width: 1.5)),
+        ),
+        items: items
+            .map((i) => DropdownMenuItem(
+                value: i,
+                child: Text(i,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.body(context.isSmallPhone ? 12 : 13,
+                        color: context.textColor, context: context))))
+            .toList(),
+        onChanged: onChanged,
+      );
 }
 
 class _InfoRow extends StatelessWidget {
@@ -672,36 +1103,39 @@ class _InfoRow extends StatelessWidget {
   const _InfoRow(this.label, this.value);
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 5,
-          child: Text(
-            label,
-            style: AppTextStyles.body(15, color: context.mutedColor, context: context),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Text(
+                label,
+                style: AppTextStyles.body(15,
+                    color: context.mutedColor, context: context),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 4,
+              child: Text(
+                value,
+                style: AppTextStyles.body(15,
+                    color: context.textColor,
+                    weight: FontWeight.w600,
+                    context: context),
+                textAlign: Localizations.localeOf(context).languageCode == 'ar'
+                    ? TextAlign.left
+                    : TextAlign.right,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 4,
-          child: Text(
-            value,
-            style: AppTextStyles.body(15, color: context.textColor,
-                weight: FontWeight.w600, context: context),
-            textAlign: Localizations.localeOf(context).languageCode == 'ar'
-                ? TextAlign.left
-                : TextAlign.right,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    ),
-  );
+      );
 }
 
 // ─── LANGUAGE SWITCHER ────────────────────────────────────────────────────────
@@ -709,10 +1143,10 @@ class _LanguageSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
-    final l             = AppLocalizations.of(context)!;
-    final isArabic      = themeProvider.isArabic;
-    final txt           = context.textColor;
-    final border        = context.borderColor;
+    final l = AppLocalizations.of(context)!;
+    final isArabic = themeProvider.isArabic;
+    final txt = context.textColor;
+    final border = context.borderColor;
 
     return Column(children: [
       _LangOption(
@@ -744,9 +1178,13 @@ class _LangOption extends StatelessWidget {
   final Color border, txt;
 
   const _LangOption({
-    required this.flag, required this.label, required this.selected,
-    required this.onTap, required this.showDivider,
-    required this.border, required this.txt,
+    required this.flag,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    required this.showDivider,
+    required this.border,
+    required this.txt,
   });
 
   @override
@@ -757,13 +1195,15 @@ class _LangOption extends StatelessWidget {
         ListTile(
           leading: Text(flag, style: const TextStyle(fontSize: 22)),
           title: Text(label,
-              style: AppTextStyles.body(16, color: txt, weight: FontWeight.w500, context: context)),
+              style: AppTextStyles.body(16,
+                  color: txt, weight: FontWeight.w500, context: context)),
           trailing: selected
               ? Icon(Icons.check_circle, color: primary, size: 22)
               : Icon(Icons.radio_button_unchecked,
                   color: context.mutedColor, size: 22),
           onTap: onTap,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         ),
         if (showDivider) Divider(height: 1, color: border),
       ],
@@ -772,28 +1212,50 @@ class _LangOption extends StatelessWidget {
 }
 
 class _Toggle extends StatelessWidget {
-  final String emoji, label, sub;
+  final IconData icon;
+  final String label, sub;
   final bool value;
   final Color color;
   final void Function(bool) onChanged;
-  const _Toggle({required this.emoji, required this.label, required this.sub,
-      required this.value, required this.color, required this.onChanged});
+  const _Toggle(
+      {required this.icon,
+      required this.label,
+      required this.sub,
+      required this.value,
+      required this.color,
+      required this.onChanged});
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    child: Row(children: [
-      Text(emoji, style: const TextStyle(fontSize: 18)),
-      const SizedBox(width: 12),
-      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(label, style: AppTextStyles.body(15, color: context.textColor,
-            weight: FontWeight.w600, context: context)),
-        Text(sub, style: AppTextStyles.body(15, color: context.mutedColor, context: context)),
-      ])),
-      Switch(
-        value: value, onChanged: onChanged,
-        activeThumbColor: color,
-        trackOutlineColor: WidgetStateProperty.all(context.borderColor),
-      ),
-    ]),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(children: [
+          Icon(icon, size: 20, color: color),
+          const SizedBox(width: 14),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(label,
+                    style: AppTextStyles.body(15,
+                        color: context.textColor,
+                        weight: FontWeight.w600,
+                        context: context)),
+                Text(sub,
+                    style: AppTextStyles.body(15,
+                        color: context.mutedColor, context: context)),
+              ])),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeThumbColor: color,
+            trackOutlineColor: WidgetStateProperty.all(context.borderColor),
+          ),
+        ]),
+      );
 }
+
+IconData _legalIcon(LegalDocumentKind kind) => switch (kind) {
+      LegalDocumentKind.privacy => Icons.privacy_tip_outlined,
+      LegalDocumentKind.terms => Icons.gavel_rounded,
+      LegalDocumentKind.refund => Icons.receipt_long_outlined,
+      LegalDocumentKind.cookies => Icons.cookie_outlined,
+    };

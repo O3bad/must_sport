@@ -33,28 +33,30 @@ class _ParticipationHistoryScreenState extends State<ParticipationHistoryScreen>
 
   @override
   Widget build(BuildContext context) {
-    final l        = AppLocalizations.of(context)!;
-    final state    = context.watch<AppState>();
+    final l = AppLocalizations.of(context)!;
+    final state = context.watch<AppState>();
     final regState = context.watch<ActivityRegistrationState>();
-    final user     = state.user;
-    final txt      = context.textColor;
-    final muted    = context.mutedColor;
-    final bg       = context.bgColor;
-    final primary  = context.primaryColor;
-    final second   = context.secondaryColor;
-    final accent   = context.accentColor;
-    final border   = context.borderColor;
-    final hPad     = context.hPadding;
+    final user = state.user;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
+    final bg = context.bgColor;
+    final primary = context.primaryColor;
+    final second = context.secondaryColor;
+    final accent = context.accentColor;
+    final border = context.borderColor;
+    final hPad = context.hPadding;
 
-    final myRegs    = regState.forStudent(user.email);
-    final approved  = myRegs.where((r) => r.status == RegistrationStatus.approved).toList();
-    final events    = state.enrolledEvents;
-    final bookings  = state.bookings;
+    final myRegs = regState.forStudent(user.email);
+    final approved =
+        myRegs.where((r) => r.status == RegistrationStatus.approved).toList();
+    final events = state.enrolledEvents;
+    final bookings = state.bookings;
 
     // Summary stats
     final totalParticipation = approved.length + events.length;
-    final sportsCount = approved.where((r) => !r.activity.category.isArts).length;
-    final artsCount   = approved.where((r) =>  r.activity.category.isArts).length;
+    final sportsCount =
+        approved.where((r) => !r.activity.category.isArts).length;
+    final artsCount = approved.where((r) => r.activity.category.isArts).length;
 
     return Scaffold(
       backgroundColor: bg,
@@ -102,20 +104,35 @@ class _ParticipationHistoryScreenState extends State<ParticipationHistoryScreen>
                   crossAxisSpacing: 8,
                   childAspectRatio: 2.2,
                   children: [
-                    _SummaryPill(Icons.emoji_events_rounded, '$totalParticipation', 'Total', primary),
-                    _SummaryPill(Icons.sports_rounded, '$sportsCount', 'Sports', second),
-                    _SummaryPill(Icons.theater_comedy_rounded, '$artsCount', 'Arts', accent),
-                    _SummaryPill(Icons.leaderboard_rounded, '${events.length}', 'Events', const Color(0xFFFFB547)),
+                    _SummaryPill(Icons.emoji_events_rounded,
+                        '$totalParticipation', 'Total', primary),
+                    _SummaryPill(
+                        Icons.sports_rounded, '$sportsCount', 'Sports', second),
+                    _SummaryPill(Icons.theater_comedy_rounded, '$artsCount',
+                        'Arts', accent),
+                    _SummaryPill(Icons.leaderboard_rounded, '${events.length}',
+                        'Events', const Color(0xFFFFB547)),
                   ],
                 )
               : Row(children: [
-                  Expanded(child: _SummaryPill(Icons.emoji_events_rounded, '$totalParticipation', 'Total', primary)),
+                  Expanded(
+                      child: _SummaryPill(Icons.emoji_events_rounded,
+                          '$totalParticipation', 'Total', primary)),
                   const SizedBox(width: 8),
-                  Expanded(child: _SummaryPill(Icons.sports_rounded, '$sportsCount', 'Sports', second)),
+                  Expanded(
+                      child: _SummaryPill(Icons.sports_rounded, '$sportsCount',
+                          'Sports', second)),
                   const SizedBox(width: 8),
-                  Expanded(child: _SummaryPill(Icons.theater_comedy_rounded, '$artsCount', 'Arts', accent)),
+                  Expanded(
+                      child: _SummaryPill(Icons.theater_comedy_rounded,
+                          '$artsCount', 'Arts', accent)),
                   const SizedBox(width: 8),
-                  Expanded(child: _SummaryPill(Icons.leaderboard_rounded, '${events.length}', 'Events', const Color(0xFFFFB547))),
+                  Expanded(
+                      child: _SummaryPill(
+                          Icons.leaderboard_rounded,
+                          '${events.length}',
+                          'Events',
+                          const Color(0xFFFFB547))),
                 ]),
         ),
         Divider(height: 1, color: border),
@@ -126,32 +143,41 @@ class _ParticipationHistoryScreenState extends State<ParticipationHistoryScreen>
             children: [
               // Activities tab
               approved.isEmpty
-                  ? const _EmptyTab(icon: Icons.sports_rounded, message: 'No approved activity registrations yet.')
+                  ? const _EmptyTab(
+                      icon: Icons.sports_rounded,
+                      message: 'No approved activity registrations yet.')
                   : ListView.separated(
                       padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 100),
                       itemCount: approved.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (_, i) => _ActivityHistoryCard(reg: approved[i]),
+                      itemBuilder: (_, i) =>
+                          _ActivityHistoryCard(reg: approved[i]),
                     ),
 
               // Events tab
               events.isEmpty
-                  ? const _EmptyTab(icon: Icons.emoji_events_rounded, message: 'You haven\'t enrolled in any events yet.')
+                  ? const _EmptyTab(
+                      icon: Icons.emoji_events_rounded,
+                      message: 'You haven\'t enrolled in any events yet.')
                   : ListView.separated(
                       padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 100),
                       itemCount: events.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (_, i) => _EventHistoryCard(event: events[i]),
+                      itemBuilder: (_, i) =>
+                          _EventHistoryCard(event: events[i]),
                     ),
 
               // Bookings tab
               bookings.isEmpty
-                  ? const _EmptyTab(icon: Icons.calendar_month_rounded, message: 'No facility bookings yet.')
+                  ? const _EmptyTab(
+                      icon: Icons.calendar_month_rounded,
+                      message: 'No facility bookings yet.')
                   : ListView.separated(
                       padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 100),
                       itemCount: bookings.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (_, i) => _BookingHistoryCard(booking: bookings[i]),
+                      itemBuilder: (_, i) =>
+                          _BookingHistoryCard(booking: bookings[i]),
                     ),
             ],
           ),
@@ -170,27 +196,27 @@ class _SummaryPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(vertical: 10),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.1),
-      border: Border.all(color: color.withValues(alpha: 0.3)),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Icon(icon, color: color, size: 18),
-      const SizedBox(height: 2),
-      Text(value,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.heading(16, color: color)),
-      Text(label,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.body(9.5, color: color)),
-    ]),
-  );
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(icon, color: color, size: 18),
+          const SizedBox(height: 2),
+          Text(value,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.heading(16, color: color)),
+          Text(label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.body(9.5, color: color)),
+        ]),
+      );
 }
 
 // ─── ACTIVITY HISTORY CARD ────────────────────────────────────────────────────
@@ -200,9 +226,9 @@ class _ActivityHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
-    final surf   = context.surfaceColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
+    final surf = context.surfaceColor;
     final second = context.secondaryColor;
     final accent = context.accentColor;
     final isArts = reg.activity.category.isArts;
@@ -217,17 +243,22 @@ class _ActivityHistoryCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       child: Row(children: [
         Container(
-          width: 48, height: 48,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
             color: c.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(13),
           ),
-          child: Center(child: Icon(reg.activity.category.icon, color: c, size: 24)),
+          child: Center(
+              child: Icon(reg.activity.category.icon, color: c, size: 24)),
         ),
         const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(reg.activity.name,
-              maxLines: 1, overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.heading(14, color: txt)),
           const SizedBox(height: 3),
           Row(children: [
@@ -256,7 +287,7 @@ class _ActivityHistoryCard extends StatelessWidget {
             runSpacing: 6,
             children: [
               _SmallTag('Level: ${reg.level}', c),
-              _SmallTag('✅ Enrolled', second),
+              _SmallTag('Enrolled', second),
             ],
           ),
         ])),
@@ -277,15 +308,15 @@ class _EventHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
-    final surf   = context.surfaceColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
+    final surf = context.surfaceColor;
     final accent = context.accentColor;
 
     final statusColor = switch (event.status) {
-      EventStatus.open      => context.primaryColor,
-      EventStatus.full      => context.errorColor,
-      EventStatus.soon      => const Color(0xFFFFB547),
+      EventStatus.open => context.primaryColor,
+      EventStatus.full => context.errorColor,
+      EventStatus.soon => const Color(0xFFFFB547),
       EventStatus.completed => context.mutedColor,
     };
 
@@ -298,17 +329,22 @@ class _EventHistoryCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       child: Row(children: [
         Container(
-          width: 48, height: 48,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
             color: accent.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(13),
           ),
-          child: Center(child: Icon(event.sportType.icon, color: accent, size: 24)),
+          child: Center(
+              child: Icon(event.sportType.icon, color: accent, size: 24)),
         ),
         const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(event.title,
-              maxLines: 1, overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyles.heading(14, color: txt)),
           const SizedBox(height: 3),
           Row(children: [
@@ -357,38 +393,51 @@ class _BookingHistoryCard extends StatelessWidget {
 
   static IconData _facilityIcon(String name) {
     final n = name.toLowerCase();
-    if (n.contains('football'))   return Icons.sports_soccer_rounded;
-    if (n.contains('padel'))      return Icons.sports_tennis_rounded;
+    if (n.contains('football')) return Icons.sports_soccer_rounded;
+    if (n.contains('padel')) return Icons.sports_tennis_rounded;
     if (n.contains('basketball')) return Icons.sports_basketball_rounded;
     if (n.contains('volleyball')) return Icons.sports_volleyball_rounded;
     if (n.contains('pool') || n.contains('swim')) return Icons.pool_rounded;
-    if (n.contains('gym'))        return Icons.fitness_center_rounded;
+    if (n.contains('gym')) return Icons.fitness_center_rounded;
     return Icons.stadium_rounded;
   }
 
   @override
   Widget build(BuildContext context) {
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
-    final surf   = context.surfaceColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
+    final surf = context.surfaceColor;
     final border = context.borderColor;
     final primary = context.primaryColor;
 
     final statusColor = switch (booking.status) {
       BookingStatus.confirmed => context.secondaryColor,
-      BookingStatus.pending   => const Color(0xFFFFB547),
+      BookingStatus.pending => const Color(0xFFFFB547),
       BookingStatus.cancelled => context.errorColor,
       BookingStatus.completed => context.mutedColor,
     };
     final statusLabel = switch (booking.status) {
       BookingStatus.confirmed => 'Confirmed',
-      BookingStatus.pending   => 'Pending',
+      BookingStatus.pending => 'Pending',
       BookingStatus.cancelled => 'Cancelled',
       BookingStatus.completed => 'Completed',
     };
 
-    const months = ['','Jan','Feb','Mar','Apr','May','Jun',
-        'Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     final dateStr =
         '${months[booking.date.month]} ${booking.date.day}, ${booking.date.year}';
     final facilityIcon = _facilityIcon(booking.facilityName);
@@ -402,7 +451,8 @@ class _BookingHistoryCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       child: Row(children: [
         Container(
-          width: 48, height: 48,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
             color: primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(13),
@@ -410,7 +460,9 @@ class _BookingHistoryCard extends StatelessWidget {
           child: Center(child: Icon(facilityIcon, color: primary, size: 24)),
         ),
         const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(booking.facilityName,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -455,17 +507,17 @@ class _SmallTag extends StatelessWidget {
   const _SmallTag(this.text, this.color);
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(5),
-    ),
-    child: Text(text,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.label(color: color)
-            .copyWith(fontSize: 9, letterSpacing: 0.3)),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Text(text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.label(color: color)
+                .copyWith(fontSize: 9, letterSpacing: 0.3)),
+      );
 }
 
 class _EmptyTab extends StatelessWidget {
@@ -474,17 +526,17 @@ class _EmptyTab extends StatelessWidget {
   const _EmptyTab({required this.icon, required this.message});
   @override
   Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, color: context.mutedColor, size: 52),
-        const SizedBox(height: 12),
-        Text(message,
-            style: AppTextStyles.body(16, color: context.mutedColor),
-            textAlign: TextAlign.center,
-            maxLines: 6,
-            overflow: TextOverflow.ellipsis),
-      ]),
-    ),
-  );
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, color: context.mutedColor, size: 52),
+            const SizedBox(height: 12),
+            Text(message,
+                style: AppTextStyles.body(16, color: context.mutedColor),
+                textAlign: TextAlign.center,
+                maxLines: 6,
+                overflow: TextOverflow.ellipsis),
+          ]),
+        ),
+      );
 }

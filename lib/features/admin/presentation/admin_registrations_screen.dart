@@ -9,7 +9,8 @@ import '../../../core/models/activity_models.dart';
 class AdminRegistrationsScreen extends StatefulWidget {
   const AdminRegistrationsScreen({super.key});
   @override
-  State<AdminRegistrationsScreen> createState() => _AdminRegistrationsScreenState();
+  State<AdminRegistrationsScreen> createState() =>
+      _AdminRegistrationsScreenState();
 }
 
 class _AdminRegistrationsScreenState extends State<AdminRegistrationsScreen>
@@ -23,27 +24,43 @@ class _AdminRegistrationsScreenState extends State<AdminRegistrationsScreen>
   }
 
   @override
-  void dispose() { _tab.dispose(); super.dispose(); }
+  void dispose() {
+    _tab.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final txt      = context.textColor;
-    final muted    = context.mutedColor;
-    final border   = context.borderColor;
-    final bg       = context.bgColor;
-    final primary  = context.primaryColor;
-    final isAr     = Localizations.localeOf(context).languageCode == 'ar';
+    final txt = context.textColor;
+    final muted = context.mutedColor;
+    final border = context.borderColor;
+    final bg = context.bgColor;
+    final primary = context.primaryColor;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final regState = context.watch<ActivityRegistrationState>();
-    final all      = regState.all;
-    final pending  = regState.pending;
-    final approved = all.where((r) => r.status == RegistrationStatus.approved).toList();
-    final rejected = all.where((r) => r.status == RegistrationStatus.rejected).toList();
+    final all = regState.all;
+    final pending = regState.pending;
+    final approved =
+        all.where((r) => r.status == RegistrationStatus.approved).toList();
+    final rejected =
+        all.where((r) => r.status == RegistrationStatus.rejected).toList();
 
     final tabs = [
-      (isAr ? 'الكل (${all.length})' : 'All (${all.length})',           all),
-      (isAr ? 'قيد الانتظار (${pending.length})' : 'Pending (${pending.length})',    pending),
-      (isAr ? 'مقبول (${approved.length})' : 'Approved (${approved.length})',  approved),
-      (isAr ? 'مرفوض (${rejected.length})' : 'Rejected (${rejected.length})',  rejected),
+      (isAr ? 'الكل (${all.length})' : 'All (${all.length})', all),
+      (
+        isAr
+            ? 'قيد الانتظار (${pending.length})'
+            : 'Pending (${pending.length})',
+        pending
+      ),
+      (
+        isAr ? 'مقبول (${approved.length})' : 'Approved (${approved.length})',
+        approved
+      ),
+      (
+        isAr ? 'مرفوض (${rejected.length})' : 'Rejected (${rejected.length})',
+        rejected
+      ),
     ];
 
     return Scaffold(
@@ -51,7 +68,8 @@ class _AdminRegistrationsScreenState extends State<AdminRegistrationsScreen>
       appBar: AppBar(
         backgroundColor: bg,
         surfaceTintColor: Colors.transparent,
-        title: Text(isAr ? 'التسجيلات' : 'Registrations', style: AppTextStyles.display(22, color: txt, context: context)),
+        title: Text(isAr ? 'التسجيلات' : 'Registrations',
+            style: AppTextStyles.display(22, color: txt, context: context)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: txt, size: 20),
           onPressed: () => context.read<AppState>().setNavIndex(0),
@@ -67,7 +85,8 @@ class _AdminRegistrationsScreenState extends State<AdminRegistrationsScreen>
               unselectedLabelColor: muted,
               indicatorColor: primary,
               indicatorSize: TabBarIndicatorSize.label,
-              labelStyle: AppTextStyles.body(15, weight: FontWeight.w700, context: context),
+              labelStyle: AppTextStyles.body(15,
+                  weight: FontWeight.w700, context: context),
               unselectedLabelStyle: AppTextStyles.body(13, context: context),
               tabAlignment: TabAlignment.start,
               tabs: tabs.map((t) => Tab(text: t.$1)).toList(),
@@ -93,10 +112,15 @@ class _AdminRegList extends StatelessWidget {
     final muted = context.mutedColor;
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     if (registrations.isEmpty) {
-      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+      return Center(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
         const Icon(Icons.inbox_rounded, size: 52, color: Color(0xFF5A7090)),
         const SizedBox(height: 12),
-        Text(isAr ? 'لا توجد تسجيلات في هذه الفئة' : 'No registrations in this category', style: AppTextStyles.body(15, color: muted, context: context)),
+        Text(
+            isAr
+                ? 'لا توجد تسجيلات في هذه الفئة'
+                : 'No registrations in this category',
+            style: AppTextStyles.body(15, color: muted, context: context)),
       ]));
     }
     return ListView.separated(
@@ -115,22 +139,23 @@ class _AdminRegCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
     final border = context.borderColor;
-    final surf   = context.surfaceColor;
+    final surf = context.surfaceColor;
     final second = context.secondaryColor;
-    final error  = context.errorColor;
+    final error = context.errorColor;
     final sColor = reg.status.color;
-    final isAr   = Localizations.localeOf(context).languageCode == 'ar';
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final regState = context.read<ActivityRegistrationState>();
 
     return Container(
       decoration: BoxDecoration(
         color: surf,
-        border: Border.all(color: reg.status == RegistrationStatus.pending
-            ? sColor.withValues(alpha: 0.5)
-            : border),
+        border: Border.all(
+            color: reg.status == RegistrationStatus.pending
+                ? sColor.withValues(alpha: 0.5)
+                : border),
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(16),
@@ -138,40 +163,58 @@ class _AdminRegCard extends StatelessWidget {
         // Header
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(
-          width: 44, height: 44,
-          decoration: BoxDecoration(
-            color: (reg.status == RegistrationStatus.approved ? const Color(0xFFA8FF3E) : const Color(0xFF00E5FF)).withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: (reg.status == RegistrationStatus.approved
+                      ? const Color(0xFFA8FF3E)
+                      : const Color(0xFF00E5FF))
+                  .withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+                child: Icon(reg.activity.category.icon,
+                    color: reg.activity.category.isArts
+                        ? const Color(0xFFA8FF3E)
+                        : const Color(0xFF00E5FF),
+                    size: 22)),
           ),
-          child: Center(child: Icon(reg.activity.category.icon,
-              color: reg.activity.category.isArts ? const Color(0xFFA8FF3E) : const Color(0xFF00E5FF), size: 22)),
-        ),
           const SizedBox(width: 10),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(reg.activity.name,
-                maxLines: 1, overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.heading(15, color: txt, context: context)),
-            Text(reg.studentName,
-                maxLines: 1, overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.body(15, color: txt, context: context)),
-            Text('${reg.studentId}  ·  ${reg.faculty}',
-                maxLines: 1, overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.body(15, color: muted, context: context)),
-          ])),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(reg.activity.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.heading(15,
+                        color: txt, context: context)),
+                Text(reg.studentName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        AppTextStyles.body(15, color: txt, context: context)),
+                Text('${reg.studentId}  ·  ${reg.faculty}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        AppTextStyles.body(15, color: muted, context: context)),
+              ])),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             _StatusBadge(status: reg.status),
             const SizedBox(height: 4),
-            Text(reg.dateLabel, style: AppTextStyles.body(10, color: muted, context: context)),
+            Text(reg.dateLabel,
+                style: AppTextStyles.body(10, color: muted, context: context)),
           ]),
         ]),
 
         // Details row
         const SizedBox(height: 10),
         Wrap(spacing: 12, runSpacing: 4, children: [
-          _InfoRow('📧', reg.studentEmail),
-          _InfoRow('📞', reg.phone),
-          _InfoRow('🎯', reg.level),
-          _InfoRow('📚', reg.semester),
+          _InfoRow(Icons.mail_outline_rounded, reg.studentEmail),
+          _InfoRow(Icons.phone_outlined, reg.phone),
+          _InfoRow(Icons.flag_outlined, reg.level),
+          _InfoRow(Icons.school_outlined, reg.semester),
         ]),
 
         // Personal statement
@@ -182,7 +225,8 @@ class _AdminRegCard extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: context.bgColor,
-              border: BorderDirectional(start: BorderSide(color: border, width: 3)),
+              border:
+                  BorderDirectional(start: BorderSide(color: border, width: 3)),
             ),
             child: Text('"${reg.message}"',
                 style: AppTextStyles.body(14, color: muted, context: context)),
@@ -197,10 +241,16 @@ class _AdminRegCard extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () => _showDetail(context, reg),
                 icon: const Icon(Icons.info_outline, size: 16),
-                label: Text(isAr ? 'التفاصيل' : 'Details', style: AppTextStyles.body(15, color: muted, weight: FontWeight.w600, context: context)),
+                label: Text(isAr ? 'التفاصيل' : 'Details',
+                    style: AppTextStyles.body(15,
+                        color: muted,
+                        weight: FontWeight.w600,
+                        context: context)),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: muted, side: BorderSide(color: border),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  foregroundColor: muted,
+                  side: BorderSide(color: border),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                 ),
               ),
@@ -213,11 +263,16 @@ class _AdminRegCard extends StatelessWidget {
                   _toast(context, isAr ? '❌ تم الرفض' : '❌ Rejected', error);
                 },
                 icon: const Icon(Icons.close_rounded, size: 14),
-                label: Text(isAr ? 'رفض' : 'Reject', style: AppTextStyles.body(15, color: error, weight: FontWeight.w600, context: context)),
+                label: Text(isAr ? 'رفض' : 'Reject',
+                    style: AppTextStyles.body(15,
+                        color: error,
+                        weight: FontWeight.w600,
+                        context: context)),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: error,
                   side: BorderSide(color: error.withValues(alpha: 0.5)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                 ),
               ),
@@ -230,10 +285,17 @@ class _AdminRegCard extends StatelessWidget {
                   _toast(context, isAr ? '✅ تم القبول' : '✅ Approved', second);
                 },
                 icon: const Icon(Icons.check_rounded, size: 14),
-                label: Text(isAr ? 'قبول' : 'Approve', style: AppTextStyles.body(15, color: context.bgColor, weight: FontWeight.w700, context: context)),
+                label: Text(isAr ? 'قبول' : 'Approve',
+                    style: AppTextStyles.body(15,
+                        color: context.bgColor,
+                        weight: FontWeight.w700,
+                        context: context)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: second, foregroundColor: context.bgColor, elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  backgroundColor: second,
+                  foregroundColor: context.bgColor,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                 ),
               ),
@@ -245,21 +307,34 @@ class _AdminRegCard extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: () => _showDetail(context, reg),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: muted, side: BorderSide(color: border),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  foregroundColor: muted,
+                  side: BorderSide(color: border),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
-                child: Text(isAr ? 'عرض التفاصيل' : 'View Details', style: AppTextStyles.body(15, color: muted, weight: FontWeight.w600, context: context)),
+                child: Text(isAr ? 'عرض التفاصيل' : 'View Details',
+                    style: AppTextStyles.body(15,
+                        color: muted,
+                        weight: FontWeight.w600,
+                        context: context)),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
-                onPressed: () => regState.updateStatus(reg.id, RegistrationStatus.pending),
+                onPressed: () =>
+                    regState.updateStatus(reg.id, RegistrationStatus.pending),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: muted, side: BorderSide(color: border),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  foregroundColor: muted,
+                  side: BorderSide(color: border),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
-                child: Text(isAr ? '↩ إعادة تعيين' : '↩ Reset', style: AppTextStyles.body(15, color: muted, weight: FontWeight.w600, context: context)),
+                child: Text(isAr ? '↩ إعادة تعيين' : '↩ Reset',
+                    style: AppTextStyles.body(15,
+                        color: muted,
+                        weight: FontWeight.w600,
+                        context: context)),
               ),
             ),
           ]),
@@ -269,7 +344,8 @@ class _AdminRegCard extends StatelessWidget {
 
   void _toast(BuildContext context, String msg, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg, style: AppTextStyles.body(15, color: Colors.black, context: context)),
+      content: Text(msg,
+          style: AppTextStyles.body(15, color: Colors.black, context: context)),
       backgroundColor: color,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -296,23 +372,23 @@ class _DetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
     final border = context.borderColor;
     final second = context.secondaryColor;
-    final error  = context.errorColor;
-    final isAr   = Localizations.localeOf(context).languageCode == 'ar';
+    final error = context.errorColor;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final regState = context.read<ActivityRegistrationState>();
 
     final rows = [
       (isAr ? 'اسم الطالب' : 'Student Name', reg.studentName),
-      (isAr ? 'الرقم الجامعي' : 'Student ID',   reg.studentId),
-      (isAr ? 'البريد الإلكتروني' : 'Email',        reg.studentEmail),
-      (isAr ? 'رقم الهاتف' : 'Phone',        reg.phone),
-      (isAr ? 'الكلية' : 'Faculty',      reg.faculty),
-      (isAr ? 'الفصل الدراسي' : 'Semester',     reg.semester),
-      (isAr ? 'المستوى' : 'Level',        reg.level),
-      (isAr ? 'تاريخ التقديم' : 'Applied',      reg.dateLabel),
+      (isAr ? 'الرقم الجامعي' : 'Student ID', reg.studentId),
+      (isAr ? 'البريد الإلكتروني' : 'Email', reg.studentEmail),
+      (isAr ? 'رقم الهاتف' : 'Phone', reg.phone),
+      (isAr ? 'الكلية' : 'Faculty', reg.faculty),
+      (isAr ? 'الفصل الدراسي' : 'Semester', reg.semester),
+      (isAr ? 'المستوى' : 'Level', reg.level),
+      (isAr ? 'تاريخ التقديم' : 'Applied', reg.dateLabel),
     ];
 
     return DraggableScrollableSheet(
@@ -323,36 +399,61 @@ class _DetailSheet extends StatelessWidget {
         controller: scroll,
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Center(child: Container(width: 40, height: 4,
-              decoration: BoxDecoration(color: border, borderRadius: BorderRadius.circular(2)),
-              margin: const EdgeInsets.only(bottom: 16))),
+          Center(
+              child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: border, borderRadius: BorderRadius.circular(2)),
+                  margin: const EdgeInsets.only(bottom: 16))),
           Row(children: [
             Container(
-              width: 52, height: 52,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 color: const Color(0xFF00E5FF).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Center(child: Icon(reg.activity.category.icon,
-                  color: reg.activity.category.isArts ? const Color(0xFFA8FF3E) : const Color(0xFF00E5FF), size: 26)),
+              child: Center(
+                  child: Icon(reg.activity.category.icon,
+                      color: reg.activity.category.isArts
+                          ? const Color(0xFFA8FF3E)
+                          : const Color(0xFF00E5FF),
+                      size: 26)),
             ),
             const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(reg.activity.name, style: AppTextStyles.display(22, color: txt, context: context), overflow: TextOverflow.ellipsis),
-              _StatusBadge(status: reg.status),
-            ])),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(reg.activity.name,
+                      style: AppTextStyles.display(22,
+                          color: txt, context: context),
+                      overflow: TextOverflow.ellipsis),
+                  _StatusBadge(status: reg.status),
+                ])),
           ]),
           const SizedBox(height: 16),
           ...rows.map((r) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Row(children: [
-              SizedBox(width: 120, child: Text(r.$1, style: AppTextStyles.body(15, color: muted, context: context))),
-              Expanded(child: Text(r.$2, style: AppTextStyles.body(15, color: txt, weight: FontWeight.w600, context: context))),
-            ]),
-          )),
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(children: [
+                  SizedBox(
+                      width: 120,
+                      child: Text(r.$1,
+                          style: AppTextStyles.body(15,
+                              color: muted, context: context))),
+                  Expanded(
+                      child: Text(r.$2,
+                          style: AppTextStyles.body(15,
+                              color: txt,
+                              weight: FontWeight.w600,
+                              context: context))),
+                ]),
+              )),
           if (reg.message.isNotEmpty) ...[
             Divider(height: 24, color: border),
-            Text(isAr ? 'الرسالة الشخصية' : 'PERSONAL STATEMENT', style: AppTextStyles.label(color: muted, context: context)),
+            Text(isAr ? 'الرسالة الشخصية' : 'PERSONAL STATEMENT',
+                style: AppTextStyles.label(color: muted, context: context)),
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -362,7 +463,8 @@ class _DetailSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: border),
               ),
-              child: Text(reg.message, style: AppTextStyles.body(15, color: txt, context: context)),
+              child: Text(reg.message,
+                  style: AppTextStyles.body(15, color: txt, context: context)),
             ),
           ],
           if (reg.status == RegistrationStatus.pending) ...[
@@ -378,9 +480,14 @@ class _DetailSheet extends StatelessWidget {
                     foregroundColor: error,
                     side: BorderSide(color: error.withValues(alpha: 0.5)),
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text(isAr ? 'رفض' : 'Reject', style: AppTextStyles.body(15, color: error, weight: FontWeight.w700, context: context)),
+                  child: Text(isAr ? 'رفض' : 'Reject',
+                      style: AppTextStyles.body(15,
+                          color: error,
+                          weight: FontWeight.w700,
+                          context: context)),
                 ),
               ),
               const SizedBox(width: 12),
@@ -395,9 +502,14 @@ class _DetailSheet extends StatelessWidget {
                     foregroundColor: context.bgColor,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text(isAr ? 'قبول' : 'Approve', style: AppTextStyles.body(15, color: context.bgColor, weight: FontWeight.w700, context: context)),
+                  child: Text(isAr ? 'قبول' : 'Approve',
+                      style: AppTextStyles.body(15,
+                          color: context.bgColor,
+                          weight: FontWeight.w700,
+                          context: context)),
                 ),
               ),
             ]),
@@ -424,30 +536,37 @@ class _StatusBadge extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(status.icon, color: status.color, size: 11),
         const SizedBox(width: 4),
-        Text(isAr ? _statusLabelAr(status) : status.label, style: AppTextStyles.label(color: status.color, context: context).copyWith(fontSize: 11, letterSpacing: 0.3)),
+        Text(isAr ? _statusLabelAr(status) : status.label,
+            style: AppTextStyles.label(color: status.color, context: context)
+                .copyWith(fontSize: 11, letterSpacing: 0.3)),
       ]),
     );
   }
 
   String _statusLabelAr(RegistrationStatus s) => switch (s) {
-    RegistrationStatus.pending  => 'قيد الانتظار',
-    RegistrationStatus.approved => 'مقبول',
-    RegistrationStatus.rejected => 'مرفوض',
-  };
+        RegistrationStatus.pending => 'قيد الانتظار',
+        RegistrationStatus.approved => 'مقبول',
+        RegistrationStatus.rejected => 'مرفوض',
+      };
 }
 
 class _InfoRow extends StatelessWidget {
-  final String icon, text;
+  final IconData icon;
+  final String text;
   const _InfoRow(this.icon, this.text);
   @override
-  Widget build(BuildContext context) => Row(mainAxisSize: MainAxisSize.min, children: [
-    Text(icon, style: const TextStyle(fontSize: 12)),
-    const SizedBox(width: 4),
-    ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.4),
-      child: Text(text,
-          maxLines: 1, overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.body(14, color: context.mutedColor, context: context)),
-    ),
-  ]);
+  Widget build(BuildContext context) =>
+      Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: 14, color: context.mutedColor),
+        const SizedBox(width: 4),
+        ConstrainedBox(
+          constraints:
+              BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.4),
+          child: Text(text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.body(14,
+                  color: context.mutedColor, context: context)),
+        ),
+      ]);
 }

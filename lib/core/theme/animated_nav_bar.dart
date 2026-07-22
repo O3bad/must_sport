@@ -3,33 +3,34 @@
 // Extracted so all roles share the exact same animation logic.
 
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'app_theme.dart';
 
 // ─── NAV ITEM DATA ────────────────────────────────────────────────────────────
 class NavItemData {
-  final String   label;
+  final String label;
   final IconData icon;
-  final bool     hasBadge;
-  final int      badgeCount;
+  final bool hasBadge;
+  final int badgeCount;
 
   const NavItemData({
     required this.label,
     required this.icon,
-    this.hasBadge  = false,
+    this.hasBadge = false,
     this.badgeCount = 0,
   });
 }
 
 // ─── ANIMATED EXPANDABLE TAB BAR ─────────────────────────────────────────────
 class AnimatedNavBar extends StatelessWidget {
-  final int      currentIndex;
+  final int currentIndex;
   final List<NavItemData> items;
-  final Color    primary;
-  final Color    muted;
-  final Color    surface2;
-  final Color    border;
-  final Color    errorColor;
-  final bool     isDark;
+  final Color primary;
+  final Color muted;
+  final Color surface2;
+  final Color border;
+  final Color errorColor;
+  final bool isDark;
   final void Function(int) onTap;
 
   const AnimatedNavBar({
@@ -76,16 +77,16 @@ class AnimatedNavBar extends StatelessWidget {
                   (i) => Expanded(
                     flex: currentIndex == i ? 3 : 2,
                     child: AnimatedNavItem(
-                      data:        items[i],
-                      index:       i,
-                      totalCount:  items.length,
+                      data: items[i],
+                      index: i,
+                      totalCount: items.length,
                       activeIndex: currentIndex,
-                      isActive:    currentIndex == i,
-                      primary:     primary,
-                      muted:       muted,
-                      surface2:    surface2,
-                      errorColor:  errorColor,
-                      onTap:       () => onTap(i),
+                      isActive: currentIndex == i,
+                      primary: primary,
+                      muted: muted,
+                      surface2: surface2,
+                      errorColor: errorColor,
+                      onTap: () => onTap(i),
                     ),
                   ),
                 ),
@@ -100,15 +101,15 @@ class AnimatedNavBar extends StatelessWidget {
 
 // ─── ANIMATED NAV ITEM ────────────────────────────────────────────────────────
 class AnimatedNavItem extends StatefulWidget {
-  final NavItemData  data;
-  final bool         isActive;
-  final int          index;
-  final int          totalCount;
-  final int          activeIndex;
-  final Color        primary;
-  final Color        muted;
-  final Color        surface2;
-  final Color        errorColor;
+  final NavItemData data;
+  final bool isActive;
+  final int index;
+  final int totalCount;
+  final int activeIndex;
+  final Color primary;
+  final Color muted;
+  final Color surface2;
+  final Color errorColor;
   final VoidCallback onTap;
 
   const AnimatedNavItem({
@@ -132,8 +133,8 @@ class AnimatedNavItem extends StatefulWidget {
 class _AnimatedNavItemState extends State<AnimatedNavItem>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
-  late final Animation<double>   _scaleDown;
-  late final Animation<double>   _bounce;
+  late final Animation<double> _scaleDown;
+  late final Animation<double> _bounce;
   bool _prevActive = false;
 
   @override
@@ -174,110 +175,134 @@ class _AnimatedNavItemState extends State<AnimatedNavItem>
   }
 
   double get _combinedScale {
-    if (_ctrl.value <= 0.0)  return 1.0;
+    if (_ctrl.value <= 0.0) return 1.0;
     if (_ctrl.value <= 0.28) return _scaleDown.value;
     return _bounce.value;
   }
 
   @override
   Widget build(BuildContext context) {
-    final distRight  = widget.index - widget.activeIndex;
+    final distRight = widget.index - widget.activeIndex;
     final isLastItem = widget.index == widget.totalCount - 1;
 
     // Softly fade the last icon when the active pill is immediately to its left.
-    final fadeOpacity = (!widget.isActive && isLastItem && distRight == 1)
-        ? 0.25
-        : 1.0;
+    final fadeOpacity =
+        (!widget.isActive && isLastItem && distRight == 1) ? 0.25 : 1.0;
 
-    return GestureDetector(
+    final l = AppLocalizations.of(context);
+
+    // The label must be announced whether or not it is currently painted: an
+    // unselected tab collapses its text to zero width, so relying on the
+    // rendered text would leave screen readers with nothing to say.
+    final semanticLabel = widget.data.hasBadge && l != null
+        ? '${widget.data.label}, ${l.navBadgeCount(widget.data.badgeCount)}'
+        : widget.data.label;
+
+    return Semantics(
+      selected: widget.isActive,
+      button: true,
+      label: semanticLabel,
       onTap: widget.onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox.expand(
-        child: AnimatedBuilder(
-          animation: _ctrl,
-          builder: (_, child) => Transform.scale(
-            scale: _combinedScale,
-            child: child,
-          ),
-          child: AnimatedOpacity(
-            duration: const Duration(milliseconds: 260),
-            curve: Curves.easeOut,
-            opacity: fadeOpacity,
-            child: Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOut,
-                padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 7),
-                decoration: widget.isActive
-                    ? BoxDecoration(
-                        color: widget.primary.withValues(alpha: 0.13),
-                        borderRadius: BorderRadius.circular(14),
-                      )
-                    : null,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // ── Icon + badge ──────────────────────────────────────
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Icon(
-                          widget.data.icon,
-                          size: 18,
-                          color: widget.isActive ? widget.primary : widget.muted,
-                        ),
-                        if (widget.data.hasBadge)
-                          Positioned(
-                            top: -4, right: -6,
-                            child: Container(
-                              width: 15, height: 15,
-                              decoration: BoxDecoration(
-                                color: widget.errorColor,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: widget.surface2, width: 1.5),
+      child: ExcludeSemantics(
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: widget.onTap,
+            canRequestFocus: true,
+            child: SizedBox.expand(
+              child: AnimatedBuilder(
+                animation: _ctrl,
+                builder: (_, child) => Transform.scale(
+                  scale: _combinedScale,
+                  child: child,
+                ),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.easeOut,
+                  opacity: fadeOpacity,
+                  child: Center(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOut,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 3, vertical: 7),
+                      decoration: widget.isActive
+                          ? BoxDecoration(
+                              color: widget.primary.withValues(alpha: 0.13),
+                              borderRadius: BorderRadius.circular(14),
+                            )
+                          : null,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // ── Icon + badge ──────────────────────────────────
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Icon(
+                                widget.data.icon,
+                                size: 18,
+                                color: widget.isActive
+                                    ? widget.primary
+                                    : widget.muted,
                               ),
-                              child: Center(
-                                child: Text(
-                                  '${widget.data.badgeCount}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                    fontWeight: FontWeight.bold,
+                              if (widget.data.hasBadge)
+                                Positioned(
+                                  top: -4,
+                                  right: -6,
+                                  child: Container(
+                                    width: 15,
+                                    height: 15,
+                                    decoration: BoxDecoration(
+                                      color: widget.errorColor,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color: widget.surface2, width: 1.5),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${widget.data.badgeCount}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
+                            ],
+                          ),
+                          // ── Animated label — Flexible keeps long localized labels inside the tab slot
+                          Flexible(
+                            child: ClipRect(
+                              child: AnimatedSize(
+                                duration: const Duration(milliseconds: 280),
+                                curve: Curves.easeOutCubic,
+                                alignment: Alignment.centerLeft,
+                                child: widget.isActive
+                                    ? Padding(
+                                        padding: const EdgeInsets.only(left: 3),
+                                        child: Text(
+                                          widget.data.label,
+                                          style: AppTextStyles.body(
+                                            10.5,
+                                            color: widget.primary,
+                                            weight: FontWeight.w700,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          softWrap: false,
+                                        ),
+                                      )
+                                    : const SizedBox.shrink(),
                               ),
                             ),
                           ),
-                      ],
-                    ),
-                    // ── Animated label — Flexible keeps long localized labels inside the tab slot
-                    Flexible(
-                      child: ClipRect(
-                        child: AnimatedSize(
-                          duration: const Duration(milliseconds: 280),
-                          curve: Curves.easeOutCubic,
-                          alignment: Alignment.centerLeft,
-                          child: widget.isActive
-                              ? Padding(
-                                  padding: const EdgeInsets.only(left: 3),
-                                  child: Text(
-                                    widget.data.label,
-                                    style: AppTextStyles.body(
-                                      10.5,
-                                      color: widget.primary,
-                                      weight: FontWeight.w700,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    softWrap: false,
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
-                        ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

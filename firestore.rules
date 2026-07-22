@@ -1,0 +1,128 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function storedRole(uid) {
+      return exists(/databases/$(database)/documents/users/$(uid))
+        ? get(/databases/$(database)/documents/users/$(uid)).data.role
+        : null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && storedRole(request.auth.uid) == 'admin';
+    }
+
+    function isCoach() {
+      return isSignedIn() && storedRole(request.auth.uid) == 'coach';
+    }
+
+    function isStaff() {
+      return isAdmin() || isCoach();
+    }
+
+    function privilegedFieldNames() {
+      return ['role', 'points', 'rank', 'isActive'];
+    }
+
+    function serverFieldsUnchanged() {
+      return request.resource.data.role == resource.data.role
+          && request.resource.data.points == resource.data.points
+          && request.resource.data.rank == resource.data.rank
+          && request.resource.data.isActive == resource.data.isActive;
+    }
+
+    // ── users ────────────────────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isAdmin() || isSelf(uid);
+      allow create: if isSelf(uid)
+                    && request.resource.data.role == 'student'
+                    && request.resource.data.points == 0
+                    && request.resource.data.rank == 0
+                    && request.resource.data.isActive == true;
+
+      allow update: if isAdmin()
+                    || (isSelf(uid) && serverFieldsUnchanged());
+
+      allow delete: if isSelf(uid) || isAdmin();
+    }
+
+    // ── leaderboard ──────────────────────────────────────────────────────────
+    match /leaderboard/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ── events ───────────────────────────────────────────────────────────────
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isStaff();
+
+      match /enrollments/{enrolleeId} {
+        allow read: if isSignedIn();
+        allow create: if isSelf(enrolleeId) || isStaff();
+        allow update, delete: if isSelf(enrolleeId) || isStaff();
+      }
+    }
+
+    // ── bookings ─────────────────────────────────────────────────────────────
+    match /bookings/{bookingId} {
+      allow read: if isStaff() || (isSignedIn() && resource.data.uid == request.auth.uid);
+
+      allow create: if isSignedIn()
+                    && request.resource.data.uid == request.auth.uid;
+
+      allow update: if isAdmin()
+                    || (request.resource.data.diff(resource.data)
+                          .affectedKeys()
+                          .hasOnly(['status', 'paymentMethod'])
+                        && (isStaff()
+                            || (isSignedIn()
+                                && resource.data.uid == request.auth.uid)));
+      allow delete: if isStaff() || (isSignedIn() && resource.data.uid == request.auth.uid);
+    }
+
+    // ── notifications ────────────────────────────────────────────────────────
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn();
+      allow create: if isStaff();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Remaining shared domains ─────────────────────────────────────────────
+    match /activities/{activityId} {
+      allow read: if isSignedIn();
+      allow write: if isStaff();
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if isSignedIn();
+      allow write: if isStaff();
+    }
+
+    match /coaches/{coachId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /achievements/{achievementId} {
+      allow read: if isSignedIn();
+      allow write: if isStaff() || isSelf(achievementId);
+    }
+  }
+}

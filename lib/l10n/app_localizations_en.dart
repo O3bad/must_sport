@@ -39,7 +39,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordHint => '••••••••';
 
   @override
-  String get demoCredentials => 'Demo Credentials';
+  String get demoAccounts => 'Demo accounts';
 
   @override
   String get student => 'Student';
@@ -159,6 +159,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationPrefs => 'Notification Preferences';
 
   @override
+  String get pushNotifications => 'Push notifications';
+
+  @override
+  String get pushNotificationsDesc =>
+      'Receive alerts about registrations, bookings and events. Turning this off stops all push messages.';
+
+  @override
   String get reservationReminders => 'Reservation Reminders';
 
   @override
@@ -184,6 +191,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacy => 'Privacy';
+
+  @override
+  String get legal => 'Legal';
+
+  @override
+  String get cookieBannerTitle => 'Cookies on the web app';
+
+  @override
+  String get cookieBannerBody =>
+      'We use storage to keep you signed in and remember your preferences. There is no advertising or cross-site tracking.';
+
+  @override
+  String get cookieBannerAccept => 'Accept';
+
+  @override
+  String get cookieBannerDecline => 'Decline';
+
+  @override
+  String get cookieBannerLearnMore => 'Read the cookie policy';
+
+  @override
+  String get legalDocumentsSubtitle => 'Policies, terms and your data rights';
 
   @override
   String get showMyProfile => 'Show my profile';
@@ -537,6 +566,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noStudentsYet => 'No students yet';
 
   @override
+  String get noRankedStudentsYet => 'No ranked students yet';
+
+  @override
+  String get bookingFailedTryAgain => 'Booking failed. Please try again.';
+
+  @override
   String get notificationsTitle => 'Notifications';
 
   @override
@@ -770,6 +805,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorSignUpFailed => 'Sign-up failed. Please try again.';
+
+  @override
+  String get errorAuthDisabled =>
+      'Email and password sign-in is currently disabled for this app. Please contact support.';
+
+  @override
+  String get errorProfileWriteFailed =>
+      'Your account was created, but we could not save your profile. Please try again.';
+
+  @override
+  String get errorProfileWriteForbidden =>
+      'Your account was created, but the server refused to save your profile. Please try again.';
 
   @override
   String get checkEmail => 'Check your email';
@@ -1427,4 +1474,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationSent => 'Notification sent!';
+
+  @override
+  String get signupTermsConsent =>
+      'I agree to the Terms of Service and Privacy Policy, and I confirm I am at least 18 years old.';
+
+  @override
+  String get signupTermsConsentError =>
+      'You must accept the terms to create an account.';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountSectionTitle => 'Account';
+
+  @override
+  String get deleteAccountWarning =>
+      'Deleting your account permanently removes your profile, reservations and participation history from MUSTER Sport.';
+
+  @override
+  String get deleteAccountConfirmTitle => 'Delete your account?';
+
+  @override
+  String get deleteAccountConfirmBody =>
+      'This permanently erases your account and all data associated with it. This cannot be undone.';
+
+  @override
+  String get deleteAccountTypeToConfirm => 'Type DELETE to confirm';
+
+  @override
+  String get deleteAccountConfirmWord => 'DELETE';
+
+  @override
+  String get deleteAccountPasswordPrompt => 'Enter your password to confirm';
+
+  @override
+  String get deleteAccountCancel => 'Cancel';
+
+  @override
+  String get deleteAccountFinalConfirm => 'Permanently delete';
+
+  @override
+  String get deleteAccountInProgress => 'Deleting your account…';
+
+  @override
+  String get deleteAccountSuccess => 'Your account has been deleted.';
+
+  @override
+  String deleteAccountFailed(Object reason) {
+    return 'Could not delete your account: $reason';
+  }
+
+  @override
+  String get licenses => 'Open Source Licenses';
+
+  @override
+  String get licensesIntro =>
+      'MUSTER Sport is built on the following open source software and fonts.';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String selectRole(Object role) {
+    return 'Select role: $role';
+  }
+
+  @override
+  String get selected => 'Selected';
+
+  @override
+  String get notificationsEnabled => 'Notifications enabled';
+
+  @override
+  String get notificationsDisabled => 'Notifications disabled';
+
+  @override
+  String expandSection(Object section) {
+    return 'Expand $section';
+  }
+
+  @override
+  String collapseSection(Object section) {
+    return 'Collapse $section';
+  }
+
+  @override
+  String clearField(Object field) {
+    return 'Clear $field';
+  }
+
+  @override
+  String get removeAvatar => 'Remove avatar';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get loading => 'Loading';
+
+  @override
+  String navBadgeCount(Object count) {
+    return '$count new';
+  }
 }

@@ -1,11 +1,13 @@
 // lib/core/services/fcm_service.dart
 import 'dart:developer' as dev;
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_theme.dart';
+import 'notification_preferences.dart';
 
 /// Background message handler (must be top-level function)
 @pragma('vm:entry-point')
@@ -32,6 +34,27 @@ class FCMService {
   );
 
   Future<void> initialize() async {
+    // ── Web ──────────────────────────────────────────────────────────────────
+    // Two things make this a no-op on web:
+    //
+    //  1. `flutter_local_notifications` has no web implementation, so
+    //     `initialize()` throws `MissingPluginException`. Previously that
+    //     exception propagated out of this method and was swallowed by the
+    //     try/catch in `main.dart`, which meant everything *after* the local
+    //     setup — the FCM listeners and the token write — never ran, on any
+    //     platform, whenever that plugin failed.
+    //  2. `FirebaseMessaging.getToken()` on web requires a VAPID public key
+    //     (`FirebaseMessagingWebOptions.vapidKey`). Without one it throws, so
+    //     calling it unconditionally breaks the web build at runtime.
+    //
+    // Foreground/background message *delivery* still works on web; only local
+    // notification display is unavailable, because the browser owns that UI.
+    if (kIsWeb) {
+      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
+      return;
+    }
+
     // Request permissions
     await _fcm.requestPermission(
       alert: true,
@@ -91,6 +114,18 @@ class FCMService {
   Future<void> _saveFCMToken() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
+
+    // Web push registration needs a VAPID key; without one `getToken()` throws
+    // and would surface as a settings-screen error rather than a silent skip.
+    if (kIsWeb) {
+      dev.log(
+        'Web: skipping FCM token registration (no VAPID key configured). '
+        'Foreground message listeners are still active.',
+        name: 'FCMService',
+      );
+      return;
+    }
+
     final token = await _fcm.getToken();
     if (token != null) {
       await FirebaseFirestore.instance
@@ -105,6 +140,8 @@ class FCMService {
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
+    if (!NotificationPreferences.instance.isPushEnabled) return;
+
     final notification = message.notification;
     if (notification == null) return;
 
@@ -155,6 +192,21 @@ class FCMService {
 
   /// Get FCM token
   Future<String?> getToken() => _fcm.getToken();
+
+  /// Applies the user's push-notification choice to Firebase itself.
+  ///
+  /// Turning notifications off deletes the token and removes `fcmToken` from
+  /// the user document, so the sendNotification Cloud Function can no longer
+  /// target this account. Toggling a local boolean would not: the token would
+  /// remain on the server and pushes would keep arriving.
+  Future<void> applyPushPreference(bool enabled) async {
+    if (enabled) {
+      await _fcm.requestPermission(alert: true, badge: true, sound: true);
+      await _saveFCMToken();
+    } else {
+      await deleteToken();
+    }
+  }
 
   /// Delete token (on logout)
   Future<void> deleteToken() async {

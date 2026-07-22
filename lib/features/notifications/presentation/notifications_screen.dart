@@ -10,18 +10,20 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state  = context.watch<NotificationState>();
+    final state = context.watch<NotificationState>();
     final notifs = state.all;
-    final txt    = context.textColor;
+    final txt = context.textColor;
     final border = context.borderColor;
-    final bg     = context.bgColor;
+    final bg = context.bgColor;
     final primary = context.primaryColor;
 
     // Group by: Today / Yesterday / Earlier
-    final now       = DateTime.now();
-    final today     = notifs.where((n) => _isToday(n.time, now)).toList();
+    final now = DateTime.now();
+    final today = notifs.where((n) => _isToday(n.time, now)).toList();
     final yesterday = notifs.where((n) => _isYesterday(n.time, now)).toList();
-    final earlier   = notifs.where((n) => !_isToday(n.time, now) && !_isYesterday(n.time, now)).toList();
+    final earlier = notifs
+        .where((n) => !_isToday(n.time, now) && !_isYesterday(n.time, now))
+        .toList();
 
     return Scaffold(
       backgroundColor: bg,
@@ -29,17 +31,22 @@ class NotificationsScreen extends StatelessWidget {
         backgroundColor: bg,
         surfaceTintColor: Colors.transparent,
         title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(AppLocalizations.of(context)!.notificationsTitle, style: AppTextStyles.display(20, color: txt, context: context)),
+          Text(AppLocalizations.of(context)!.notificationsTitle,
+              style: AppTextStyles.display(20, color: txt, context: context)),
           if (state.unreadCount > 0)
             Text('${state.unreadCount} ${AppLocalizations.of(context)!.unread}',
-                style: AppTextStyles.body(15, color: primary, context: context)),
+                style:
+                    AppTextStyles.body(15, color: primary, context: context)),
         ]),
         actions: [
           if (state.unreadCount > 0)
             TextButton(
               onPressed: state.markAllRead,
               child: Text(AppLocalizations.of(context)!.markAllRead,
-                  style: AppTextStyles.body(16, color: primary, weight: FontWeight.w600, context: context)),
+                  style: AppTextStyles.body(16,
+                      color: primary,
+                      weight: FontWeight.w600,
+                      context: context)),
             ),
           const SizedBox(width: 4),
         ],
@@ -50,22 +57,51 @@ class NotificationsScreen extends StatelessWidget {
       ),
       body: notifs.isEmpty
           ? _EmptyState()
-          : ListView(
+          : ListView.builder(
               padding: const EdgeInsets.only(bottom: 100),
-              children: [
-                if (today.isNotEmpty)     ...[_GroupHeader(AppLocalizations.of(context)!.today),     ..._buildCards(context, today, state)],
-                if (yesterday.isNotEmpty) ...[_GroupHeader(AppLocalizations.of(context)!.yesterday), ..._buildCards(context, yesterday, state)],
-                if (earlier.isNotEmpty)   ...[_GroupHeader(AppLocalizations.of(context)!.earlier),   ..._buildCards(context, earlier, state)],
-              ],
+              itemCount: _rowCount(today, yesterday, earlier),
+              itemBuilder: (ctx, i) =>
+                  _buildRow(ctx, i, today, yesterday, earlier, state),
             ),
     );
   }
 
-  List<Widget> _buildCards(BuildContext context, List<AppNotification> notifs, NotificationState state) {
-    return notifs.map((n) => Dismissible(
+  int _rowCount(List a, List b, List c) =>
+      (a.isNotEmpty ? a.length + 1 : 0) +
+      (b.isNotEmpty ? b.length + 1 : 0) +
+      (c.isNotEmpty ? c.length + 1 : 0);
+
+  Widget _buildRow(
+    BuildContext context,
+    int index,
+    List<AppNotification> today,
+    List<AppNotification> yesterday,
+    List<AppNotification> earlier,
+    NotificationState state,
+  ) {
+    final l = AppLocalizations.of(context)!;
+    final groups = [
+      if (today.isNotEmpty) (l.today, today),
+      if (yesterday.isNotEmpty) (l.yesterday, yesterday),
+      if (earlier.isNotEmpty) (l.earlier, earlier),
+    ];
+
+    var i = index;
+    for (final group in groups) {
+      if (i == 0) return _GroupHeader(group.$1);
+      i--;
+      if (i < group.$2.length) return _buildCard(context, group.$2[i], state);
+      i -= group.$2.length;
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildCard(
+      BuildContext context, AppNotification n, NotificationState state) {
+    return Dismissible(
       key: Key(n.id),
-      direction: Localizations.localeOf(context).languageCode == 'ar' 
-          ? DismissDirection.startToEnd 
+      direction: Localizations.localeOf(context).languageCode == 'ar'
+          ? DismissDirection.startToEnd
           : DismissDirection.endToStart,
       onDismissed: (_) => state.delete(n.id),
       background: Container(
@@ -77,7 +113,7 @@ class NotificationsScreen extends StatelessWidget {
         child: Icon(Icons.delete_outline, color: context.errorColor),
       ),
       child: _NotifCard(notif: n),
-    )).toList();
+    );
   }
 
   bool _isToday(DateTime t, DateTime now) =>
@@ -94,11 +130,12 @@ class _GroupHeader extends StatelessWidget {
   const _GroupHeader(this.label);
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 20, 16, 6),
-    child: Text(label,
-        style: AppTextStyles.label(color: context.mutedColor, context: context)
-            .copyWith(fontSize: 11, letterSpacing: 1.2)),
-  );
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 6),
+        child: Text(label,
+            style:
+                AppTextStyles.label(color: context.mutedColor, context: context)
+                    .copyWith(fontSize: 11, letterSpacing: 1.2)),
+      );
 }
 
 // ─── NOTIFICATION CARD ────────────────────────────────────────────────────────
@@ -108,12 +145,12 @@ class _NotifCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state  = context.read<NotificationState>();
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
-    final surf   = context.surfaceColor;
+    final state = context.read<NotificationState>();
+    final txt = context.textColor;
+    final muted = context.mutedColor;
+    final surf = context.surfaceColor;
     final border = context.borderColor;
-    final c      = notif.type.color;
+    final c = notif.type.color;
     final unread = !notif.isRead;
 
     return GestureDetector(
@@ -122,8 +159,8 @@ class _NotifCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         decoration: BoxDecoration(
           color: unread ? c.withValues(alpha: 0.06) : surf,
-          border: Border.all(
-              color: unread ? c.withValues(alpha: 0.35) : border),
+          border:
+              Border.all(color: unread ? c.withValues(alpha: 0.35) : border),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
@@ -131,7 +168,8 @@ class _NotifCard extends StatelessWidget {
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             // Icon bubble
             Container(
-              width: 42, height: 42,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: c.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
@@ -141,78 +179,96 @@ class _NotifCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Title row
-              Row(children: [
-                Expanded(
-                  child: Text(notif.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.body(15, color: txt,
-                          weight: unread ? FontWeight.w700 : FontWeight.w500,
-                          context: context)),
-                ),
-                const SizedBox(width: 8),
-                if (unread)
-                  Container(
-                    width: 8, height: 8,
-                    decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-                  ),
-              ]),
-              const SizedBox(height: 4),
-              // Body
-              Text(notif.body,
-                  style: AppTextStyles.body(14, color: muted, context: context),
-                  maxLines: 3, overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 8),
-              // Footer
-              Row(children: [
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: c.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  // Title row
+                  Row(children: [
+                    Expanded(
+                      child: Text(notif.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body(15,
+                              color: txt,
+                              weight:
+                                  unread ? FontWeight.w700 : FontWeight.w500,
+                              context: context)),
                     ),
-                    child: Text(notif.type.label(context),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.label(color: c, context: context)
-                            .copyWith(fontSize: 9, letterSpacing: 0.5)),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(_timeAgo(context, notif.time),
-                      textAlign: Localizations.localeOf(context).languageCode == 'ar'
-                          ? TextAlign.left
-                          : TextAlign.right,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.body(10, color: muted, context: context)),
-                ),
-              ]),
-              // Action button
-              if (notif.actionLabel != null) ...[
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: notif.onAction,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: c.withValues(alpha: 0.12),
-                      border: Border.all(color: c.withValues(alpha: 0.4)),
-                      borderRadius: BorderRadius.circular(8),
+                    const SizedBox(width: 8),
+                    if (unread)
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration:
+                            BoxDecoration(color: c, shape: BoxShape.circle),
+                      ),
+                  ]),
+                  const SizedBox(height: 4),
+                  // Body
+                  Text(notif.body,
+                      style: AppTextStyles.body(14,
+                          color: muted, context: context),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 8),
+                  // Footer
+                  Row(children: [
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: c.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(notif.type.label(context),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style:
+                                AppTextStyles.label(color: c, context: context)
+                                    .copyWith(fontSize: 9, letterSpacing: 0.5)),
+                      ),
                     ),
-                    child: Text(notif.actionLabel!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.body(14, color: c, weight: FontWeight.w600, context: context)),
-                  ),
-                ),
-              ],
-            ])),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(_timeAgo(context, notif.time),
+                          textAlign:
+                              Localizations.localeOf(context).languageCode ==
+                                      'ar'
+                                  ? TextAlign.left
+                                  : TextAlign.right,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body(10,
+                              color: muted, context: context)),
+                    ),
+                  ]),
+                  // Action button
+                  if (notif.actionLabel != null) ...[
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: notif.onAction,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: c.withValues(alpha: 0.12),
+                          border: Border.all(color: c.withValues(alpha: 0.4)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(notif.actionLabel!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.body(14,
+                                color: c,
+                                weight: FontWeight.w600,
+                                context: context)),
+                      ),
+                    ),
+                  ],
+                ])),
           ]),
         ),
       ),
@@ -222,16 +278,27 @@ class _NotifCard extends StatelessWidget {
   String _timeAgo(BuildContext context, DateTime t) {
     final diff = DateTime.now().difference(t);
     final l = AppLocalizations.of(context)!;
-    
-    if (diff.inMinutes < 60)  return l.minutesAgo(diff.inMinutes);
-    if (diff.inHours < 24)    return l.hoursAgo(diff.inHours);
-    if (diff.inDays < 7)      return l.daysAgo(diff.inDays);
-    
+
+    if (diff.inMinutes < 60) return l.minutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l.hoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l.daysAgo(diff.inDays);
+
     final months = [
-      '', l.january, l.february, l.march, l.april, l.may, l.june,
-      l.july, l.august, l.september, l.october, l.november, l.december
+      '',
+      l.january,
+      l.february,
+      l.march,
+      l.april,
+      l.may,
+      l.june,
+      l.july,
+      l.august,
+      l.september,
+      l.october,
+      l.november,
+      l.december
     ];
-    
+
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     return isAr ? '${t.day} ${months[t.month]}' : '${months[t.month]} ${t.day}';
   }
@@ -241,14 +308,17 @@ class _NotifCard extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
-    child: Column(mainAxisSize: MainAxisSize.min, children: [
-      const Icon(Icons.notifications_none_rounded, size: 64, color: Color(0xFF5A7090)),
-      const SizedBox(height: 16),
-      Text(AppLocalizations.of(context)!.allCaughtUp,
-          style: AppTextStyles.heading(18, color: context.textColor, context: context)),
-      const SizedBox(height: 6),
-      Text(AppLocalizations.of(context)!.noNotificationsNow,
-          style: AppTextStyles.body(16, color: context.mutedColor, context: context)),
-    ]),
-  );
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Icon(Icons.notifications_none_rounded,
+              size: 64, color: Color(0xFF5A7090)),
+          const SizedBox(height: 16),
+          Text(AppLocalizations.of(context)!.allCaughtUp,
+              style: AppTextStyles.heading(18,
+                  color: context.textColor, context: context)),
+          const SizedBox(height: 6),
+          Text(AppLocalizations.of(context)!.noNotificationsNow,
+              style: AppTextStyles.body(16,
+                  color: context.mutedColor, context: context)),
+        ]),
+      );
 }

@@ -16,7 +16,6 @@ import 'features/profile/presentation/profile_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'features/leadership/presentation/leadership_screen.dart';
 
-
 // Proxy kept for backwards compat
 class AppShellStudentProxy extends StatelessWidget {
   const AppShellStudentProxy({super.key});
@@ -41,12 +40,12 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state    = context.watch<AppState>();
+    final state = context.watch<AppState>();
     final regState = context.watch<ActivityRegistrationState>();
-    final isDark   = context.isDark;
-    final primary  = context.primaryColor;
-    final muted    = context.mutedColor;
-    final border   = context.borderColor;
+    final isDark = context.isDark;
+    final primary = context.primaryColor;
+    final muted = context.mutedColor;
+    final border = context.borderColor;
     final surface2 = isDark ? DarkColors.surface2 : LightColors.surface2;
 
     final pendingCount = regState
@@ -57,18 +56,23 @@ class AppShell extends StatelessWidget {
     List<NavItemData> items(BuildContext ctx) {
       final l = AppLocalizations.of(ctx);
       return [
-        NavItemData(label: l?.home ?? 'Home',        icon: Icons.home_rounded),
-        NavItemData(label: l?.activities ?? 'Activity', icon: Icons.sports_soccer_rounded),
-        NavItemData(label: l?.booking ?? 'Booking',   icon: Icons.calendar_month_rounded),
-        NavItemData(label: l?.events ?? 'Events',     icon: Icons.emoji_events_rounded),
+        NavItemData(label: l?.home ?? 'Home', icon: Icons.home_rounded),
         NavItemData(
-          label:      l?.myApps ?? 'Apps',
-          icon:       Icons.assignment_rounded,
-          hasBadge:   pendingCount > 0,
+            label: l?.activities ?? 'Activity',
+            icon: Icons.sports_soccer_rounded),
+        NavItemData(
+            label: l?.booking ?? 'Booking', icon: Icons.calendar_month_rounded),
+        NavItemData(
+            label: l?.events ?? 'Events', icon: Icons.emoji_events_rounded),
+        NavItemData(
+          label: l?.myApps ?? 'Apps',
+          icon: Icons.assignment_rounded,
+          hasBadge: pendingCount > 0,
           badgeCount: pendingCount,
         ),
-        NavItemData(label: l?.leaderboard ?? 'Ranks', icon: Icons.leaderboard_rounded),
-        NavItemData(label: l?.profile ?? 'Profile',   icon: Icons.person_rounded),
+        NavItemData(
+            label: l?.leaderboard ?? 'Ranks', icon: Icons.leaderboard_rounded),
+        NavItemData(label: l?.profile ?? 'Profile', icon: Icons.person_rounded),
       ];
     }
 
@@ -88,12 +92,12 @@ class AppShell extends StatelessWidget {
           bottomNavigationBar: AnimatedNavBar(
             currentIndex: state.navIndex.clamp(0, _screenCount - 1),
             items: items(context),
-            primary:    primary,
-            muted:      muted,
-            surface2:   surface2,
-            border:     border,
+            primary: primary,
+            muted: muted,
+            surface2: surface2,
+            border: border,
             errorColor: context.errorColor,
-            isDark:     isDark,
+            isDark: isDark,
             onTap: (i) {
               HapticFeedback.selectionClick();
               context.read<AppState>().setNavIndex(i);

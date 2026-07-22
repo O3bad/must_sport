@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Backup / device-transfer rules.
+
+  android:allowBackup="false" already disables cloud backup, but Android 12+
+  introduced a separate device-to-device transfer path that is not covered by
+  allowBackup alone. This ruleset excludes everything explicitly so a user
+  profile cache, the session marker, or anything else written to app storage
+  cannot be moved onto another device.
+
+  Nothing here should be allowBackup="true" by default: the app writes a local
+  session marker and cached user profiles to SharedPreferences, and those are
+  device-local state that is re-derived from Firebase Auth on launch.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+        <exclude domain="file" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+        <exclude domain="file" />
+    </device-transfer>
+</data-extraction-rules>

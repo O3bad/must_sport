@@ -158,11 +158,11 @@ abstract class AppLocalizations {
   /// **'••••••••'**
   String get passwordHint;
 
-  /// No description provided for @demoCredentials.
+  /// No description provided for @demoAccounts.
   ///
   /// In en, this message translates to:
-  /// **'Demo Credentials'**
-  String get demoCredentials;
+  /// **'Demo accounts'**
+  String get demoAccounts;
 
   /// No description provided for @student.
   ///
@@ -398,6 +398,18 @@ abstract class AppLocalizations {
   /// **'Notification Preferences'**
   String get notificationPrefs;
 
+  /// No description provided for @pushNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications'**
+  String get pushNotifications;
+
+  /// No description provided for @pushNotificationsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive alerts about registrations, bookings and events. Turning this off stops all push messages.'**
+  String get pushNotificationsDesc;
+
   /// No description provided for @reservationReminders.
   ///
   /// In en, this message translates to:
@@ -451,6 +463,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy'**
   String get privacy;
+
+  /// No description provided for @legal.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legal;
+
+  /// No description provided for @cookieBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cookies on the web app'**
+  String get cookieBannerTitle;
+
+  /// No description provided for @cookieBannerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We use storage to keep you signed in and remember your preferences. There is no advertising or cross-site tracking.'**
+  String get cookieBannerBody;
+
+  /// No description provided for @cookieBannerAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get cookieBannerAccept;
+
+  /// No description provided for @cookieBannerDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get cookieBannerDecline;
+
+  /// No description provided for @cookieBannerLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the cookie policy'**
+  String get cookieBannerLearnMore;
+
+  /// No description provided for @legalDocumentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Policies, terms and your data rights'**
+  String get legalDocumentsSubtitle;
 
   /// No description provided for @showMyProfile.
   ///
@@ -1148,6 +1202,18 @@ abstract class AppLocalizations {
   /// **'No students yet'**
   String get noStudentsYet;
 
+  /// No description provided for @noRankedStudentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No ranked students yet'**
+  String get noRankedStudentsYet;
+
+  /// No description provided for @bookingFailedTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking failed. Please try again.'**
+  String get bookingFailedTryAgain;
+
   /// No description provided for @notificationsTitle.
   ///
   /// In en, this message translates to:
@@ -1603,6 +1669,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign-up failed. Please try again.'**
   String get errorSignUpFailed;
+
+  /// No description provided for @errorAuthDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Email and password sign-in is currently disabled for this app. Please contact support.'**
+  String get errorAuthDisabled;
+
+  /// No description provided for @errorProfileWriteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was created, but we could not save your profile. Please try again.'**
+  String get errorProfileWriteFailed;
+
+  /// No description provided for @errorProfileWriteForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was created, but the server refused to save your profile. Please try again.'**
+  String get errorProfileWriteForbidden;
 
   /// No description provided for @checkEmail.
   ///
@@ -2797,6 +2881,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notification sent!'**
   String get notificationSent;
+
+  /// No description provided for @signupTermsConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the Terms of Service and Privacy Policy, and I confirm I am at least 18 years old.'**
+  String get signupTermsConsent;
+
+  /// No description provided for @signupTermsConsentError.
+  ///
+  /// In en, this message translates to:
+  /// **'You must accept the terms to create an account.'**
+  String get signupTermsConsentError;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get deleteAccountSectionTitle;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting your account permanently removes your profile, reservations and participation history from MUSTER Sport.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @deleteAccountConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get deleteAccountConfirmTitle;
+
+  /// No description provided for @deleteAccountConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently erases your account and all data associated with it. This cannot be undone.'**
+  String get deleteAccountConfirmBody;
+
+  /// No description provided for @deleteAccountTypeToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Type DELETE to confirm'**
+  String get deleteAccountTypeToConfirm;
+
+  /// No description provided for @deleteAccountConfirmWord.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get deleteAccountConfirmWord;
+
+  /// No description provided for @deleteAccountPasswordPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password to confirm'**
+  String get deleteAccountPasswordPrompt;
+
+  /// No description provided for @deleteAccountCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get deleteAccountCancel;
+
+  /// No description provided for @deleteAccountFinalConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete'**
+  String get deleteAccountFinalConfirm;
+
+  /// No description provided for @deleteAccountInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting your account…'**
+  String get deleteAccountInProgress;
+
+  /// No description provided for @deleteAccountSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted.'**
+  String get deleteAccountSuccess;
+
+  /// No description provided for @deleteAccountFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete your account: {reason}'**
+  String deleteAccountFailed(Object reason);
+
+  /// No description provided for @licenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Source Licenses'**
+  String get licenses;
+
+  /// No description provided for @licensesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'MUSTER Sport is built on the following open source software and fonts.'**
+  String get licensesIntro;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @selectRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Select role: {role}'**
+  String selectRole(Object role);
+
+  /// No description provided for @selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get selected;
+
+  /// No description provided for @notificationsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications enabled'**
+  String get notificationsEnabled;
+
+  /// No description provided for @notificationsDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications disabled'**
+  String get notificationsDisabled;
+
+  /// No description provided for @expandSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand {section}'**
+  String expandSection(Object section);
+
+  /// No description provided for @collapseSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse {section}'**
+  String collapseSection(Object section);
+
+  /// No description provided for @clearField.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear {field}'**
+  String clearField(Object field);
+
+  /// No description provided for @removeAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove avatar'**
+  String get removeAvatar;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get loading;
+
+  /// No description provided for @navBadgeCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} new'**
+  String navBadgeCount(Object count);
 }
 
 class _AppLocalizationsDelegate

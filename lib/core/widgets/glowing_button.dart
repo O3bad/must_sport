@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../constants/app_constants.dart';
+import '../../l10n/app_localizations.dart';
 
 class GlowingButton extends StatefulWidget {
   final String text;
@@ -64,74 +65,90 @@ class _GlowingButtonState extends State<GlowingButton>
     final color = widget.color ?? DarkColors.primary;
     // ✅ withOpacity → withValues
     final glowColor = widget.glowColor ?? color.withValues(alpha: 0.5);
+    // White on the default cyan fill is 1.54:1 — effectively illegible. Resolve
+    // the ink from the fill instead: the neon palette needs dark ink (12.15:1).
+    final foreground = onFillFor(context, color);
+    final l = AppLocalizations.of(context);
 
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        return Transform.scale(
-          scale: _scaleAnimation.value,
-          child: Container(
-            width: widget.width ?? double.infinity,
-            height: widget.height,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSizes.radiusM),
-              boxShadow: [
-                BoxShadow(
-                  color: glowColor,
-                  blurRadius: _glowAnimation.value,
-                  spreadRadius: _glowAnimation.value * 0.3,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: ElevatedButton(
-              onPressed: widget.isLoading ? null : widget.onPressed,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
+    return Semantics(
+      button: true,
+      enabled: !widget.isLoading && widget.onPressed != null,
+      label: widget.text,
+      onTap: widget.isLoading ? null : widget.onPressed,
+      child: ExcludeSemantics(
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              child: Container(
+                width: widget.width ?? double.infinity,
+                height: widget.height,
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(AppSizes.radiusM),
-                ),
-                elevation: 0,
-                minimumSize: Size(widget.width ?? double.infinity, widget.height),
-              ),
-              child: widget.isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (widget.icon != null) ...[
-                          widget.icon!,
-                          const SizedBox(width: 10),
-                        ],
-                        Flexible(
-                          child: Text(
-                            widget.text,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: widget.textStyle ??
-                                const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.35,
-                                  color: Colors.white,
-                                ),
-                          ),
-                        ),
-                      ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: glowColor,
+                      blurRadius: _glowAnimation.value,
+                      spreadRadius: _glowAnimation.value * 0.3,
+                      offset: const Offset(0, 4),
                     ),
-            ),
-          ),
-        );
-      },
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: widget.isLoading ? null : widget.onPressed,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: color,
+                    foregroundColor: foreground,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                    ),
+                    elevation: 0,
+                    minimumSize:
+                        Size(widget.width ?? double.infinity, widget.height),
+                  ),
+                  child: widget.isLoading
+                      ? Semantics(
+                          label: l?.loading ?? 'Loading',
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: foreground,
+                            ),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (widget.icon != null) ...[
+                              widget.icon!,
+                              const SizedBox(width: 10),
+                            ],
+                            Flexible(
+                              child: Text(
+                                widget.text,
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: widget.textStyle ??
+                                    TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.35,
+                                      color: foreground,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
@@ -224,12 +241,17 @@ class AnimatedGradientCard extends StatefulWidget {
   final double? height;
   final VoidCallback? onTap;
 
+  /// Accessible name. Required whenever [onTap] is set — without it the card is
+  /// an unlabelled tap target that a screen reader skips over entirely.
+  final String? semanticLabel;
+
   const AnimatedGradientCard({
     super.key,
     required this.child,
     this.gradientColors,
     this.height,
     this.onTap,
+    this.semanticLabel,
   });
 
   @override
@@ -261,33 +283,51 @@ class _AnimatedGradientCardState extends State<AnimatedGradientCard>
   Widget build(BuildContext context) {
     final colors =
         widget.gradientColors ?? [DarkColors.primary, DarkColors.primary];
-
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: AnimatedBuilder(
-        animation: _shimmerAnimation,
-        builder: (context, _) {
-          return Container(
-            height: widget.height,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSizes.radiusL),
-              gradient: LinearGradient(
-                colors: colors,
-                begin: Alignment(_shimmerAnimation.value - 1, 0),
-                end: Alignment(_shimmerAnimation.value, 0),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  // ✅ withOpacity → withValues
-                  color: colors.first.withValues(alpha: 0.3),
-                  blurRadius: 16,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+    final card = AnimatedBuilder(
+      animation: _shimmerAnimation,
+      builder: (context, _) {
+        return Container(
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSizes.radiusL),
+            gradient: LinearGradient(
+              colors: colors,
+              begin: Alignment(_shimmerAnimation.value - 1, 0),
+              end: Alignment(_shimmerAnimation.value, 0),
             ),
-            child: widget.child,
-          );
-        },
+            boxShadow: [
+              BoxShadow(
+                // ✅ withOpacity → withValues
+                color: colors.first.withValues(alpha: 0.3),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: widget.child,
+        );
+      },
+    );
+
+    if (widget.onTap == null) return card;
+
+    // GestureDetector alone is not focusable and exposes no semantics, so a
+    // keyboard user could never reach this card.
+    return Semantics(
+      button: true,
+      label: widget.semanticLabel,
+      onTap: widget.onTap,
+      child: ExcludeSemantics(
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(AppSizes.radiusL),
+          child: InkWell(
+            onTap: widget.onTap,
+            canRequestFocus: true,
+            borderRadius: BorderRadius.circular(AppSizes.radiusL),
+            child: card,
+          ),
+        ),
       ),
     );
   }

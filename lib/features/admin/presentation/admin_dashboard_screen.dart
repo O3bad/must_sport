@@ -22,61 +22,67 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   int _section = 0;
 
   static List<ExpandableTab> _sectionTabs(AppLocalizations l) => [
-    ExpandableTab(title: l.overview,  icon: Icons.dashboard_rounded),
-    ExpandableTab(title: l.eventsAdmin,    icon: Icons.emoji_events_rounded),
-    const ExpandableTab.separator(),
-    ExpandableTab(title: l.users,     icon: Icons.group_rounded),
-    ExpandableTab(title: l.actions,   icon: Icons.bolt_rounded),
-  ];
+        ExpandableTab(title: l.overview, icon: Icons.dashboard_rounded),
+        ExpandableTab(title: l.eventsAdmin, icon: Icons.emoji_events_rounded),
+        const ExpandableTab.separator(),
+        ExpandableTab(title: l.users, icon: Icons.group_rounded),
+        ExpandableTab(title: l.actions, icon: Icons.bolt_rounded),
+      ];
 
   // Map tab index (accounting for separator at idx 2) → section int
   int _tabToSection(int tabIdx) => switch (tabIdx) {
-    0 => 0,
-    1 => 1,
-    3 => 2,
-    4 => 3,
-    _ => 0,
-  };
+        0 => 0,
+        1 => 1,
+        3 => 2,
+        4 => 3,
+        _ => 0,
+      };
 
   // Map section int → tab index
   int _sectionToTab(int section) => switch (section) {
-    0 => 0,
-    1 => 1,
-    2 => 3,
-    3 => 4,
-    _ => 0,
-  };
+        0 => 0,
+        1 => 1,
+        2 => 3,
+        3 => 4,
+        _ => 0,
+      };
 
   @override
   Widget build(BuildContext context) {
-    final l       = AppLocalizations.of(context)!;
-    final isAr    = Localizations.localeOf(context).languageCode == 'ar';
-    final state   = context.watch<AppState>();
+    final l = AppLocalizations.of(context)!;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final state = context.watch<AppState>();
     context.read<ThemeProvider>();
-    final user    = state.user;
+    final user = state.user;
     final primary = context.primaryColor;
-    final second  = context.secondaryColor;
-    final accent  = context.accentColor;
-    final errC    = context.errorColor;
+    final second = context.secondaryColor;
+    final accent = context.accentColor;
+    final errC = context.errorColor;
 
-    final totalUsers   = state.adminAllUsers.length;
-    final students     = state.adminAllUsers.where((u) => u.role == UserRole.student).length;
-    final openEvents   = state.events.where((e) => e.status == EventStatus.open).length;
-    final totalBookings= state.bookings.length;
-    final regState     = context.watch<ActivityRegistrationState>();
-    final pendingRegs  = regState.pending.length;
-    final totalRegs    = regState.all.length;
-    final hasPending   = pendingRegs > 0;
-    final hPad         = context.hPadding;
-    final statsCols    = context.isTablet ? 3 : (context.isSmallPhone ? 1 : 2);
+    final totalUsers = state.adminAllUsers.length;
+    final students =
+        state.adminAllUsers.where((u) => u.role == UserRole.student).length;
+    final openEvents =
+        state.events.where((e) => e.status == EventStatus.open).length;
+    final totalBookings = state.bookings.length;
+    final regState = context.watch<ActivityRegistrationState>();
+    final pendingRegs = regState.pending.length;
+    final totalRegs = regState.all.length;
+    final hasPending = pendingRegs > 0;
+    final hPad = context.hPadding;
+    final statsCols = context.isTablet ? 3 : (context.isSmallPhone ? 1 : 2);
 
     final stats = [
-      _StatData(l.totalUsers,    '$totalUsers',   '👥', primary),
-      _StatData(l.student,       '$students',     '🎓', second),
-      _StatData(l.activeEvents,  '$openEvents',   '🏆', accent),
-      _StatData(l.registrations, '$totalRegs',    '📋', errC),
-      _StatData(l.pendingReview, '$pendingRegs',  '⏳', const Color(0xFFFFB547)),
-      _StatData(l.activities,    '24', '🎭', const Color(0xFF00BCD4)),
+      _StatData(
+          l.totalUsers, '$totalUsers', Icons.people_outline_rounded, primary),
+      _StatData(l.student, '$students', Icons.school_outlined, second),
+      _StatData(
+          l.activeEvents, '$openEvents', Icons.emoji_events_outlined, accent),
+      _StatData(l.registrations, '$totalRegs', Icons.assignment_outlined, errC),
+      _StatData(l.pendingReview, '$pendingRegs', Icons.hourglass_empty_rounded,
+          const Color(0xFFFFB547)),
+      _StatData(l.activities, '24', Icons.theater_comedy_outlined,
+          const Color(0xFF00BCD4)),
     ];
 
     final sectionTabs = _sectionTabs(l);
@@ -86,7 +92,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       appBar: _AdminAppBar(title: l.dashboard),
       body: ListView(
         padding: EdgeInsets.only(
-          left: hPad, right: hPad, top: 20,
+          left: hPad,
+          right: hPad,
+          top: 20,
           bottom: MediaQuery.of(context).padding.bottom + 90,
         ),
         children: [
@@ -101,27 +109,39 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFB547).withValues(alpha: 0.12),
-                border: Border.all(color: const Color(0xFFFFB547).withValues(alpha: 0.45)),
+                border: Border.all(
+                    color: const Color(0xFFFFB547).withValues(alpha: 0.45)),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(children: [
-                const Text('⏳', style: TextStyle(fontSize: 20)),
+                const Icon(Icons.hourglass_empty_rounded,
+                    size: 20, color: Color(0xFFFFB547)),
                 const SizedBox(width: 10),
-                Expanded(child: Text(
-                  isAr ? 'لديك $pendingRegs تسجيل قيد الانتظار بانتظار المراجعة.' : 'You have $pendingRegs pending registration${pendingRegs > 1 ? "s" : ""} awaiting review.',
+                Expanded(
+                    child: Text(
+                  isAr
+                      ? 'لديك $pendingRegs تسجيل قيد الانتظار بانتظار المراجعة.'
+                      : 'You have $pendingRegs pending registration${pendingRegs > 1 ? "s" : ""} awaiting review.',
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.body(15, color: const Color(0xFFFFB547), weight: FontWeight.w600, context: context),
+                  style: AppTextStyles.body(15,
+                      color: const Color(0xFFFFB547),
+                      weight: FontWeight.w600,
+                      context: context),
                 )),
                 Flexible(
                   child: TextButton(
                     onPressed: () => context.read<AppState>().setNavIndex(1),
-                    style: TextButton.styleFrom(foregroundColor: const Color(0xFFFFB547),
+                    style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFFFFB547),
                         padding: const EdgeInsets.symmetric(horizontal: 6)),
                     child: Text(isAr ? 'مراجعة ←' : 'Review →',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.body(13, color: const Color(0xFFFFB547), weight: FontWeight.w700, context: context)),
+                        style: AppTextStyles.body(13,
+                            color: const Color(0xFFFFB547),
+                            weight: FontWeight.w700,
+                            context: context)),
                   ),
                 ),
               ]),
@@ -145,7 +165,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
           // ── Section: Overview ─────────────────────────────────────────────
           if (_section == 0) ...[
-            SectionLabel(isAr ? 'نظرة عامة' : 'Overview', margin: const EdgeInsets.only(bottom: 12)),
+            SectionLabel(isAr ? 'نظرة عامة' : 'Overview',
+                margin: const EdgeInsets.only(bottom: 12)),
             GridView.count(
               crossAxisCount: statsCols,
               shrinkWrap: true,
@@ -159,27 +180,32 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
           // ── Section: Events ───────────────────────────────────────────────
           if (_section == 1) ...[
-            SectionLabel(l.recentEvents, margin: const EdgeInsets.only(bottom: 12)),
+            SectionLabel(l.recentEvents,
+                margin: const EdgeInsets.only(bottom: 12)),
             ...state.events.take(5).map((e) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: StaggerItem(
-                delay: Duration(milliseconds: state.events.indexOf(e) * 50),
-                child: _EventSummaryRow(event: e),
-              ),
-            )),
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: StaggerItem(
+                    delay: Duration(milliseconds: state.events.indexOf(e) * 50),
+                    child: _EventSummaryRow(event: e),
+                  ),
+                )),
             const SizedBox(height: 8),
             Center(
               child: PressScale(
                 onTap: () => context.read<AppState>().setNavIndex(3),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
                   decoration: BoxDecoration(
                     color: second.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: second.withValues(alpha: 0.3)),
                   ),
                   child: Text(l.manageAllEvents,
-                    style: AppTextStyles.body(14, color: second, weight: FontWeight.w700, context: context)),
+                      style: AppTextStyles.body(14,
+                          color: second,
+                          weight: FontWeight.w700,
+                          context: context)),
                 ),
               ),
             ),
@@ -187,32 +213,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
           // ── Section: Users ────────────────────────────────────────────────
           if (_section == 2) ...[
-            SectionLabel(l.userBreakdown, margin: const EdgeInsets.only(bottom: 12)),
-            ...[ 
-              _StatData(l.totalUsers,  '$totalUsers', '👥', primary),
-              _StatData(l.student,     '$students',   '🎓', second),
-              _StatData(l.pendingReview, '$pendingRegs','⏳', const Color(0xFFFFB547)),
-              _StatData(l.allBookings, '$totalBookings','📅', accent),
+            SectionLabel(l.userBreakdown,
+                margin: const EdgeInsets.only(bottom: 12)),
+            ...[
+              _StatData(l.totalUsers, '$totalUsers',
+                  Icons.people_outline_rounded, primary),
+              _StatData(l.student, '$students', Icons.school_outlined, second),
+              _StatData(l.pendingReview, '$pendingRegs',
+                  Icons.hourglass_empty_rounded, const Color(0xFFFFB547)),
+              _StatData(l.allBookings, '$totalBookings',
+                  Icons.event_note_outlined, accent),
             ].map((s) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: StaggerItem(
-                delay: const Duration(milliseconds: 40),
-                child: _GlowStatCard(stat: s),
-              ),
-            )),
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: StaggerItem(
+                    delay: const Duration(milliseconds: 40),
+                    child: _GlowStatCard(stat: s),
+                  ),
+                )),
             const SizedBox(height: 8),
             Center(
               child: PressScale(
                 onTap: () => context.read<AppState>().setNavIndex(4),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
                   decoration: BoxDecoration(
                     color: primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: primary.withValues(alpha: 0.3)),
                   ),
                   child: Text(l.manageAllUsers,
-                    style: AppTextStyles.body(14, color: primary, weight: FontWeight.w700, context: context)),
+                      style: AppTextStyles.body(14,
+                          color: primary,
+                          weight: FontWeight.w700,
+                          context: context)),
                 ),
               ),
             ),
@@ -220,65 +254,86 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
           // ── Section: Quick Actions ────────────────────────────────────────
           if (_section == 3) ...[
-            SectionLabel(l.quickActions, margin: const EdgeInsets.only(bottom: 12)),
+            SectionLabel(l.quickActions,
+                margin: const EdgeInsets.only(bottom: 12)),
             context.isSmallPhone
                 ? Column(children: [
                     _QuickAction(
-                icon: '📋', label: l.registrations,
+                      icon: Icons.assignment_outlined,
+                      label: l.registrations,
                       color: const Color(0xFFFFB547),
                       onTap: () => context.read<AppState>().setNavIndex(1),
                     ),
                     const SizedBox(height: 12),
                     _QuickAction(
-                icon: '🏆', label: l.eventsAdmin,
+                      icon: Icons.emoji_events_outlined,
+                      label: l.eventsAdmin,
                       color: second,
                       onTap: () => context.read<AppState>().setNavIndex(3),
                     ),
                     const SizedBox(height: 12),
                     _QuickAction(
-                icon: '👥', label: l.users,
+                      icon: Icons.people_outline_rounded,
+                      label: l.users,
                       color: primary,
                       onTap: () => context.read<AppState>().setNavIndex(4),
                     ),
                     const SizedBox(height: 12),
                     _QuickAction(
-                      icon: '🤖', label: l.aiGuideTitle,
+                      icon: Icons.smart_toy_outlined,
+                      label: l.aiGuideTitle,
                       color: accent,
                       onTap: () => context.read<AppState>().setNavIndex(5),
                     ),
                     const SizedBox(height: 12),
                     _QuickAction(
-                      icon: '📢', label: l.sendNotification,
+                      icon: Icons.campaign_outlined,
+                      label: l.sendNotification,
                       color: const Color(0xFF00BCD4),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SendNotificationScreen())),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const SendNotificationScreen())),
                     ),
                   ])
                 : Column(children: [
                     Row(children: [
-                      Expanded(child: _QuickAction(
-                        icon: '📋', label: l.registrations,
+                      Expanded(
+                          child: _QuickAction(
+                        icon: Icons.assignment_outlined,
+                        label: l.registrations,
                         color: const Color(0xFFFFB547),
                         onTap: () => context.read<AppState>().setNavIndex(1),
                       )),
                       const SizedBox(width: 12),
-                      Expanded(child: _QuickAction(
-                        icon: '🏆', label: l.eventsAdmin,
+                      Expanded(
+                          child: _QuickAction(
+                        icon: Icons.emoji_events_outlined,
+                        label: l.eventsAdmin,
                         color: second,
                         onTap: () => context.read<AppState>().setNavIndex(3),
                       )),
                     ]),
                     const SizedBox(height: 12),
                     Row(children: [
-                      Expanded(child: _QuickAction(
-                        icon: '👥', label: l.users,
+                      Expanded(
+                          child: _QuickAction(
+                        icon: Icons.people_outline_rounded,
+                        label: l.users,
                         color: primary,
                         onTap: () => context.read<AppState>().setNavIndex(4),
                       )),
                       const SizedBox(width: 12),
-                      Expanded(child: _QuickAction(
-                        icon: '📢', label: l.sendNotification,
+                      Expanded(
+                          child: _QuickAction(
+                        icon: Icons.campaign_outlined,
+                        label: l.sendNotification,
                         color: const Color(0xFF00BCD4),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SendNotificationScreen())),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    const SendNotificationScreen())),
                       )),
                     ]),
                   ]),
@@ -296,9 +351,9 @@ class _AdminHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark  = context.isDark;
+    final isDark = context.isDark;
     final primary = context.primaryColor;
-    final second  = context.secondaryColor;
+    final second = context.secondaryColor;
 
     final gradColors = isDark
         ? const [Color(0xFF0D2A5A), Color(0xFF1a2a50), Color(0xFF0A1228)]
@@ -309,7 +364,8 @@ class _AdminHeroCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: gradColors,
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: primary.withValues(alpha: 0.25)),
@@ -319,11 +375,15 @@ class _AdminHeroCard extends StatelessWidget {
       ),
       child: Row(children: [
         Container(
-          width: 56, height: 56,
+          width: 56,
+          height: 56,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [primary.withValues(alpha: 0.8), second.withValues(alpha: 0.5)],
+              colors: [
+                primary.withValues(alpha: 0.8),
+                second.withValues(alpha: 0.5)
+              ],
             ),
             boxShadow: [
               BoxShadow(color: primary.withValues(alpha: 0.4), blurRadius: 16),
@@ -334,14 +394,20 @@ class _AdminHeroCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(user.name,
-              maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.display(22, color: Colors.white, context: context)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.display(22,
+                  color: Colors.white, context: context)),
           const SizedBox(height: 2),
           Text(user.role.label,
-              maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.body(14, color: Colors.white60, context: context)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.body(14,
+                  color: Colors.white60, context: context)),
           const SizedBox(height: 6),
           AppPill(label: user.faculty, color: second),
         ])),
@@ -352,7 +418,8 @@ class _AdminHeroCard extends StatelessWidget {
 
 // ── GLOW STAT CARD ────────────────────────────────────────────────────────────
 class _StatData {
-  final String label, value, icon;
+  final String label, value;
+  final IconData icon;
   final Color color;
   const _StatData(this.label, this.value, this.icon, this.color);
 }
@@ -367,7 +434,7 @@ class _GlowStatCard extends StatefulWidget {
 class _GlowStatCardState extends State<_GlowStatCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
-  late Animation<double>   _glow;
+  late Animation<double> _glow;
 
   @override
   void initState() {
@@ -381,11 +448,14 @@ class _GlowStatCardState extends State<_GlowStatCard>
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final c    = widget.stat.color;
+    final c = widget.stat.color;
     final surf = context.surfaceColor;
 
     return AnimatedBuilder(
@@ -410,20 +480,27 @@ class _GlowStatCardState extends State<_GlowStatCard>
           children: [
             Row(children: [
               Container(
-                width: 32, height: 28,
+                width: 32,
+                height: 28,
                 decoration: BoxDecoration(
                   color: c.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Center(child: Text(widget.stat.icon, style: const TextStyle(fontSize: 16))),
+                child:
+                    Center(child: Icon(widget.stat.icon, size: 16, color: c)),
               ),
               const Spacer(),
               Container(
-                width: 6, height: 6,
+                width: 6,
+                height: 6,
                 decoration: BoxDecoration(
                   color: c,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: c.withValues(alpha: 0.8 * _glow.value), blurRadius: 6)],
+                  boxShadow: [
+                    BoxShadow(
+                        color: c.withValues(alpha: 0.8 * _glow.value),
+                        blurRadius: 6)
+                  ],
                 ),
               ),
             ]),
@@ -432,13 +509,14 @@ class _GlowStatCardState extends State<_GlowStatCard>
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(widget.stat.value,
-                style: AppTextStyles.display(24, color: c, context: context)),
+                  style: AppTextStyles.display(24, color: c, context: context)),
             ),
             const SizedBox(height: 2),
             Text(widget.stat.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.label(color: context.mutedColor, context: context)),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.label(
+                    color: context.mutedColor, context: context)),
           ],
         ),
       ),
@@ -452,11 +530,11 @@ class _EventSummaryRow extends StatelessWidget {
   const _EventSummaryRow({required this.event});
 
   Color _statusColor(BuildContext ctx) => switch (event.status) {
-    EventStatus.open      => ctx.secondaryColor,
-    EventStatus.full      => ctx.errorColor,
-    EventStatus.soon      => ctx.accentColor,
-    EventStatus.completed => ctx.mutedColor,
-  };
+        EventStatus.open => ctx.secondaryColor,
+        EventStatus.full => ctx.errorColor,
+        EventStatus.soon => ctx.accentColor,
+        EventStatus.completed => ctx.mutedColor,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -466,15 +544,22 @@ class _EventSummaryRow extends StatelessWidget {
       child: Row(children: [
         Icon(event.sportType.icon, color: context.primaryColor, size: 22),
         const SizedBox(width: 10),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(event.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.body(15, color: context.textColor, weight: FontWeight.w600, context: context)),
-          Text('${event.participants}/${event.maxParticipants} · ${event.location}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.body(13, color: context.mutedColor, context: context)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.body(15,
+                  color: context.textColor,
+                  weight: FontWeight.w600,
+                  context: context)),
+          Text(
+              '${event.participants}/${event.maxParticipants} · ${event.location}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.body(13,
+                  color: context.mutedColor, context: context)),
         ])),
         const SizedBox(width: 8),
         AppPill(label: event.status.name.toUpperCase(), color: col),
@@ -485,26 +570,30 @@ class _EventSummaryRow extends StatelessWidget {
 
 // ── QUICK ACTION ──────────────────────────────────────────────────────────────
 class _QuickAction extends StatelessWidget {
-  final String icon, label;
+  final IconData icon;
+  final String label;
   final Color color;
   final VoidCallback onTap;
-  const _QuickAction({required this.icon, required this.label,
-    required this.color, required this.onTap});
+  const _QuickAction(
+      {required this.icon,
+      required this.label,
+      required this.color,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
       onTap: onTap,
-      glowColor: color,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(icon, style: const TextStyle(fontSize: 24)),
+        Icon(icon, size: 24, color: color),
         const SizedBox(height: 6),
         Text(label,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.body(14, color: color, weight: FontWeight.w700, context: context)),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.body(14,
+                color: color, weight: FontWeight.w700, context: context)),
       ]),
     );
   }
@@ -520,12 +609,12 @@ class _AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark  = context.isDark;
+    final isDark = context.isDark;
     final primary = context.primaryColor;
-    final second  = context.secondaryColor;
-    final surf    = context.surfaceColor;
-    final border  = context.borderColor;
-    final bg      = context.bgColor;
+    final second = context.secondaryColor;
+    final surf = context.surfaceColor;
+    final border = context.borderColor;
+    final bg = context.bgColor;
     context.read<AppState>();
     final themeProvider = context.read<ThemeProvider>();
 
@@ -534,7 +623,8 @@ class _AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
       surfaceTintColor: Colors.transparent,
       title: Row(children: [
         Container(
-          width: 28, height: 28,
+          width: 28,
+          height: 28,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: isDark
@@ -543,14 +633,17 @@ class _AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Center(child: Icon(Icons.admin_panel_settings_rounded, size: 16, color: Colors.white)),
+          child: const Center(
+              child: Icon(Icons.admin_panel_settings_rounded,
+                  size: 16, color: Colors.white)),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.heading(18, color: primary, context: context)),
+              style:
+                  AppTextStyles.heading(18, color: primary, context: context)),
         ),
       ]),
       actions: [
@@ -563,38 +656,53 @@ class _AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           onPressed: themeProvider.toggleLanguage,
           icon: Container(
-            width: 34, height: 34,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
-              color: surf, borderRadius: BorderRadius.circular(10),
+              color: surf,
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(color: border),
             ),
-            child: Center(child: Text(themeProvider.isArabic ? 'EN' : 'AR',
-                style: AppTextStyles.label(color: primary, weight: FontWeight.w800, context: context))),
+            child: Center(
+                child: Text(themeProvider.isArabic ? 'EN' : 'AR',
+                    style: AppTextStyles.label(
+                        color: primary,
+                        weight: FontWeight.w800,
+                        context: context))),
           ),
         ),
         // Theme toggle
         IconButton(
           onPressed: themeProvider.toggleTheme,
           icon: Container(
-            width: 34, height: 34,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
-              color: surf, borderRadius: BorderRadius.circular(10),
+              color: surf,
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(color: border),
             ),
-            child: Center(child: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, size: 18, color: isDark ? DarkColors.accent : LightColors.navy)),
+            child: Center(
+                child: Icon(
+                    isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                    size: 18,
+                    color: isDark ? DarkColors.accent : LightColors.navy)),
           ),
         ),
         // Sign out
         IconButton(
           onPressed: () => _confirmSignOut(context),
           icon: Container(
-            width: 34, height: 34,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
-              color: surf, borderRadius: BorderRadius.circular(10),
+              color: surf,
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(color: border),
             ),
-            child: Center(child: Icon(Icons.logout_rounded,
-              color: context.errorColor, size: 18)),
+            child: Center(
+                child: Icon(Icons.logout_rounded,
+                    color: context.errorColor, size: 18)),
           ),
         ),
         const SizedBox(width: 8),
@@ -610,6 +718,3 @@ class _AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
     showDialog(context: context, builder: (_) => const MusterSignOutDialog());
   }
 }
-
-
-

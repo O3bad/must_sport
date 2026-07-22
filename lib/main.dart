@@ -10,6 +10,8 @@ import 'core/state/notification_state.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/fcm_service.dart';
 import 'core/services/cache_service.dart';
+import 'core/services/notification_preferences.dart';
+import 'core/legal/cookie_consent_banner.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/auth/presentation/splash_screen.dart';
 import 'l10n/app_localizations.dart';
@@ -35,8 +37,6 @@ Future<void> main() async {
     debugPrint('⚠️  Firebase init skipped: $e');
   }
 
-  // Initialise FCM (push notifications + local notifications).
-  // Must run after Firebase.initializeApp succeeds.
   if (firebaseReady) {
     try {
       await FCMService().initialize();
@@ -47,6 +47,9 @@ Future<void> main() async {
 
   // Initialise CacheService (low-level persistence)
   await CacheService.instance.init();
+
+  // Persisted notification preferences, so an opt-out survives a restart.
+  await NotificationPreferences.instance.init();
 
   // Initialise AppState (loads cached theme / session)
   final appState = AppState();
@@ -90,10 +93,21 @@ class MusterApp extends StatelessWidget {
       builder: (context, child) {
         final media = MediaQuery.of(context);
         // Keep typography and spacing stable on very small/large Android screens.
-        final clampedScale = media.textScaler.clamp(minScaleFactor: 0.9, maxScaleFactor: 1.15);
+        final clampedScale =
+            media.textScaler.clamp(minScaleFactor: 0.9, maxScaleFactor: 1.15);
         return MediaQuery(
           data: media.copyWith(textScaler: clampedScale),
-          child: child ?? const SizedBox.shrink(),
+          child: Stack(
+            children: [
+              child ?? const SizedBox.shrink(),
+              // Renders nothing outside the web build: native apps have no
+              // cookies to consent to.
+              const Align(
+                alignment: Alignment.bottomCenter,
+                child: CookieConsentBanner(),
+              ),
+            ],
+          ),
         );
       },
       home: const SplashScreen(),

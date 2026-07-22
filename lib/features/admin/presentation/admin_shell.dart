@@ -30,14 +30,14 @@ class AdminShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l           = AppLocalizations.of(context)!;
-    final state        = context.watch<AppState>();
-    final regState     = context.watch<ActivityRegistrationState>();
-    final isDark       = context.isDark;
-    final primary      = context.primaryColor;
-    final muted        = context.mutedColor;
-    final border       = context.borderColor;
-    final surface2     = isDark ? DarkColors.surface2 : LightColors.surface2;
+    final l = AppLocalizations.of(context)!;
+    final state = context.watch<AppState>();
+    final regState = context.watch<ActivityRegistrationState>();
+    final isDark = context.isDark;
+    final primary = context.primaryColor;
+    final muted = context.mutedColor;
+    final border = context.borderColor;
+    final surface2 = isDark ? DarkColors.surface2 : LightColors.surface2;
     final pendingCount = regState.pending.length;
     final currentIndex = state.navIndex.clamp(0, _screenCount - 1);
 
@@ -45,15 +45,17 @@ class AdminShell extends StatelessWidget {
     final items = [
       NavItemData(label: l.dashboard, icon: Icons.dashboard_rounded),
       NavItemData(
-        label:      l.requests,
-        icon:       Icons.assignment_rounded,
-        hasBadge:   pendingCount > 0,
+        label: l.requests,
+        icon: Icons.assignment_rounded,
+        hasBadge: pendingCount > 0,
         badgeCount: pendingCount,
       ),
-      NavItemData(label: l.booking,    icon: Icons.calendar_month_rounded),
-      NavItemData(label: l.events,     icon: Icons.emoji_events_rounded),
-      NavItemData(label: l.rank,       icon: Icons.group_rounded), // Using 'rank' or finding 'Users' key
-      NavItemData(label: l.aiGuide,    icon: Icons.smart_toy_rounded),
+      NavItemData(label: l.booking, icon: Icons.calendar_month_rounded),
+      NavItemData(label: l.events, icon: Icons.emoji_events_rounded),
+      NavItemData(
+          label: l.rank,
+          icon: Icons.group_rounded), // Using 'rank' or finding 'Users' key
+      NavItemData(label: l.aiGuide, icon: Icons.smart_toy_rounded),
     ];
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -71,13 +73,13 @@ class AdminShell extends StatelessWidget {
           ),
           bottomNavigationBar: AnimatedNavBar(
             currentIndex: currentIndex,
-            items:        items,
-            primary:      primary,
-            muted:        muted,
-            surface2:     surface2,
-            border:       border,
-            isDark:       isDark,
-            errorColor:   context.errorColor,
+            items: items,
+            primary: primary,
+            muted: muted,
+            surface2: surface2,
+            border: border,
+            isDark: isDark,
+            errorColor: context.errorColor,
             onTap: (i) {
               HapticFeedback.selectionClick();
               context.read<AppState>().setNavIndex(i);

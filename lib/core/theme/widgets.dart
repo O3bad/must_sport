@@ -10,12 +10,16 @@ import '../../l10n/app_localizations.dart';
 import '../../features/auth/presentation/login_screen.dart';
 
 // ─── THEME HELPERS ────────────────────────────────────────────────────────────
+// `onFillFor` now lives in app_theme.dart so that low-level widgets can reach
+// it without importing this library; re-exported here for existing call sites.
+export 'app_theme.dart' show onFillFor;
+
 extension ThemeX on BuildContext {
-  bool get isDark        => Theme.of(this).brightness == Brightness.dark;
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
   double get screenWidth => MediaQuery.sizeOf(this).width;
-  bool get isSmallPhone  => screenWidth < 360;
-  bool get isPhone       => screenWidth < 600;
-  bool get isTablet      => screenWidth >= 600;
+  bool get isSmallPhone => screenWidth < 360;
+  bool get isPhone => screenWidth < 600;
+  bool get isTablet => screenWidth >= 600;
   double get hPadding {
     final w = screenWidth;
     if (w < 360) return 14;
@@ -23,16 +27,27 @@ extension ThemeX on BuildContext {
     if (w < 600) return 20;
     return 24;
   }
-  Color get bgColor      => AppColors.bg(this);
+
+  Color get bgColor => AppColors.bg(this);
   Color get surfaceColor => AppColors.surface(this);
-  Color get surface2Color=> AppColors.surface2(this);
-  Color get borderColor  => AppColors.border(this);
-  Color get textColor    => AppColors.text(this);
-  Color get mutedColor   => AppColors.muted(this);
+  Color get surface2Color => AppColors.surface2(this);
+  Color get borderColor => AppColors.border(this);
+
+  /// 3:1 WCAG 1.4.11 border for interactive controls (inputs, checkboxes).
+  Color get borderInteractiveColor => AppColors.borderInteractive(this);
+  Color get textColor => AppColors.text(this);
+  Color get mutedColor => AppColors.muted(this);
+
+  /// Alpha-free muted tone — use instead of `mutedColor.withValues(alpha: .6)`.
+  Color get mutedSubtleColor => AppColors.mutedSubtle(this);
   Color get primaryColor => AppColors.primary(this);
-  Color get secondaryColor=>AppColors.secondary(this);
-  Color get accentColor  => AppColors.accent(this);
-  Color get errorColor   => AppColors.error(this);
+  Color get secondaryColor => AppColors.secondary(this);
+  Color get accentColor => AppColors.accent(this);
+  Color get errorColor => AppColors.error(this);
+
+  /// Legible foreground for text/icons drawn on a [primaryColor] /
+  /// [secondaryColor] / [accentColor] / [errorColor] fill.
+  Color get onFillColor => AppColors.onFill(this);
 }
 
 // ─── MUSTER APP BAR ───────────────────────────────────────────────────────────
@@ -41,7 +56,8 @@ class MusterAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const MusterAppBar({
     super.key,
-    @Deprecated('Use onNotificationTap; badge is now driven by NotificationState')
+    @Deprecated(
+        'Use onNotificationTap; badge is now driven by NotificationState')
     bool hasNotification = false,
     this.onNotificationTap,
   });
@@ -51,16 +67,16 @@ class MusterAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark       = context.isDark;
-    final primary      = context.primaryColor;
-    final surf         = context.surfaceColor;
-    final border       = context.borderColor;
-    final bg           = context.bgColor;
-    final state        = context.read<AppState>();
+    final isDark = context.isDark;
+    final primary = context.primaryColor;
+    final surf = context.surfaceColor;
+    final border = context.borderColor;
+    final bg = context.bgColor;
+    final state = context.read<AppState>();
     final themeProvider = context.read<ThemeProvider>();
-    final isAr         = Localizations.localeOf(context).languageCode == 'ar';
-    final unreadCount  = context.watch<NotificationState>().unreadCount;
-    final hasUnread    = unreadCount > 0;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final unreadCount = context.watch<NotificationState>().unreadCount;
+    final hasUnread = unreadCount > 0;
 
     return AppBar(
       backgroundColor: isDark ? bg.withValues(alpha: 0.95) : surf,
@@ -68,17 +84,20 @@ class MusterAppBar extends StatelessWidget implements PreferredSizeWidget {
       toolbarHeight: kToolbarHeight + 10,
       title: Row(children: [
         Container(
-          width: 34, height: 34,
+          width: 34,
+          height: 34,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: isDark
                   ? [DarkColors.primary, const Color(0xFF0097A7)]
                   : [LightColors.blue, LightColors.navy],
-              begin: Alignment.topLeft, end: Alignment.bottomRight,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Center(child: Icon(
+          child: Center(
+              child: Icon(
             state.user.role.icon,
             color: Colors.white,
             size: 18,
@@ -92,23 +111,31 @@ class MusterAppBar extends StatelessWidget implements PreferredSizeWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('MUSTER',
-                  style: AppTextStyles.display(14, color: primary, letterSpacing: 0, context: context),
+                  style: AppTextStyles.display(14,
+                      color: primary, letterSpacing: 0, context: context),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
               Row(mainAxisSize: MainAxisSize.min, children: [
-                Flexible(child: Text(state.user.role.label,
-                    style: AppTextStyles.label(color: context.mutedColor, context: context).copyWith(fontSize: 11),
-                    overflow: TextOverflow.ellipsis)),
+                Flexible(
+                    child: Text(state.user.role.label,
+                        style: AppTextStyles.label(
+                                color: context.mutedColor, context: context)
+                            .copyWith(fontSize: 11),
+                        overflow: TextOverflow.ellipsis)),
                 if (state.user.semester.isNotEmpty) ...[
                   const SizedBox(width: 5),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                     decoration: BoxDecoration(
                       color: context.secondaryColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(state.user.semester,
-                        style: AppTextStyles.label(color: context.secondaryColor, size: 9, context: context),
+                        style: AppTextStyles.label(
+                            color: context.secondaryColor,
+                            size: 9,
+                            context: context),
                         overflow: TextOverflow.ellipsis),
                   ),
                 ],
@@ -125,9 +152,13 @@ class MusterAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 38, minHeight: 38),
           icon: _NavIconBox(
-            surf: surf, border: border, size: 32,
+            surf: surf,
+            border: border,
+            size: 32,
             child: Text(isAr ? 'EN' : 'AR',
-                style: AppTextStyles.label(color: primary, size: 10, context: context).copyWith(fontWeight: FontWeight.bold)),
+                style: AppTextStyles.label(
+                        color: primary, size: 10, context: context)
+                    .copyWith(fontWeight: FontWeight.bold)),
           ),
         ),
         // Theme toggle
@@ -137,9 +168,13 @@ class MusterAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 38, minHeight: 38),
           icon: _NavIconBox(
-            surf: surf, border: border, size: 32,
-            child: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                color: isDark ? DarkColors.accent : LightColors.navy, size: 17),
+            surf: surf,
+            border: border,
+            size: 32,
+            child: Icon(
+                isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                color: isDark ? DarkColors.accent : LightColors.navy,
+                size: 17),
           ),
         ),
         // Notification bell with badge
@@ -149,16 +184,20 @@ class MusterAppBar extends StatelessWidget implements PreferredSizeWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 38, minHeight: 38),
             icon: _NavIconBox(
-              surf: surf, border: border, size: 32,
+              surf: surf,
+              border: border,
+              size: 32,
               child: Icon(Icons.notifications_rounded,
                   color: isDark ? DarkColors.text : LightColors.navy, size: 18),
             ),
           ),
           if (hasUnread)
             Positioned(
-              top: 6, right: 6,
+              top: 6,
+              right: 6,
               child: Container(
-                width: 8, height: 8,
+                width: 8,
+                height: 8,
                 decoration: BoxDecoration(
                   color: context.errorColor,
                   shape: BoxShape.circle,
@@ -177,8 +216,11 @@ class MusterAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 38, minHeight: 38),
           icon: _NavIconBox(
-            surf: surf, border: border, size: 32,
-            child: Icon(Icons.logout_rounded, color: context.errorColor, size: 16),
+            surf: surf,
+            border: border,
+            size: 32,
+            child:
+                Icon(Icons.logout_rounded, color: context.errorColor, size: 16),
           ),
         ),
         const SizedBox(width: 6),
@@ -201,19 +243,20 @@ class MusterSignOutDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l       = AppLocalizations.of(context)!;
-    final surf    = context.surfaceColor;
-    final txt     = context.textColor;
-    final muted   = context.mutedColor;
-    final errC    = context.errorColor;
-    final border  = context.borderColor;
+    final l = AppLocalizations.of(context)!;
+    final surf = context.surfaceColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
+    final errC = context.errorColor;
+    final border = context.borderColor;
 
     return AlertDialog(
       backgroundColor: surf,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Row(children: [
         Container(
-          width: 36, height: 36,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
             color: errC.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(10),
@@ -221,7 +264,8 @@ class MusterSignOutDialog extends StatelessWidget {
           child: Icon(Icons.logout_rounded, color: errC, size: 18),
         ),
         const SizedBox(width: 10),
-        Text(l.signOut, style: AppTextStyles.heading(18, color: txt, context: context)),
+        Text(l.signOut,
+            style: AppTextStyles.heading(18, color: txt, context: context)),
       ]),
       content: Text(
         l.signOutConfirm,
@@ -235,10 +279,13 @@ class MusterSignOutDialog extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: border),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              child: Text(l.cancel,              style: AppTextStyles.body(14, color: muted, context: context)),
+              child: Text(l.cancel,
+                  style:
+                      AppTextStyles.body(14, color: muted, context: context)),
             ),
           ),
           const SizedBox(width: 10),
@@ -254,11 +301,16 @@ class MusterSignOutDialog extends StatelessWidget {
                 );
               },
               icon: const Icon(Icons.logout_rounded, size: 16),
-              label: Text(l.signOut, style: AppTextStyles.body(14, color: Colors.white, weight: FontWeight.w600, context: context)),
+              label: Text(l.signOut,
+                  style: AppTextStyles.body(14,
+                      color: Colors.white,
+                      weight: FontWeight.w600,
+                      context: context)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: errC,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
@@ -273,17 +325,22 @@ class _NavIconBox extends StatelessWidget {
   final Widget child;
   final Color surf, border;
   final double size;
-  const _NavIconBox({required this.child, required this.surf, required this.border, this.size = 34});
+  const _NavIconBox(
+      {required this.child,
+      required this.surf,
+      required this.border,
+      this.size = 34});
   @override
   Widget build(BuildContext context) => Container(
-    width: size, height: size,
-    decoration: BoxDecoration(
-      color: surf,
-      borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: border),
-    ),
-    child: Center(child: child),
-  );
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: surf,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: border),
+        ),
+        child: Center(child: child),
+      );
 }
 
 // ─── APP PILL ─────────────────────────────────────────────────────────────────
@@ -308,13 +365,15 @@ class AppPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: context.isDark ? 0.13 : 0.10),
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: color.withValues(alpha: context.isDark ? 0.4 : 0.45)),
+        border: Border.all(
+            color: color.withValues(alpha: context.isDark ? 0.4 : 0.45)),
       ),
       child: Text(
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.label(color: color, size: fontSize, context: context),
+        style:
+            AppTextStyles.label(color: color, size: fontSize, context: context),
       ),
     );
     if (onTap == null) return pill;
@@ -327,26 +386,33 @@ class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final VoidCallback? onTap;
-  final Color? glowColor;
   final Gradient? gradient;
   final double borderRadius;
+
+  /// Set to false to suppress the card border (for cards that sit on a
+  /// surface of their own and do not need a second edge).
+  final bool bordered;
 
   const AppCard({
     super.key,
     required this.child,
     this.padding,
     this.onTap,
-    this.glowColor,
     this.gradient,
     this.borderRadius = 20,
+    this.bordered = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final surf   = context.surfaceColor;
+    final surf = context.surfaceColor;
     final border = context.borderColor;
-    final isDark = context.isDark;
 
+    // Cards are flat in both themes: a 1px border carries the edge, and no
+    // drop shadow is drawn. Previously light mode added a 5%-black blur
+    // shadow and accent-tinted cards added a coloured glow, which made the
+    // surface read as a floating "untouched" Material element rather than part
+    // of the layout.
     final card = AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       padding: padding ?? const EdgeInsets.all(16),
@@ -354,20 +420,7 @@ class AppCard extends StatelessWidget {
         color: gradient == null ? surf : null,
         gradient: gradient,
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: glowColor?.withValues(alpha: 0.3) ?? border),
-        boxShadow: [
-          if (glowColor != null)
-            BoxShadow(
-              color: glowColor!.withValues(alpha: isDark ? 0.08 : 0.12),
-              blurRadius: 20,
-            ),
-          if (!isDark)
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-        ],
+        border: bordered ? Border.all(color: border) : null,
       ),
       child: child,
     );
@@ -390,7 +443,8 @@ class SectionLabel extends StatelessWidget {
       padding: margin ?? const EdgeInsets.only(bottom: 14),
       child: Text(
         text.toUpperCase(),
-        style: AppTextStyles.label(color: context.mutedColor, size: 13, context: context),
+        style: AppTextStyles.label(
+            color: context.mutedColor, size: 13, context: context),
       ),
     );
   }
@@ -457,7 +511,8 @@ class _AppProgressBarState extends State<AppProgressBar>
   void didUpdateWidget(AppProgressBar old) {
     super.didUpdateWidget(old);
     if (old.value != widget.value) {
-      _anim = Tween<double>(begin: _anim.value, end: widget.value.clamp(0.0, 1.0))
+      _anim = Tween<double>(
+              begin: _anim.value, end: widget.value.clamp(0.0, 1.0))
           .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
       _ctrl
         ..reset()
@@ -509,16 +564,34 @@ class AppAvatar extends StatelessWidget {
   final List<Color>? gradientColors;
   final String? photoPath;
 
+  /// Accessible description of the picture, for screen readers (WCAG 1.1.1).
+  /// Pass the person's name, or omit it when the name is already rendered
+  /// immediately next to the avatar and the image is purely decorative.
+  final String? semanticLabel;
+
   const AppAvatar({
     super.key,
     required this.initials,
     this.size = 48,
     this.gradientColors,
     this.photoPath,
+    this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
+    final visual = _buildVisual(context);
+    if (semanticLabel == null) return visual;
+    return Semantics(
+      image: true,
+      label: semanticLabel,
+      // The initials inside the fallback are already represented by the label,
+      // so they are not announced twice.
+      child: ExcludeSemantics(child: visual),
+    );
+  }
+
+  Widget _buildVisual(BuildContext context) {
     final isDark = context.isDark;
     final defaultGrad = isDark
         ? const [Color(0xFF1a6b5a), Color(0xFF0d9f73)]
@@ -529,7 +602,8 @@ class AppAvatar extends StatelessWidget {
       return ClipOval(
         child: Image.asset(
           photoPath!,
-          width: size, height: size,
+          width: size,
+          height: size,
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => _gradientCircle(context, defaultGrad),
         ),
@@ -541,18 +615,21 @@ class AppAvatar extends StatelessWidget {
 
   Widget _gradientCircle(BuildContext context, List<Color> defaultGrad) {
     return Container(
-      width: size, height: size,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(
           colors: gradientColors ?? defaultGrad,
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
       child: Center(
         child: Text(
           initials,
-          style: AppTextStyles.display(size * 0.32, color: Colors.white, context: context),
+          style: AppTextStyles.display(size * 0.32,
+              color: Colors.white, context: context),
         ),
       ),
     );
@@ -582,19 +659,21 @@ class StatBox extends StatelessWidget {
         FittedBox(
           fit: BoxFit.scaleDown,
           child: numeric != null
-            ? AnimatedCounter(
-                target: numeric,
-                style: AppTextStyles.stat(24, color: c, context: context),
-                duration: const Duration(milliseconds: 900),
-              )
-            : Text(value, style: AppTextStyles.stat(24, color: c, context: context)),
+              ? AnimatedCounter(
+                  target: numeric,
+                  style: AppTextStyles.stat(24, color: c, context: context),
+                  duration: const Duration(milliseconds: 900),
+                )
+              : Text(value,
+                  style: AppTextStyles.stat(24, color: c, context: context)),
         ),
         const SizedBox(height: 4),
         Text(label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: AppTextStyles.label(color: context.mutedColor, size: 11, context: context)),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.label(
+                color: context.mutedColor, size: 11, context: context)),
       ]),
     );
   }
@@ -622,20 +701,24 @@ class _ToastOverlayState extends State<ToastOverlay>
       begin: const Offset(0, -1.4),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _ctrl, curve: MusterAnim.snap));
-    _opacity = CurvedAnimation(parent: _ctrl,
-        curve: const Interval(0, 0.4, curve: Curves.easeOut));
+    _opacity = CurvedAnimation(
+        parent: _ctrl, curve: const Interval(0, 0.4, curve: Curves.easeOut));
     _ctrl.forward();
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final primary = context.primaryColor;
     return Positioned(
       top: MediaQuery.of(context).padding.top + 16,
-      left: 24, right: 24,
+      left: 24,
+      right: 24,
       child: AnimatedBuilder(
         animation: _ctrl,
         builder: (_, child) => FadeTransition(
@@ -651,9 +734,11 @@ class _ToastOverlayState extends State<ToastOverlay>
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: primary.withValues(alpha: 0.4)),
               boxShadow: [
-                BoxShadow(color: primary.withValues(alpha: 0.12), blurRadius: 24),
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: context.isDark ? 0.5 : 0.15),
+                    color: primary.withValues(alpha: 0.12), blurRadius: 24),
+                BoxShadow(
+                  color: Colors.black
+                      .withValues(alpha: context.isDark ? 0.5 : 0.15),
                   blurRadius: 16,
                 ),
               ],
@@ -661,7 +746,8 @@ class _ToastOverlayState extends State<ToastOverlay>
             child: Text(
               widget.message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.body(14, color: primary, weight: FontWeight.w600, context: context),
+              style: AppTextStyles.body(14,
+                  color: primary, weight: FontWeight.w600, context: context),
             ),
           ),
         ),
@@ -672,7 +758,7 @@ class _ToastOverlayState extends State<ToastOverlay>
 
 // ─── QUICK ACCESS CARD ────────────────────────────────────────────────────────
 class QuickAccessCard extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String label;
   final Color color;
   final VoidCallback onTap;
@@ -694,23 +780,24 @@ class QuickAccessCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 36, height: 36,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: color.withValues(alpha: 0.25)),
             ),
-            child: Center(child: Text(icon, style: const TextStyle(fontSize: 17))),
+            child: Center(child: Icon(icon, size: 18, color: color)),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.body(13,
-                color: context.textColor,
-                weight: FontWeight.w600,
-                context: context)),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.body(13,
+                    color: context.textColor,
+                    weight: FontWeight.w600,
+                    context: context)),
           ),
         ],
       ),
@@ -747,7 +834,7 @@ class _StaggerItemState extends State<StaggerItem>
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: widget.duration);
-    _fade  = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
     _slide = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
     Future.delayed(widget.delay, () {
@@ -865,6 +952,11 @@ class MorphButton extends StatelessWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
 
+  /// Confirmation green. Lightened for the dark theme so white text stays
+  /// legible on it, and deepened for the light theme.
+  static Color _successColor(BuildContext context) =>
+      context.isDark ? const Color(0xFF22C55E) : const Color(0xFF0A7942);
+
   const MorphButton({
     super.key,
     required this.label,
@@ -878,18 +970,24 @@ class MorphButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bg = backgroundColor ?? context.primaryColor;
-    final fg = foregroundColor ?? Colors.white;
+    // The *drawn* fill, not `bg`: in the success state the button paints green,
+    // so the foreground has to be resolved against green. Deriving it from `bg`
+    // would pick a colour for a background that is no longer on screen.
+    final fill = success ? _successColor(context) : bg;
+    // Resolve a legible foreground from the fill instead of assuming white —
+    // the neon dark-theme accents need dark ink, the light palette needs white.
+    final fg = foregroundColor ?? onFillFor(context, fill);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeInOut,
       height: 52,
       decoration: BoxDecoration(
-        color: success ? const Color(0xFF22C55E) : bg,
+        color: fill,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: (success ? const Color(0xFF22C55E) : bg).withValues(alpha: 0.35),
+            color: fill.withValues(alpha: 0.35),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -926,7 +1024,9 @@ class MorphButton extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.body(15,
-                                  color: fg, weight: FontWeight.w700, context: context),
+                                  color: fg,
+                                  weight: FontWeight.w700,
+                                  context: context),
                             ),
                           ),
                         ),
@@ -958,8 +1058,7 @@ class AnimatedCounter extends StatelessWidget {
       tween: Tween(begin: 0, end: target.toDouble()),
       duration: duration,
       curve: Curves.easeOut,
-      builder: (_, value, __) =>
-          Text(value.round().toString(), style: style),
+      builder: (_, value, __) => Text(value.round().toString(), style: style),
     );
   }
 }

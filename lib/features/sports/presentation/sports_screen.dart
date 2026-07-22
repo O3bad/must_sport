@@ -9,8 +9,12 @@ class SportsScreen extends StatelessWidget {
   const SportsScreen({super.key});
 
   static const _categories = [
-    SportCategory.football, SportCategory.padel, SportCategory.basketball,
-    SportCategory.volleyball, SportCategory.gym, SportCategory.martialArts,
+    SportCategory.football,
+    SportCategory.padel,
+    SportCategory.basketball,
+    SportCategory.volleyball,
+    SportCategory.gym,
+    SportCategory.martialArts,
   ];
 
   @override
@@ -20,27 +24,34 @@ class SportsScreen extends StatelessWidget {
       appBar: const MusterAppBar(),
       body: ListView(
         padding: EdgeInsets.only(
-          left: 20, right: 20, top: 20,
+          left: 20,
+          right: 20,
+          top: 20,
           bottom: MediaQuery.of(context).padding.bottom + 90,
         ),
         children: [
           Text('Sports Categories',
-            style: AppTextStyles.display(24, color: context.textColor)),
+              style: AppTextStyles.display(24, color: context.textColor)),
           const SizedBox(height: 4),
           Text('Tap a sport to browse its events',
-            style: AppTextStyles.body(12, color: context.mutedColor)),
+              style: AppTextStyles.body(12, color: context.mutedColor)),
           const SizedBox(height: 16),
           const MusterDivider(),
           GridView.count(
-            crossAxisCount: 2, shrinkWrap: true,
+            crossAxisCount: 2,
+            shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 14, crossAxisSpacing: 14, childAspectRatio: 0.95,
-            children: _categories.map((cat) => _SportCategoryCard(
-              category: cat,
-              onTap: () => context.read<AppState>()
-                ..setEventFilter(cat)
-                ..setNavIndex(3),
-            )).toList(),
+            mainAxisSpacing: 14,
+            crossAxisSpacing: 14,
+            childAspectRatio: 0.95,
+            children: _categories
+                .map((cat) => _SportCategoryCard(
+                      category: cat,
+                      onTap: () => context.read<AppState>()
+                        ..setEventFilter(cat)
+                        ..setNavIndex(3),
+                    ))
+                .toList(),
           ),
         ],
       ),
@@ -63,10 +74,10 @@ class _SportCategoryCardState extends State<_SportCategoryCard> {
   @override
   Widget build(BuildContext context) {
     final primary = context.primaryColor;
-    final surf    = context.surfaceColor;
-    final surf2   = context.surface2Color;
-    final border  = context.borderColor;
-    final txt     = context.textColor;
+    final surf = context.surfaceColor;
+    final surf2 = context.surface2Color;
+    final border = context.borderColor;
+    final txt = context.textColor;
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -84,23 +95,30 @@ class _SportCategoryCardState extends State<_SportCategoryCard> {
             color: _pressed ? primary.withValues(alpha: 0.5) : border,
           ),
           boxShadow: _pressed
-              ? [BoxShadow(color: primary.withValues(alpha: 0.12), blurRadius: 20)]
+              ? [
+                  BoxShadow(
+                      color: primary.withValues(alpha: 0.12), blurRadius: 20)
+                ]
               : [
                   if (!context.isDark)
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 6, offset: const Offset(0, 2)),
+                    BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2)),
                 ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 52, height: 52,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 color: (_pressed ? primary : primary.withValues(alpha: 0.12)),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Center(child: Icon(
+              child: Center(
+                  child: Icon(
                 widget.category.icon,
                 color: _pressed ? Colors.white : primary,
                 size: 26,
@@ -108,13 +126,18 @@ class _SportCategoryCardState extends State<_SportCategoryCard> {
             ),
             const SizedBox(height: 10),
             Text(widget.category.displayName,
-              style: AppTextStyles.heading(15, color: txt), textAlign: TextAlign.center),
+                style: AppTextStyles.heading(15, color: txt),
+                textAlign: TextAlign.center),
             const SizedBox(height: 4),
             Text('${widget.category.activeCount} active →',
-              style: AppTextStyles.body(11, color: primary, weight: FontWeight.w700)),
+                style: AppTextStyles.body(11,
+                    color: primary, weight: FontWeight.w700)),
             const SizedBox(height: 8),
-            Container(width: 28, height: 2,
-              decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(99))),
+            Container(
+                width: 28,
+                height: 2,
+                decoration: BoxDecoration(
+                    color: primary, borderRadius: BorderRadius.circular(99))),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 {
   "@@locale": "ar",
+  "@ar": {"@selectRole":{"description":"Accessibility label template for \"selectRole\".","placeholders":{"select role":{"type":"String"}}},"@expandSection":{"description":"Accessibility label template for \"expandSection\".","placeholders":{"expand section":{"type":"String"}}},"@collapseSection":{"description":"Accessibility label template for \"collapseSection\".","placeholders":{"collapse section":{"type":"String"}}},"@clearField":{"description":"Accessibility label template for \"clearField\".","placeholders":{"clear field":{"type":"String"}}},"@navBadgeCount":{"description":"Accessibility label template for \"navBadgeCount\".","placeholders":{"nav badge count":{"type":"String"}}}},
   "appTitle": "ماستر",
   "appSubtitle": "إدارة الانشطة الجامعية",
   "signIn": "تسجيل الدخول",
@@ -10,7 +11,7 @@
   "emailHint": "you@must.edu.eg",
   "password": "كلمة المرور",
   "passwordHint": "••••••••",
-  "demoCredentials": "بيانات تجريبية",
+  "demoAccounts": "\u062d\u0633\u0627\u0628\u0627\u062a \u062a\u062c\u0631\u064a\u0628\u064a\u0629",
   "student": "طالب",
   "admin": "مشرف",
   "coach": "مدرب",
@@ -50,6 +51,8 @@
   "bioHint": "أخبرنا عن نفسك...",
   "academicInfo": "المعلومات الأكاديمية",
   "notificationPrefs": "تفضيلات الإشعارات",
+  "pushNotifications": "الإشعارات الفورية",
+  "pushNotificationsDesc": "استقبل تنبيهات التسجيل والحجز والفعاليات. إيقاف هذا يمنع كل الإشعارات الفورية.",
   "reservationReminders": "تذكيرات الحجز",
   "reservationRemindersDesc": "احصل على تذكير قبل حجوزاتك",
   "registrationUpdates": "تحديثات التسجيل",
@@ -59,6 +62,13 @@
   "requiredForms": "النماذج المطلوبة",
   "requiredFormsDesc": "نماذج مطلوبة للتسجيل",
   "privacy": "الخصوصية",
+  "legal": "الشؤون القانونية",
+  "cookieBannerTitle": "ملفات تعريف الارتباط على نسخة الويب",
+  "cookieBannerBody": "نستخدم التخزين لإبقائك مسجّل الدخول ولتذكّر تفضيلاتك. لا توجد إعلانات ولا تتبّع عبر المواقع.",
+  "cookieBannerAccept": "قبول",
+  "cookieBannerDecline": "رفض",
+  "cookieBannerLearnMore": "اقرأ سياسة ملفات تعريف الارتباط",
+  "legalDocumentsSubtitle": "السياسات والشروط وحقوقك في بياناتك",
   "showMyProfile": "إظهار ملفي الشخصي",
   "showMyProfileDesc": "مرئي للطلاب الآخرين",
   "showMyStats": "إظهار إحصائياتي",
@@ -175,6 +185,8 @@
   "leaderboard": "الابطال",
   "topPerformers": "أفضل الطلاب هذا الفصل",
   "noStudentsYet": "لا يوجد طلاب بعد",
+  "noRankedStudentsYet": "لا يوجد طلاب مصنفون بعد",
+  "bookingFailedTryAgain": "فشل الحجز. حاول مرة أخرى.",
   "notificationsTitle": "التنبيهات",
   "unread": "غير مقروء",
   "markAllRead": "تحديد الكل كمقروء",
@@ -190,23 +202,11 @@
   "notifFormRequired": "مطلوب ملء نموذج",
   "notifSystemInfo": "معلومات",
   "minutesAgo": "منذ {count} دقيقة",
-  "@minutesAgo": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
+  "@minutesAgo": {"placeholders":{"count":{"type":"int"}}},
   "hoursAgo": "منذ {count} ساعة",
-  "@hoursAgo": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
+  "@hoursAgo": {"placeholders":{"count":{"type":"int"}}},
   "daysAgo": "منذ {count} أيام",
-  "@daysAgo": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
+  "@daysAgo": {"placeholders":{"count":{"type":"int"}}},
   "myReservationsTitle": "حجوزاتي",
   "newBooking": "جديد",
   "upcomingSection": "القادمة",
@@ -266,13 +266,12 @@
   "errorEmailInUse": "يوجد حساب مرتبط بهذا البريد مسبقًا.",
   "errorWeakPassword": "كلمة المرور ضعيفة — استخدم 6 أحرف على الأقل.",
   "errorSignUpFailed": "فشل إنشاء الحساب. حاول مرة أخرى.",
+  "errorAuthDisabled": "تسجيل الدخول بالبريد الإلكتروني وكلمة المرور معطّل حاليًا في هذا التطبيق. يرجى التواصل مع الدعم.",
+  "errorProfileWriteFailed": "تم إنشاء حسابك، لكن تعذر حفظ ملفك الشخصي. حاول مرة أخرى.",
+  "errorProfileWriteForbidden": "تم إنشاء حسابك، لكن رفض الخادم حفظ ملفك الشخصي. حاول مرة أخرى.",
   "checkEmail": "تحقق من بريدك الإلكتروني",
   "resetLinkSent": "لقد أرسلنا رابط إعادة تعيين كلمة المرور إلى {email}. تحقق من بريدك واتبع التعليمات.",
-  "@resetLinkSent": {
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  },
+  "@resetLinkSent": {"placeholders":{"email":{"type":"String"}}},
   "backToSignIn": "العودة لتسجيل الدخول",
   "forgotPasswordTitle": "نسيت كلمة المرور",
   "forgotPasswordSubtitle": "أدخل بريدك الجامعي وسنرسل لك رابط إعادة التعيين.",
@@ -280,50 +279,23 @@
   "errorNoAccount": "لم يتم العثور على حساب بهذا البريد.",
   "errorGeneric": "حدث خطأ ما. حاول مرة أخرى.",
   "chatbotGreetingStudent": "👋 مرحباً {name}! أنا مرشدك الذكي في ماستر سبورت 🏟️\n\nيمكنني مساعدتك في العثور على الأنشطة، التسجيل، ومتابعة طلباتك.",
-  "@chatbotGreetingStudent": {
-    "placeholders": {
-      "name": { "type": "String" }
-    }
-  },
+  "@chatbotGreetingStudent": {"placeholders":{"name":{"type":"String"}}},
   "chatbotGreetingAdmin": "👋 مرحباً {name}! أنا المرشد الذكي للمسؤولين 🛡️\n\nيمكنني مساعدتك في إدارة التسجيلات، التنقل في لوحة التحكم، والتعامل مع طلبات الطلاب.\n\nكيف يمكنني مساعدتك؟",
-  "@chatbotGreetingAdmin": {
-    "placeholders": {
-      "name": { "type": "String" }
-    }
-  },
+  "@chatbotGreetingAdmin": {"placeholders":{"name":{"type":"String"}}},
   "chatbotReplyGreetingAdmin": "👋 مرحباً أيها المسؤول! أنا مرشدك الذكي.\n\nيمكنني مساعدتك في:\n• مراجعة التسجيلات المعلقة\n• التنقل في لوحة التحكم\n• إدارة الفعاليات والمستخدمين\n\nما الذي تحتاج للمساعدة فيه؟",
   "chatbotReplyGreetingStudent": "👋 مرحباً! أهلاً بك في ماستر سبورت 🏟️\n\nيمكنني مساعدتك في:\n• تصفح جميع الأنشطة الـ 24\n• التسجيل في نشاط\n• التحقق من حالة تسجيلك\n• عرض الفعاليات القادمة\n\nماذا تود أن تفعل؟",
   "chatbotReplyActivities": "🎭 نقدم 24 نشاطاً — رياضة وفنون أداء:\n\n⚽ الرياضة (12):\n{sports}\n\n🎭 الفنون والثقافة (12):\n{arts}\n\nاذهب إلى تبويب الأنشطة واستخدم الفلاتر لتصفح الكل!",
-  "@chatbotReplyActivities": {
-    "placeholders": {
-      "sports": { "type": "String" },
-      "arts": { "type": "String" }
-    }
-  },
+  "@chatbotReplyActivities": {"placeholders":{"sports":{"type":"String"},"arts":{"type":"String"}}},
   "chatbotReplyRegisterAdmin": "📋 لإدارة التسجيلات:\n1. اذهب إلى تبويب التسجيلات\n2. راجع الطلبات المعلقة\n3. اعرض تفاصيل الطالب كاملة\n4. اضغط ✅ قبول أو ❌ رفض\n\nيمكنك أيضاً التراجع عن القرار باستخدام زر ↩ إعادة التعيين.",
   "chatbotReplyRegisterStudent": "📝 للتسجيل في نشاط:\n1. اضغط على تبويب الأنشطة (⚽)\n2. ابحث عن النشاط المطلوب\n3. اضغط على \"سجل الآن\"\n4. املأ نموذج التسجيل\n5. أرسل الطلب وانتظر موافقة المسؤول!\n\nتابع حالة طلبك في \"طلباتي\".",
   "chatbotReplyEvents": "🏆 الفعاليات القادمة:\n\n⚽ كأس كليات كرة القدم — ١٥ مارس\n🎾 بطولة جامعة MUST للباديل — ٢٢ مارس\n🏀 بطولة كرة السلة 3v3 — ٥ أبريل\n🏅 اليوم الرياضي السنوي — ٢٠ أبريل\n🏐 كأس الكرة الطائرة المختلطة — ١٢ أبريل\n🏊 مهرجان السباحة — ٣ مايو\n\nاذهب إلى تبويب الفعاليات لمزيد من التفاصيل!",
   "chatbotReplyNoRegistrations": "📭 لم تقم بالتسجيل في أي أنشطة بعد.\n\nاذهب إلى تبويب الأنشطة للتسجيل!",
   "chatbotReplyMyRegistrations": "📋 تسجيلاتك:\n\n{lines}\n\nتحقق من تبويب \"طلباتي\" لمزيد من التفاصيل.",
-  "@chatbotReplyMyRegistrations": {
-    "placeholders": {
-      "lines": { "type": "String" }
-    }
-  },
+  "@chatbotReplyMyRegistrations": {"placeholders":{"lines":{"type":"String"}}},
   "chatbotReplyAdminSummary": "📊 ملخص التسجيلات:\n\n⏳ قيد الانتظار: {pending}\n✅ مقبول: {approved}\n❌ مرفوض: {rejected}\n\nاذهب إلى تبويب التسجيلات للمراجعة.",
-  "@chatbotReplyAdminSummary": {
-    "placeholders": {
-      "pending": { "type": "int" },
-      "approved": { "type": "int" },
-      "rejected": { "type": "int" }
-    }
-  },
+  "@chatbotReplyAdminSummary": {"placeholders":{"pending":{"type":"int"},"approved":{"type":"int"},"rejected":{"type":"int"}}},
   "chatbotReplyAdminQuickSummary": "🛡️ ملخص سريع للمسؤول:\n\n• يوجد {pending} طلب تسجيل قيد الانتظار\n• اذهب لتبويب التسجيلات لاتخاذ إجراء\n• استخدم تبويب الفعاليات لإدارة البطولات\n• تحقق من لوحة التحكم للإحصائيات الكاملة\n\nهل تحتاج مساعدة في شيء محدد؟",
-  "@chatbotReplyAdminQuickSummary": {
-    "placeholders": {
-      "pending": { "type": "int" }
-    }
-  },
+  "@chatbotReplyAdminQuickSummary": {"placeholders":{"pending":{"type":"int"}}},
   "chatbotReplyPoints": "⭐ نظام النقاط:\n\n• الانضمام لنشاط ← +٥٠ نقطة\n• حضور الجلسات ← +١٠ نقاط/جلسة\n• الفوز ببطولة ← +٢٠٠ نقطة\n• المركز الثالث أو أعلى ← +١٠٠ نقطة\n• المشاركة في اليوم الرياضي ← +٣٠ نقطة\n\nتحقق من لوحة الأبطال لمعرفة ترتيبك بين الطلاب!",
   "chatbotReplyBooking": "📅 حجز الملاعب:\n\nيمكنك حجز:\n• ⚽ ملاعب كرة القدم (أ) و (ب)\n• 🎾 ملاعب الباديل ١ و ٢\n• 🏀 ملعب كرة السلة\n• 🏐 ملعب الكرة الطائرة\n\nاذهب لتبويب الحجز واختر الملعب، التاريخ، والوقت!",
   "chatbotReplyHelpAdmin": "🛡️ مساعدة المسؤول:\n\n• 🏠 لوحة التحكم — إحصائيات ونظرة عامة\n• 📋 التسجيلات — قبول/رفض الطلاب\n• 🏆 الفعاليات — إدارة البطولات\n• 👥 المستخدمون — عرض جميع الطلاب\n\nاضغط على أي تبويب في الأسفل للتنقل. ماذا تحتاج؟",
@@ -347,17 +319,9 @@
   "footballFieldA": "ملعب كرة القدم (أ)",
   "padelCourt2": "ملعب الباديل ٢",
   "tomorrowAt": "غداً، {time}",
-  "@tomorrowAt": {
-    "placeholders": {
-      "time": { "type": "String" }
-    }
-  },
+  "@tomorrowAt": {"placeholders":{"time":{"type":"String"}}},
   "mar7At": "٧ مارس، {time}",
-  "@mar7At": {
-    "placeholders": {
-      "time": { "type": "String" }
-    }
-  },
+  "@mar7At": {"placeholders":{"time":{"type":"String"}}},
   "catTeamSports": "رياضات جماعية",
   "catRacketSports": "رياضات المضرب",
   "catIndividual": "رياضات فردية",
@@ -374,31 +338,15 @@
   "activeMembers": "الأعضاء النشطون",
   "regFee": "رسوم التسجيل",
   "studentsCount": "{count} طالب",
-  "@studentsCount": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
+  "@studentsCount": {"placeholders":{"count":{"type":"int"}}},
   "alreadyRegistered": "أنت مسجل بالفعل!",
   "checkStatusInMyApps": "تحقق من حالة طلبك في \"طلباتي\".",
   "registerForActivity": "سجل في {name} ←",
-  "@registerForActivity": {
-    "placeholders": {
-      "name": { "type": "String" }
-    }
-  },
+  "@registerForActivity": {"placeholders":{"name":{"type":"String"}}},
   "registerTitle": "سجل في {name}",
-  "@registerTitle": {
-    "placeholders": {
-      "name": { "type": "String" }
-    }
-  },
+  "@registerTitle": {"placeholders":{"name":{"type":"String"}}},
   "coachPrefix": "المدرب: {name}",
-  "@coachPrefix": {
-    "placeholders": {
-      "name": { "type": "String" }
-    }
-  },
+  "@coachPrefix": {"placeholders":{"name":{"type":"String"}}},
   "errorPleaseAgreeTerms": "يرجى الموافقة على الشروط والأحكام",
   "errorActivityFull": "عذراً، هذا النشاط مكتمل حالياً. يرجى المحاولة لاحقاً.",
   "personalInfoSection": "المعلومات الشخصية",
@@ -413,11 +361,7 @@
   "teamMembersSection": "أعضاء الفريق",
   "teamMembersDesc": "أضف أعضاء فريقك (الاسم، الرقم الجامعي، الكلية)",
   "memberNum": "عضو {n}",
-  "@memberNum": {
-    "placeholders": {
-      "n": { "type": "int" }
-    }
-  },
+  "@memberNum": {"placeholders":{"n":{"type":"int"}}},
   "addAnotherMember": "أضف عضواً آخر",
   "motivationSection": "الدافع",
   "fieldLabelStatement": "بيان شخصي",
@@ -428,11 +372,7 @@
   "submitApplication": "إرسال الطلب ←",
   "applicationSubmitted": "تم إرسال الطلب!",
   "appSubmittedDesc": "تم إرسال تسجيلك في {activity} إلى المسؤول للمراجعة. سيتم إخطارك بمجرد الموافقة.",
-  "@appSubmittedDesc": {
-    "placeholders": {
-      "activity": { "type": "String" }
-    }
-  },
+  "@appSubmittedDesc": {"placeholders":{"activity":{"type":"String"}}},
   "backToActivities": "العودة للأنشطة",
   "paymentMethod": "طريقة الدفع",
   "payInstaPay": "إنستا باي",
@@ -466,19 +406,11 @@
   "errorCVC": "أدخل رمز أمان صالح (3-4 أرقام)",
   "errorCardholder": "أدخل اسم حامل البطاقة",
   "errorEnterPhone": "يرجى إدخال {method}",
-  "@errorEnterPhone": {
-    "placeholders": {
-      "method": { "type": "String" }
-    }
-  },
+  "@errorEnterPhone": {"placeholders":{"method":{"type":"String"}}},
   "errorVodafoneNumber": "أدخل رقم فودافون كاش صالح يبدأ بـ 010 (11 رقماً)",
   "errorInstaPayFormat": "أدخل اسم مستخدم إنستا باي صالح أو رقم هاتف مصري",
   "paidVia": "تم الدفع عبر {method}",
-  "@paidVia": {
-    "placeholders": {
-      "method": { "type": "String" }
-    }
-  },
+  "@paidVia": {"placeholders":{"method":{"type":"String"}}},
   "refCopied": "تم نسخ رقم المرجع",
   "january": "يناير",
   "february": "فبراير",
@@ -516,11 +448,7 @@
   "noActivitiesAssigned": "لا توجد أنشطة مسندة",
   "myStudents": "طلابي",
   "acrossActivities": "عبر {count} نشاط",
-  "@acrossActivities": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
+  "@acrossActivities": {"placeholders":{"count":{"type":"int"}}},
   "noSessionsYet": "لا توجد جلسات بعد",
   "scheduleFirstSession": "جدول جلستك الأولى",
   "scheduleSession": "جدولة جلسة",
@@ -557,5 +485,36 @@
   "deactivated": "تم الإيقاف",
   "userActivated": "تم تفعيل المستخدم",
   "userDeactivated": "تم إيقاف المستخدم",
-  "notificationSent": "تم إرسال الإشعار!"
+  "notificationSent": "تم إرسال الإشعار!",
+  "signupTermsConsent": "أوافق على شروط الخدمة وسياسة الخصوصية، وأؤكد أن عمري لا يقل عن ١٨ عامًا.",
+  "signupTermsConsentError": "يجب الموافقة على الشروط لإنشاء حساب.",
+  "deleteAccount": "حذف الحساب",
+  "deleteAccountSectionTitle": "الحساب",
+  "deleteAccountWarning": "حذف حسابك يزيل نهائيًا ملفك الشخصي وحجوزاتك وسجل مشاركتك من تطبيق MUSTER Sport.",
+  "deleteAccountConfirmTitle": "حذف حسابك؟",
+  "deleteAccountConfirmBody": "سيؤدي هذا إلى مسح حسابك وجميع البيانات المرتبطة به نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+  "deleteAccountTypeToConfirm": "اكتب DELETE للتأكيد",
+  "deleteAccountConfirmWord": "DELETE",
+  "deleteAccountPasswordPrompt": "أدخل كلمة المرور للتأكيد",
+  "deleteAccountCancel": "إلغاء",
+  "deleteAccountFinalConfirm": "حذف نهائي",
+  "deleteAccountInProgress": "جارٍ حذف حسابك…",
+  "deleteAccountSuccess": "تم حذف حسابك.",
+  "deleteAccountFailed": "تعذّر حذف حسابك: {reason}",
+  "licenses": "تراخيص المصادر المفتوحة",
+  "licensesIntro": "بُني تطبيق MUSTER Sport على البرامج والخطوط مفتوحة المصدر التالية.",
+  "showPassword": "إظهار كلمة المرور",
+  "hidePassword": "إخفاء كلمة المرور",
+  "selectRole": "اختر الدور: {role}",
+  "selected": "محدد",
+  "notificationsEnabled": "الإشعارات مفعّلة",
+  "notificationsDisabled": "الإشعارات معطّلة",
+  "expandSection": "توسيع {section}",
+  "collapseSection": "طي {section}",
+  "clearField": "مسح {field}",
+  "removeAvatar": "إزالة الصورة الشخصية",
+  "back": "رجوع",
+  "retry": "إعادة المحاولة",
+  "loading": "جارٍ التحميل",
+  "navBadgeCount": "{count} جديد"
 }

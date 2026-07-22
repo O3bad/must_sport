@@ -18,8 +18,8 @@ class _CardNumberFormatter extends TextInputFormatter {
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
     final digits = newValue.text.replaceAll(RegExp(r'\D'), '');
-    final capped  = digits.length > 16 ? digits.substring(0, 16) : digits;
-    final buffer  = StringBuffer();
+    final capped = digits.length > 16 ? digits.substring(0, 16) : digits;
+    final buffer = StringBuffer();
     for (int i = 0; i < capped.length; i++) {
       if (i > 0 && i % 4 == 0) buffer.write('  ');
       buffer.write(capped[i]);
@@ -38,7 +38,7 @@ class _ExpiryFormatter extends TextInputFormatter {
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
     final digits = newValue.text.replaceAll(RegExp(r'\D'), '');
-    final capped  = digits.length > 4 ? digits.substring(0, 4) : digits;
+    final capped = digits.length > 4 ? digits.substring(0, 4) : digits;
     String str;
     if (capped.length >= 3) {
       str = '${capped.substring(0, 2)}/${capped.substring(2)}';
@@ -62,16 +62,16 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   Facility? _field;
-  String?   _time;
-  DateTime  _date = DateTime.now();
-  bool      _confirmed = false;
-  bool      _loading   = false;
-  String    _paymentMethod = 'instapay'; // instapay | vodafone_cash | fawry | card
+  String? _time;
+  DateTime _date = DateTime.now();
+  bool _confirmed = false;
+  bool _loading = false;
+  String _paymentMethod = 'instapay'; // instapay | vodafone_cash | fawry | card
 
   // FIX #7: GlobalKeys so _confirm() can call validate() on child form widgets
-  final GlobalKey<_GlassCardFormState>  _cardFormKey  = GlobalKey();
-  final GlobalKey<_MobilePayFormState>  _instapayKey  = GlobalKey();
-  final GlobalKey<_MobilePayFormState>  _vodafoneKey  = GlobalKey();
+  final GlobalKey<_GlassCardFormState> _cardFormKey = GlobalKey();
+  final GlobalKey<_MobilePayFormState> _instapayKey = GlobalKey();
+  final GlobalKey<_MobilePayFormState> _vodafoneKey = GlobalKey();
 
   @override
   void initState() {
@@ -85,11 +85,20 @@ class _BookingScreenState extends State<BookingScreen> {
 
   String get _dateLabel {
     final l = AppLocalizations.of(context)!;
-    final months = ['',
-      l.january, l.february, l.march,
-      l.april, l.may, l.june,
-      l.july, l.august, l.september,
-      l.october, l.november, l.december
+    final months = [
+      '',
+      l.january,
+      l.february,
+      l.march,
+      l.april,
+      l.may,
+      l.june,
+      l.july,
+      l.august,
+      l.september,
+      l.october,
+      l.november,
+      l.december
     ];
     return '${months[_date.month]} ${_date.day}, ${_date.year}';
   }
@@ -119,14 +128,14 @@ class _BookingScreenState extends State<BookingScreen> {
       return;
     }
 
-    final appState   = context.read<AppState>();
+    final appState = context.read<AppState>();
     final notifState = context.read<NotificationState>();
-    final fieldName  = _field!.name;
-    final fieldId    = _field!.id;
-    final time       = _time!;
-    final date       = _date;
-    final dateLabel  = _dateLabel;
-    final payMethod  = _paymentMethod;
+    final fieldName = _field!.name;
+    final fieldId = _field!.id;
+    final time = _time!;
+    final date = _date;
+    final dateLabel = _dateLabel;
+    final payMethod = _paymentMethod;
 
     if (appState.hasBookingConflict(fieldId, date, time)) {
       if (!mounted) return;
@@ -134,7 +143,8 @@ class _BookingScreenState extends State<BookingScreen> {
         context: context,
         builder: (_) => AlertDialog(
           backgroundColor: context.surfaceColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           title: Text(AppLocalizations.of(context)!.slotAlreadyBooked,
               style: AppTextStyles.heading(18, color: context.textColor)),
           content: Text(
@@ -145,8 +155,9 @@ class _BookingScreenState extends State<BookingScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(AppLocalizations.of(context)!.ok, style: AppTextStyles.body(15,
-                  color: context.primaryColor, weight: FontWeight.w700)),
+              child: Text(AppLocalizations.of(context)!.ok,
+                  style: AppTextStyles.body(15,
+                      color: context.primaryColor, weight: FontWeight.w700)),
             ),
           ],
         ),
@@ -158,23 +169,39 @@ class _BookingScreenState extends State<BookingScreen> {
     await Future.delayed(const Duration(milliseconds: 600));
 
     // FIX #6: Pass paymentMethod into Booking so it is persisted
-    await appState.addBooking(Booking(
-      bookingId:     const Uuid().v4(),
-      facilityId:    fieldId,
-      facilityName:  fieldName,
-      date:          date,
-      timeSlot:      time,
-      status:        BookingStatus.confirmed,
-      studentName:   appState.user.name,
-      paymentMethod: payMethod,
-    ));
+    try {
+      await appState.addBooking(Booking(
+        bookingId: const Uuid().v4(),
+        facilityId: fieldId,
+        facilityName: fieldName,
+        date: date,
+        timeSlot: time,
+        status: BookingStatus.confirmed,
+        studentName: appState.user.name,
+        paymentMethod: payMethod,
+      ));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.bookingFailedTryAgain),
+          backgroundColor: context.errorColor,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     if (!mounted) return;
     notifState.addReservationReminder(
       facilityName: fieldName,
       date: dateLabel,
       time: time,
     );
-    setState(() { _loading = false; _confirmed = true; });
+    setState(() {
+      _loading = false;
+      _confirmed = true;
+    });
   }
 
   Future<void> _pickDate() async {
@@ -188,14 +215,14 @@ class _BookingScreenState extends State<BookingScreen> {
         data: ctx.isDark
             ? ThemeData.dark().copyWith(
                 colorScheme: ColorScheme.dark(
-                  primary: primary,
-                  surface: DarkColors.surface2,
-                ))
+                primary: primary,
+                surface: DarkColors.surface2,
+              ))
             : ThemeData.light().copyWith(
                 colorScheme: ColorScheme.light(
-                  primary: primary,
-                  surface: LightColors.surface,
-                )),
+                primary: primary,
+                surface: LightColors.surface,
+              )),
         child: child!,
       ),
     );
@@ -215,12 +242,12 @@ class _BookingScreenState extends State<BookingScreen> {
     }
 
     final primary = context.primaryColor;
-    final second  = context.secondaryColor;
-    final surf    = context.surfaceColor;
-    final border  = context.borderColor;
-    final txt     = context.textColor;
-    final muted   = context.mutedColor;
-    final hPad    = context.hPadding;
+    final second = context.secondaryColor;
+    final surf = context.surfaceColor;
+    final border = context.borderColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
+    final hPad = context.hPadding;
     final facilityCols = context.isTablet ? 3 : (context.isSmallPhone ? 1 : 2);
 
     final l = AppLocalizations.of(context)!;
@@ -246,7 +273,9 @@ class _BookingScreenState extends State<BookingScreen> {
       ),
       body: ListView(
         padding: EdgeInsets.only(
-          left: hPad, right: hPad, top: 20,
+          left: hPad,
+          right: hPad,
+          top: 20,
           bottom: MediaQuery.of(context).padding.bottom + 90,
         ),
         children: [
@@ -265,18 +294,26 @@ class _BookingScreenState extends State<BookingScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(children: [
               Container(
-                width: 38, height: 38,
+                width: 38,
+                height: 38,
                 decoration: BoxDecoration(
                   color: primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: primary.withValues(alpha: 0.3)),
                 ),
-                child: const Center(child: Icon(Icons.calendar_today_rounded, size: 18, color: Color(0xFF00E5FF))),
+                child: const Center(
+                    child: Icon(Icons.calendar_today_rounded,
+                        size: 18, color: Color(0xFF00E5FF))),
               ),
               const SizedBox(width: 12),
-              Expanded(child: Text(_dateLabel,
-                  maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.body(15, context: context, color: txt, weight: FontWeight.w600))),
+              Expanded(
+                  child: Text(_dateLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body(15,
+                          context: context,
+                          color: txt,
+                          weight: FontWeight.w600))),
               const SizedBox(width: 8),
               Icon(
                 Directionality.of(context) == TextDirection.rtl
@@ -291,17 +328,22 @@ class _BookingScreenState extends State<BookingScreen> {
           // ── Field ─────────────────────────────────────────────────────
           SectionLabel(l.selectField),
           GridView.count(
-            crossAxisCount: facilityCols, shrinkWrap: true,
+            crossAxisCount: facilityCols,
+            shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 10, crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
             childAspectRatio: context.isSmallPhone ? 2.2 : 2.6,
             children: MockData.facilities.map((f) {
               final active = _field?.id == f.id;
               return GestureDetector(
-                onTap: () { if (f.isAvailable) setState(() => _field = f); },
+                onTap: () {
+                  if (f.isAvailable) setState(() => _field = f);
+                },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: BoxDecoration(
                     color: active ? primary.withValues(alpha: 0.10) : surf,
                     borderRadius: BorderRadius.circular(12),
@@ -313,12 +355,19 @@ class _BookingScreenState extends State<BookingScreen> {
                             textAlign: TextAlign.center,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.body(15, context: context, weight: FontWeight.w600,
-                                color: f.isAvailable ? (active ? primary : txt) : muted))),
+                            style: AppTextStyles.body(15,
+                                context: context,
+                                weight: FontWeight.w600,
+                                color: f.isAvailable
+                                    ? (active ? primary : txt)
+                                    : muted))),
                     if (!f.isAvailable)
-                      Positioned(top: 0, right: 0,
-                        child: Text(l.full,
-                            style: AppTextStyles.label(color: context.errorColor))),
+                      Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Text(l.full,
+                              style: AppTextStyles.label(
+                                  color: context.errorColor))),
                   ]),
                 ),
               );
@@ -329,29 +378,47 @@ class _BookingScreenState extends State<BookingScreen> {
           // ── Time ──────────────────────────────────────────────────────
           SectionLabel(l.selectTime),
           Wrap(
-            spacing: 8, runSpacing: 8,
+            spacing: 8,
+            runSpacing: 8,
             children: MockData.timeSlots.map((t) {
               final active = _time == t;
               final hasConflict = _field != null &&
-                  context.watch<AppState>().hasBookingConflict(_field!.id, _date, t);
+                  context
+                      .watch<AppState>()
+                      .hasBookingConflict(_field!.id, _date, t);
               return GestureDetector(
                 // FIX #2: Block selecting conflicted slots
-                onTap: () { if (!hasConflict) setState(() => _time = t); },
+                onTap: () {
+                  if (!hasConflict) setState(() => _time = t);
+                },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: hasConflict ? context.errorColor.withValues(alpha: 0.08)
-                        : active ? primary.withValues(alpha: 0.10) : surf,
+                    color: hasConflict
+                        ? context.errorColor.withValues(alpha: 0.08)
+                        : active
+                            ? primary.withValues(alpha: 0.10)
+                            : surf,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: hasConflict
-                        ? context.errorColor.withValues(alpha: 0.5)
-                        : active ? primary : border),
+                    border: Border.all(
+                        color: hasConflict
+                            ? context.errorColor.withValues(alpha: 0.5)
+                            : active
+                                ? primary
+                                : border),
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Text(t, style: AppTextStyles.body(16, context: context,
-                        color: hasConflict ? context.errorColor : active ? primary : txt,
-                        weight: FontWeight.w600)),
+                    Text(t,
+                        style: AppTextStyles.body(16,
+                            context: context,
+                            color: hasConflict
+                                ? context.errorColor
+                                : active
+                                    ? primary
+                                    : txt,
+                            weight: FontWeight.w600)),
                     if (hasConflict) ...[
                       const SizedBox(width: 4),
                       Icon(Icons.block, size: 10, color: context.errorColor),
@@ -408,7 +475,8 @@ class _BookingScreenState extends State<BookingScreen> {
             success: false,
             onPressed: _confirm,
             backgroundColor: second,
-            foregroundColor: context.isDark ? const Color(0xFF0a1a04) : Colors.white,
+            foregroundColor:
+                context.isDark ? const Color(0xFF0a1a04) : Colors.white,
           ),
         ],
       ),
@@ -430,18 +498,23 @@ class _PaymentSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surf   = context.surfaceColor;
+    final surf = context.surfaceColor;
     final border = context.borderColor;
-    final muted  = context.mutedColor;
-    final l      = AppLocalizations.of(context)!;
-    final cols   = context.isTablet ? 4 : (context.isSmallPhone ? 1 : 2);
-    final ratio  = context.isSmallPhone ? 2.8 : 1.6;
+    final muted = context.mutedColor;
+    final l = AppLocalizations.of(context)!;
+    final cols = context.isTablet ? 4 : (context.isSmallPhone ? 1 : 2);
+    final ratio = context.isSmallPhone ? 2.8 : 1.6;
 
     final methods = [
-      ('instapay',      Icons.flash_on_rounded,     l.payInstaPay,      l.payCentralBank),
-      ('vodafone_cash', Icons.phone_android_rounded, l.payVodafoneCash, l.payMobileWallet),
-      ('fawry',         Icons.store_rounded,         l.payFawry,         l.payAtOutlet),
-      ('card',          Icons.credit_card_rounded,   l.payCard,          l.payVisaMastercard),
+      ('instapay', Icons.flash_on_rounded, l.payInstaPay, l.payCentralBank),
+      (
+        'vodafone_cash',
+        Icons.phone_android_rounded,
+        l.payVodafoneCash,
+        l.payMobileWallet
+      ),
+      ('fawry', Icons.store_rounded, l.payFawry, l.payAtOutlet),
+      ('card', Icons.credit_card_rounded, l.payCard, l.payVisaMastercard),
     ];
 
     return GridView.builder(
@@ -461,48 +534,60 @@ class _PaymentSelector extends StatelessWidget {
 
   Widget _tile(
     (String, IconData, String, String) m,
-    Color surf, Color border, Color muted, BuildContext context,
+    Color surf,
+    Color border,
+    Color muted,
+    BuildContext context,
   ) {
-    final id     = m.$1;
-    final icon   = m.$2;
-    final label  = m.$3;
-    final sub    = m.$4;
+    final id = m.$1;
+    final icon = m.$2;
+    final label = m.$3;
+    final sub = m.$4;
     final active = selected == id;
 
     return GestureDetector(
-      onTap: () { HapticFeedback.selectionClick(); onChanged(id); },
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onChanged(id);
+      },
       child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-          decoration: BoxDecoration(
-            color: active ? accentColor.withValues(alpha: 0.10) : surf,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: active ? accentColor : border,
-              width: active ? 1.8 : 1,
-            ),
-            boxShadow: active
-                ? [BoxShadow(color: accentColor.withValues(alpha: 0.18), blurRadius: 12)]
-                : [],
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        decoration: BoxDecoration(
+          color: active ? accentColor.withValues(alpha: 0.10) : surf,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: active ? accentColor : border,
+            width: active ? 1.8 : 1,
           ),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(icon, color: active ? accentColor : muted, size: 20),
-              const SizedBox(height: 4),
-              Text(label,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: AppTextStyles.body(12, context: context, color: active ? accentColor : muted,
-                      weight: active ? FontWeight.w700 : FontWeight.w600)),
-              const SizedBox(height: 2),
-              Text(sub,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: AppTextStyles.body(11, context: context, color: muted,
-                      weight: FontWeight.w400)),
-            ]),
-          ),
+          boxShadow: active
+              ? [
+                  BoxShadow(
+                      color: accentColor.withValues(alpha: 0.18),
+                      blurRadius: 12)
+                ]
+              : [],
+        ),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, color: active ? accentColor : muted, size: 20),
+            const SizedBox(height: 4),
+            Text(label,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: AppTextStyles.body(12,
+                    context: context,
+                    color: active ? accentColor : muted,
+                    weight: active ? FontWeight.w700 : FontWeight.w600)),
+            const SizedBox(height: 2),
+            Text(sub,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: AppTextStyles.body(11,
+                    context: context, color: muted, weight: FontWeight.w400)),
+          ]),
+        ),
       ),
     );
   }
@@ -518,31 +603,33 @@ class _GlassCardForm extends StatefulWidget {
 
 class _GlassCardFormState extends State<_GlassCardForm> {
   final _cardCtrl = TextEditingController();
-  final _expCtrl  = TextEditingController();
-  final _cvcCtrl  = TextEditingController();
+  final _expCtrl = TextEditingController();
+  final _cvcCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _cardCtrl.dispose(); _expCtrl.dispose();
-    _cvcCtrl.dispose();  _nameCtrl.dispose();
+    _cardCtrl.dispose();
+    _expCtrl.dispose();
+    _cvcCtrl.dispose();
+    _nameCtrl.dispose();
     super.dispose();
   }
 
   // FIX #1 & #4: Returns an error string if validation fails, null if OK
   String? validate() {
-    final l      = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
     final digits = _cardCtrl.text.replaceAll(RegExp(r'\D'), '');
     if (digits.length != 16) return l.errorCardNumber;
 
-    final exp      = _expCtrl.text.trim();
-    final expMatch = RegExp(r'^(0[1-9]|1[0-2])\/\d{2}$').hasMatch(exp);
+    final exp = _expCtrl.text.trim();
+    final expMatch = RegExp(r'^(0[1-9]|1[0-2])/\d{2}$').hasMatch(exp);
     if (!expMatch) return l.errorExpiry;
 
     final parts = exp.split('/');
     final month = int.parse(parts[0]);
-    final year  = 2000 + int.parse(parts[1]);
-    final now   = DateTime.now();
+    final year = 2000 + int.parse(parts[1]);
+    final now = DateTime.now();
     if (year < now.year || (year == now.year && month < now.month)) {
       return l.errorExpiry;
     }
@@ -556,24 +643,29 @@ class _GlassCardFormState extends State<_GlassCardForm> {
 
   @override
   Widget build(BuildContext context) {
-    final surf   = context.surfaceColor;
+    final surf = context.surfaceColor;
     final border = context.borderColor;
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
     final accent = widget.accentColor;
-    final l      = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
 
     InputDecoration dec(String hint, IconData icon) => InputDecoration(
-      hintText: hint,
-      hintStyle: AppTextStyles.body(14, context: context, color: muted.withValues(alpha: 0.6)),
-      prefixIcon: Icon(icon, color: muted, size: 18),
-      filled: true, fillColor: surf,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: border)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: accent, width: 1.6)),
-    );
+          hintText: hint,
+          hintStyle: AppTextStyles.body(14,
+              context: context, color: context.mutedSubtleColor),
+          prefixIcon: Icon(icon, color: muted, size: 18),
+          filled: true,
+          fillColor: surf,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: border)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: accent, width: 1.6)),
+        );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -591,7 +683,8 @@ class _GlassCardFormState extends State<_GlassCardForm> {
               l.securePayment,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.body(12, context: context, color: accent, weight: FontWeight.w600),
+              style: AppTextStyles.body(12,
+                  context: context, color: accent, weight: FontWeight.w600),
             ),
           ),
           const Spacer(),
@@ -611,7 +704,8 @@ class _GlassCardFormState extends State<_GlassCardForm> {
         const SizedBox(height: 10),
         Row(children: [
           // FIX #4: formatted MM/YY, max 5 chars
-          Expanded(child: TextField(
+          Expanded(
+              child: TextField(
             controller: _expCtrl,
             keyboardType: TextInputType.number,
             style: AppTextStyles.body(15, context: context, color: txt),
@@ -620,7 +714,8 @@ class _GlassCardFormState extends State<_GlassCardForm> {
           )),
           const SizedBox(width: 10),
           // FIX #4: digits only, max 4
-          Expanded(child: TextField(
+          Expanded(
+              child: TextField(
             controller: _cvcCtrl,
             keyboardType: TextInputType.number,
             obscureText: true,
@@ -650,14 +745,16 @@ class _CardBadge extends StatelessWidget {
   const _CardBadge(this.text, this.color);
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: color.withValues(alpha: 0.3)),
-    ),
-    child: Text(text, style: AppTextStyles.body(10, color: color, weight: FontWeight.w800)),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Text(text,
+            style:
+                AppTextStyles.body(10, color: color, weight: FontWeight.w800)),
+      );
 }
 
 // ── Confirmation View ─────────────────────────────────────────────────────────
@@ -676,20 +773,20 @@ class _ConfirmationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final second = context.secondaryColor;
-    final l      = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
 
     final payLabel = switch (paymentMethod) {
-      'instapay'      => l.payInstaPay,
+      'instapay' => l.payInstaPay,
       'vodafone_cash' => l.payVodafoneCash,
-      'fawry'         => l.payFawry,
-      _               => l.payCard,
+      'fawry' => l.payFawry,
+      _ => l.payCard,
     };
 
     final payIcon = switch (paymentMethod) {
-      'instapay'      => Icons.flash_on_rounded,
+      'instapay' => Icons.flash_on_rounded,
       'vodafone_cash' => Icons.phone_android_rounded,
-      'fawry'         => Icons.store_rounded,
-      _               => Icons.credit_card_rounded,
+      'fawry' => Icons.store_rounded,
+      _ => Icons.credit_card_rounded,
     };
 
     return Scaffold(
@@ -699,20 +796,26 @@ class _ConfirmationView extends StatelessWidget {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Icon(Icons.check_circle_rounded, size: 64, color: Color(0xFFA8FF3E)),
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Icon(Icons.check_circle_rounded,
+                  size: 64, color: Color(0xFFA8FF3E)),
               const SizedBox(height: 20),
               Text(l.bookingConfirmed,
-                  style: AppTextStyles.display(28, context: context, color: context.textColor),
+                  style: AppTextStyles.display(28,
+                      context: context, color: context.textColor),
                   textAlign: TextAlign.center),
               const SizedBox(height: 12),
               Text('$facilityName\n$time · $date',
-                  maxLines: 3, overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.body(16, context: context, color: context.mutedColor),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.body(16,
+                      context: context, color: context.mutedColor),
                   textAlign: TextAlign.center),
               const SizedBox(height: 14),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: second.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(12),
@@ -722,11 +825,15 @@ class _ConfirmationView extends StatelessWidget {
                   Icon(payIcon, color: second, size: 16),
                   const SizedBox(width: 8),
                   Text(l.paidVia(payLabel),
-                      style: AppTextStyles.body(13, context: context, color: second, weight: FontWeight.w600)),
+                      style: AppTextStyles.body(13,
+                          context: context,
+                          color: second,
+                          weight: FontWeight.w600)),
                 ]),
               ),
               const SizedBox(height: 24),
-              const AppProgressBar(value: 1.0, color: Color(0xFFA8FF3E), height: 3),
+              const AppProgressBar(
+                  value: 1.0, color: Color(0xFFA8FF3E), height: 3),
               const SizedBox(height: 28),
               SizedBox(
                 width: double.infinity,
@@ -734,14 +841,18 @@ class _ConfirmationView extends StatelessWidget {
                   onPressed: onReset,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: second,
-                    foregroundColor: context.isDark ? const Color(0xFF0a1a04) : Colors.white,
+                    foregroundColor:
+                        context.isDark ? const Color(0xFF0a1a04) : Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                   child: Text(l.bookAnother,
                       style: AppTextStyles.body(15,
                           context: context,
-                          color: context.isDark ? const Color(0xFF0a1a04) : Colors.white,
+                          color: context.isDark
+                              ? const Color(0xFF0a1a04)
+                              : Colors.white,
                           weight: FontWeight.w700)),
                 ),
               ),
@@ -774,14 +885,18 @@ class _MobilePayFormState extends State<_MobilePayForm> {
   final _numCtrl = TextEditingController();
 
   @override
-  void dispose() { _numCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _numCtrl.dispose();
+    super.dispose();
+  }
 
   // FIX #5: Validate phone/username format
   String? validate() {
-    final l     = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
     final value = _numCtrl.text.trim();
     if (value.isEmpty) {
-      return l.errorEnterPhone(widget.method == 'instapay' ? l.payInstaPay : l.payVodafoneCash);
+      return l.errorEnterPhone(
+          widget.method == 'instapay' ? l.payInstaPay : l.payVodafoneCash);
     }
     if (widget.method == 'vodafone_cash') {
       final digits = value.replaceAll(RegExp(r'\D'), '');
@@ -790,7 +905,7 @@ class _MobilePayFormState extends State<_MobilePayForm> {
       }
     } else if (widget.method == 'instapay') {
       final mobilePattern = RegExp(r'^(\+20|0)(10|11|12|15)\d{8}$');
-      final isPhone    = mobilePattern.hasMatch(value.replaceAll(' ', ''));
+      final isPhone = mobilePattern.hasMatch(value.replaceAll(' ', ''));
       final isUsername = value.length >= 3 && !value.contains(' ');
       if (!isPhone && !isUsername) {
         return l.errorInstaPayFormat;
@@ -801,12 +916,12 @@ class _MobilePayFormState extends State<_MobilePayForm> {
 
   @override
   Widget build(BuildContext context) {
-    final surf   = context.surfaceColor;
+    final surf = context.surfaceColor;
     final border = context.borderColor;
-    final txt    = context.textColor;
-    final muted  = context.mutedColor;
+    final txt = context.textColor;
+    final muted = context.mutedColor;
     final accent = widget.accentColor;
-    final l      = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
 
     final isInstaPay = widget.method == 'instapay';
 
@@ -824,7 +939,8 @@ class _MobilePayFormState extends State<_MobilePayForm> {
           Expanded(
             child: Text(
               isInstaPay ? l.payInstantlyCentralBank : l.payViaVodafoneCash,
-              style: AppTextStyles.body(12, context: context, color: accent, weight: FontWeight.w600),
+              style: AppTextStyles.body(12,
+                  context: context, color: accent, weight: FontWeight.w600),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -832,18 +948,25 @@ class _MobilePayFormState extends State<_MobilePayForm> {
         const SizedBox(height: 14),
         TextField(
           controller: _numCtrl,
-          keyboardType: isInstaPay ? TextInputType.emailAddress : TextInputType.phone,
+          keyboardType:
+              isInstaPay ? TextInputType.emailAddress : TextInputType.phone,
           // FIX #5: digits only + 11-char limit for Vodafone Cash
           inputFormatters: isInstaPay
               ? []
-              : [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(11)],
+              : [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(11)
+                ],
           style: AppTextStyles.body(15, context: context, color: txt),
           decoration: InputDecoration(
             hintText: isInstaPay ? l.instaPayHint : l.vodafoneCashHint,
-            hintStyle: AppTextStyles.body(14, context: context, color: muted.withValues(alpha: 0.6)),
+            hintStyle: AppTextStyles.body(14,
+                context: context, color: context.mutedSubtleColor),
             prefixIcon: Icon(widget.icon, color: muted, size: 18),
-            filled: true, fillColor: surf,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            filled: true,
+            fillColor: surf,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: border),
@@ -889,12 +1012,12 @@ class _FawryForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surf   = context.surfaceColor;
+    final surf = context.surfaceColor;
     final border = context.borderColor;
-    final muted  = context.mutedColor;
-    final txt    = context.textColor;
+    final muted = context.mutedColor;
+    final txt = context.textColor;
     final accent = accentColor;
-    final l      = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -910,7 +1033,8 @@ class _FawryForm extends StatelessWidget {
           Expanded(
             child: Text(
               l.fawryInstruction,
-              style: AppTextStyles.body(12, context: context, color: accent, weight: FontWeight.w600),
+              style: AppTextStyles.body(12,
+                  context: context, color: accent, weight: FontWeight.w600),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -924,9 +1048,11 @@ class _FawryForm extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: accent.withValues(alpha: 0.35)),
           ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(l.referenceNumber,
-                style: AppTextStyles.label(color: muted).copyWith(fontSize: 10)),
+                style:
+                    AppTextStyles.label(color: muted).copyWith(fontSize: 10)),
             const SizedBox(height: 6),
             // FIX #3: Copy button now copies the reference to clipboard
             GestureDetector(
@@ -944,7 +1070,8 @@ class _FawryForm extends StatelessWidget {
               child: Row(children: [
                 Expanded(
                   child: Text(_ref,
-                      style: AppTextStyles.display(18, context: context, color: accent),
+                      style: AppTextStyles.display(18,
+                          context: context, color: accent),
                       overflow: TextOverflow.ellipsis),
                 ),
                 Icon(Icons.copy_rounded, color: accent, size: 18),
@@ -981,24 +1108,29 @@ class _FawryStep extends StatelessWidget {
   const _FawryStep(this.step, this.text, this.txt, this.muted);
   @override
   Widget build(BuildContext context) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Container(
-        width: 18, height: 18,
-        decoration: BoxDecoration(
-          color: context.primaryColor.withValues(alpha: 0.12),
-          shape: BoxShape.circle,
-        ),
-        child: Center(child: Text(step,
-            style: AppTextStyles.body(9, context: context, color: context.primaryColor, weight: FontWeight.w800))),
-      ),
-      const SizedBox(width: 8),
-      Expanded(
-        child: Text(text,
-            style: AppTextStyles.body(12, context: context, color: muted),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis),
-      ),
-    ],
-  );
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              color: context.primaryColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+                child: Text(step,
+                    style: AppTextStyles.body(9,
+                        context: context,
+                        color: context.primaryColor,
+                        weight: FontWeight.w800))),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text,
+                style: AppTextStyles.body(12, context: context, color: muted),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis),
+          ),
+        ],
+      );
 }

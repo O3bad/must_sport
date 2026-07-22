@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../../core/legal/legal_content.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/widgets.dart';
+import '../../../core/theme/accessible_tap.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/models/models.dart';
+import '../../../features/settings/presentation/legal_document_screen.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../app_shell.dart';
-import '../../admin/presentation/admin_shell.dart';
-import '../../coach/presentation/coach_shell.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -17,43 +19,69 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen>
     with SingleTickerProviderStateMixin {
-  final _pageCtrl      = PageController();
-  final _nameCtrl      = TextEditingController();
-  final _emailCtrl     = TextEditingController();
+  final _pageCtrl = PageController();
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _studentIdCtrl = TextEditingController();
-  final _passCtrl      = TextEditingController();
-  final _confirmCtrl   = TextEditingController();
-  final _phoneCtrl     = TextEditingController();
+  final _passCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
 
-  UserRole _role     = UserRole.student;
-  String   _faculty  = '';
-  String   _semester = 'Spring 2026';
-  bool     _obscureP = true;
-  bool     _obscureC = true;
-  bool     _loading  = false;
-  String?  _error;
-  int      _page     = 0;
+  /// The account type of a self-service registration.
+  ///
+  /// Always [UserRole.student] and never reassigned: it is `final` so the
+  /// compiler rejects any future attempt to make the role user-selectable
+  /// again. `firestore.rules` independently rejects any non-student role on
+  /// create, which is the check that a patched client cannot bypass.
+  final UserRole _role = UserRole.student;
+  String _faculty = '';
+  String _semester = 'Spring 2026';
+  bool _obscureP = true;
+  bool _obscureC = true;
+  bool _loading = false;
+  String? _error;
+  int _page = 0;
+  bool _consented = false;
+  bool _consentError = false;
 
   late AnimationController _glowCtrl;
-  late Animation<double>   _glowAnim;
+  late Animation<double> _glowAnim;
 
   static const _semesters = ['Spring 2026', 'Fall 2026', 'Spring 2027'];
   static const _faculties = [
-    'IT Faculty','Engineering','Medicine','Pharmacy',
-    'Business','physical therapy','special_education','Nursing','dentistry',
-    'biotechnology','foreign_language','archaeology',
-
+    'IT Faculty',
+    'Engineering',
+    'Medicine',
+    'Pharmacy',
+    'Business',
+    'physical therapy',
+    'special_education',
+    'Nursing',
+    'dentistry',
+    'biotechnology',
+    'foreign_language',
+    'archaeology',
   ];
+
+  /// Self-service registration can only create a **student** account.
+  ///
+  /// Previously this list offered Student / Coach / Admin and the chosen value
+  /// was written straight into `users/{uid}.role`, so anyone could register an
+  /// admin account and be routed to `AdminShell` (privilege escalation).
+  /// Coach and admin accounts are provisioned out-of-band by an existing admin
+  /// (or from the Firebase console) — never by the person being registered.
+  ///
+  /// The Firestore rules in `firestore.rules` enforce this independently, so
+  /// even a modified client cannot mint a privileged account.
   static const _roles = [
     _RoleMeta(role: UserRole.student, label: 'Student'),
-    _RoleMeta(role: UserRole.coach,   label: 'Coach'),
-    _RoleMeta(role: UserRole.admin,   label: 'Admin'),
   ];
 
   @override
   void initState() {
     super.initState();
-    _glowCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 2400))
+    _glowCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 2400))
       ..repeat(reverse: true);
     _glowAnim = Tween<double>(begin: 0.4, end: 1.0)
         .animate(CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOut));
@@ -63,22 +91,31 @@ class _SignUpScreenState extends State<SignUpScreen>
   void dispose() {
     _glowCtrl.dispose();
     _pageCtrl.dispose();
-    for (final c in [_nameCtrl, _emailCtrl, _studentIdCtrl, _passCtrl, _confirmCtrl, _phoneCtrl]) {
+    for (final c in [
+      _nameCtrl,
+      _emailCtrl,
+      _studentIdCtrl,
+      _passCtrl,
+      _confirmCtrl,
+      _phoneCtrl
+    ]) {
       c.dispose();
     }
     super.dispose();
   }
 
   Color get _roleColor => switch (_role) {
-    UserRole.student => DarkColors.primary,
-    UserRole.coach   => DarkColors.accent,
-    UserRole.admin   => DarkColors.error,
-  };
+        UserRole.student => DarkColors.primary,
+        UserRole.coach => DarkColors.accent,
+        UserRole.admin => DarkColors.error,
+      };
 
   String? _validatePage0(AppLocalizations l) {
     if (_nameCtrl.text.trim().length < 3) return l.errorNameShort;
     final email = _emailCtrl.text.trim();
-    if (!email.contains('@') || !email.contains('.')) return l.errorInvalidEmail;
+    if (!email.contains('@') || !email.contains('.')) {
+      return l.errorInvalidEmail;
+    }
     if (_role == UserRole.student && _studentIdCtrl.text.trim().isEmpty) {
       return l.studentId; // TODO: Add specific error if needed
     }
@@ -88,24 +125,37 @@ class _SignUpScreenState extends State<SignUpScreen>
   String? _validateAll(AppLocalizations l) {
     final p0 = _validatePage0(l);
     if (p0 != null) return p0;
-    if (_passCtrl.text.length < 6)  return l.errorPasswordShort;
+    if (_passCtrl.text.length < 6) return l.errorPasswordShort;
     if (_passCtrl.text != _confirmCtrl.text) return l.errorPasswordMismatch;
     if (_faculty.isEmpty) return l.errorSelectFaculty;
     return null;
   }
 
+  /// Consent is enforced separately so the field-level errors render inline
+  /// while the consent failure gets its own message under the checkbox.
+  bool get _consentMissing => !_consented;
+
   void _nextPage(AppLocalizations l) {
     FocusScope.of(context).unfocus();
     final err = _validatePage0(l);
-    if (err != null) { setState(() => _error = err); return; }
-    setState(() { _error = null; _page = 1; });
+    if (err != null) {
+      setState(() => _error = err);
+      return;
+    }
+    setState(() {
+      _error = null;
+      _page = 1;
+    });
     _pageCtrl.animateToPage(1,
         duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
   }
 
   void _prevPage() {
     FocusScope.of(context).unfocus();
-    setState(() { _error = null; _page = 0; });
+    setState(() {
+      _error = null;
+      _page = 0;
+    });
     _pageCtrl.animateToPage(0,
         duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
   }
@@ -113,8 +163,22 @@ class _SignUpScreenState extends State<SignUpScreen>
   Future<void> _submit(AppLocalizations l) async {
     FocusScope.of(context).unfocus();
     final err = _validateAll(l);
-    if (err != null) { setState(() => _error = err); return; }
-    setState(() { _loading = true; _error = null; });
+    if (err != null) {
+      setState(() => _error = err);
+      return;
+    }
+    if (_consentMissing) {
+      setState(() {
+        _consentError = true;
+        _error = l.signupTermsConsentError;
+      });
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+      _consentError = false;
+    });
 
     final name = _nameCtrl.text.trim();
     final email = _emailCtrl.text.trim();
@@ -124,51 +188,59 @@ class _SignUpScreenState extends State<SignUpScreen>
         ? _studentIdCtrl.text.trim()
         : 'MUST-$year-$suffix';
 
+    // Role is hard-coded, never taken from user input — see `_roles`.
     final newUser = UserModel(
-      uid: 'pending', role: _role,
-      name: name, studentId: studentId, email: email,
-      faculty: _faculty, semester: _semester,
+      uid: 'pending',
+      role: UserRole.student,
+      name: name,
+      studentId: studentId,
+      email: email,
+      faculty: _faculty,
+      semester: _semester,
       phone: _phoneCtrl.text.trim(),
-      points: 0, rank: 999, cgpa: 0.0, creditHours: '0/140', targetEvents: 5,
+      points: 0,
+      rank: 999,
+      cgpa: 0.0,
+      creditHours: '0/140',
+      targetEvents: 5,
       stats: const UserStats(eventsJoined: 0, bookingsMade: 0, wins: 0),
       achievements: [],
     );
 
     final appState = context.read<AppState>();
-    final regError = await appState.registerNewUser(newUser, password: _passCtrl.text);
+    final regError =
+        await appState.registerNewUser(newUser, password: _passCtrl.text);
     if (!mounted) return;
 
     if (regError != null) {
-      setState(() { _loading = false; _error = _mapError(regError, l); });
+      setState(() {
+        _loading = false;
+        _error = _mapError(regError, l);
+      });
       return;
     }
     setState(() => _loading = false);
     HapticFeedback.lightImpact();
 
-    final Widget dest = switch (_role) {
-      UserRole.admin   => const AdminShell(),
-      UserRole.coach   => const CoachShell(),
-      UserRole.student => const AppShell(),
-    };
+    // Every self-service account is a student; routing follows the persisted
+    // account rather than any locally held intent.
     Navigator.of(context).pushReplacement(PageRouteBuilder(
-      pageBuilder: (_, a, __) => dest,
-      transitionsBuilder: (_, a, __, child) => FadeTransition(opacity: a, child: child),
+      pageBuilder: (_, a, __) => const AppShell(),
+      transitionsBuilder: (_, a, __, child) =>
+          FadeTransition(opacity: a, child: child),
       transitionDuration: const Duration(milliseconds: 400),
     ));
   }
 
   String _mapError(String code, AppLocalizations l) => switch (code) {
-    'emailAlreadyInUse' => l.errorEmailInUse,
-    'invalidEmail'      => l.errorInvalidEmail,
-    'weakPassword'      => l.errorWeakPassword,
-    _                   => l.errorSignUpFailed,
-  };
-
-  Color _accentFor(UserRole r) => switch (r) {
-    UserRole.student => DarkColors.primary,
-    UserRole.coach   => DarkColors.accent,
-    UserRole.admin   => DarkColors.error,
-  };
+        'emailAlreadyInUse' => l.errorEmailInUse,
+        'invalidEmail' => l.errorInvalidEmail,
+        'weakPassword' => l.errorWeakPassword,
+        'operationNotAllowed' => l.errorAuthDisabled,
+        'profileWriteFailed' => l.errorProfileWriteFailed,
+        'profileWriteForbidden' => l.errorProfileWriteForbidden,
+        _ => code.contains(' ') ? code : l.errorSignUpFailed,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +253,8 @@ class _SignUpScreenState extends State<SignUpScreen>
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Row(children: [
-              _BackButton(onTap: _page == 1 ? _prevPage : () => Navigator.pop(context)),
+              _BackButton(
+                  onTap: _page == 1 ? _prevPage : () => Navigator.pop(context)),
               const Spacer(),
               _StepDots(current: _page, color: _roleColor),
             ]),
@@ -191,18 +264,15 @@ class _SignUpScreenState extends State<SignUpScreen>
             padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
             child: Row(children: [
               Expanded(
-                child: AnimatedBuilder(
-                  animation: _glowAnim,
-                  builder: (_, __) => ShaderMask(
-                    shaderCallback: (b) => LinearGradient(
-                        colors: [_roleColor, DarkColors.secondary]).createShader(b),
-                    child: Text(
-                      _page == 0 ? l.createAccount : l.accountDetails,
-                      style: AppTextStyles.display(28, color: Colors.white, context: context),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                // Solid brand colour instead of an animated gradient fill: a
+                // continuously animating heading is a distraction and reads as
+                // unresolved loading state.
+                child: Text(
+                  _page == 0 ? l.createAccount : l.accountDetails,
+                  style: AppTextStyles.display(28,
+                      color: _roleColor, context: context),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ]),
@@ -213,7 +283,8 @@ class _SignUpScreenState extends State<SignUpScreen>
               alignment: Alignment.centerLeft,
               child: Text(
                 _page == 0 ? l.joinMusterSport : l.almostThere,
-                style: AppTextStyles.body(13, color: DarkColors.muted, context: context),
+                style: AppTextStyles.body(13,
+                    color: DarkColors.muted, context: context),
               ),
             ),
           ),
@@ -227,207 +298,400 @@ class _SignUpScreenState extends State<SignUpScreen>
                 // PAGE 0
                 SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    // Role picker
-                    _SectionLabel(l.iAmA, context: context),
-                    const SizedBox(height: 10),
-                    Row(children: _roles.map((meta) {
-                      final active = _role == meta.role;
-                      final color  = _accentFor(meta.role);
-                      return Expanded(child: Padding(
-                        padding: EdgeInsets.only(
-                          right: (Directionality.of(context) == TextDirection.ltr && meta.role != UserRole.admin) ? 8 : 0,
-                          left: (Directionality.of(context) == TextDirection.rtl && meta.role != UserRole.admin) ? 8 : 0,
-                        ),
-                        child: GestureDetector(
-                          onTap: () { HapticFeedback.selectionClick(); setState(() { _role = meta.role; _error = null; }); },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Account type
+                        //
+                        // This is no longer a picker. Public registration only
+                        // creates student accounts, so a tappable "pick your
+                        // role" control would be misleading UI *and* a dead
+                        // affordance. Coach and admin accounts are provisioned
+                        // by an existing admin. See `_roles` and
+                        // `firestore.rules` — the rules are what actually
+                        // enforce this, since any client can be patched.
+                        _SectionLabel(l.iAmA, context: context),
+                        const SizedBox(height: 10),
+                        Semantics(
+                          label: l.selectRole(_roles.first.localizedLabel(l)),
+                          readOnly: true,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 14),
                             decoration: BoxDecoration(
-                              color: active ? color.withValues(alpha: 0.12) : DarkColors.surface,
+                              color: DarkColors.primary.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: active ? color : DarkColors.border, width: active ? 1.8 : 1),
-                              boxShadow: active ? [BoxShadow(color: color.withValues(alpha: 0.22), blurRadius: 12)] : [],
+                              border: Border.all(
+                                  color: DarkColors.primary, width: 1.5),
                             ),
-                            child: Column(mainAxisSize: MainAxisSize.min, children: [
-                              Icon(meta.icon, color: active ? color : DarkColors.muted, size: active ? 26 : 22),
-                              const SizedBox(height: 5),
-                              Text(meta.localizedLabel(l),
-                                  textAlign: TextAlign.center,
-                                  style: AppTextStyles.body(12, color: active ? color : DarkColors.muted, weight: FontWeight.w700, context: context)),
-                            ]),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(_roles.first.icon,
+                                    color: DarkColors.primary, size: 22),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _roles.first.localizedLabel(l),
+                                  style: AppTextStyles.body(13,
+                                      color: DarkColors.primary,
+                                      weight: FontWeight.w700,
+                                      context: context),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ));
-                    }).toList()),
 
-                    const SizedBox(height: 22),
+                        const SizedBox(height: 22),
 
-                    // Full Name
-                    _FieldLabel(l.fullNameLabel, context: context),
-                    const SizedBox(height: 7),
-                    _GlowField(controller: _nameCtrl, hint: l.fullNameHint,
-                        prefixIcon: Icons.person_outline, accentColor: _roleColor,
-                        textCapitalization: TextCapitalization.words,
-                        onChanged: (_) => setState(() => _error = null)),
+                        // Full Name
+                        _FieldLabel(l.fullNameLabel, context: context),
+                        const SizedBox(height: 7),
+                        _GlowField(
+                            controller: _nameCtrl,
+                            hint: l.fullNameHint,
+                            prefixIcon: Icons.person_outline,
+                            accentColor: _roleColor,
+                            textCapitalization: TextCapitalization.words,
+                            onChanged: (_) => setState(() => _error = null)),
 
-                    const SizedBox(height: 14),
+                        const SizedBox(height: 14),
 
-                    // Email
-                    _FieldLabel(l.universityEmailLabel, context: context),
-                    const SizedBox(height: 7),
-                    _GlowField(controller: _emailCtrl, hint: l.emailHint,
-                        prefixIcon: Icons.email_outlined, accentColor: _roleColor,
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: (_) => setState(() => _error = null)),
+                        // Email
+                        _FieldLabel(l.universityEmailLabel, context: context),
+                        const SizedBox(height: 7),
+                        _GlowField(
+                            controller: _emailCtrl,
+                            hint: l.emailHint,
+                            prefixIcon: Icons.email_outlined,
+                            accentColor: _roleColor,
+                            keyboardType: TextInputType.emailAddress,
+                            onChanged: (_) => setState(() => _error = null)),
 
-                    const SizedBox(height: 14),
+                        const SizedBox(height: 14),
 
-                    // Student ID (only for students)
-                    if (_role == UserRole.student) ...[
-                      _FieldLabel(l.studentId, context: context),
-                      const SizedBox(height: 7),
-                      _GlowField(
-                        controller: _studentIdCtrl,
-                        hint: l.studentIdHint,
-                        prefixIcon: Icons.badge_outlined,
-                        accentColor: _roleColor,
-                        textCapitalization: TextCapitalization.characters,
-                        onChanged: (_) => setState(() => _error = null),
-                      ),
-                      const SizedBox(height: 4),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Text(l.studentIdDesc,
-                          style: AppTextStyles.body(11, color: DarkColors.muted.withValues(alpha: 0.65), context: context)),
-                      ),
-                      const SizedBox(height: 14),
-                    ],
+                        // Student ID (only for students)
+                        if (_role == UserRole.student) ...[
+                          _FieldLabel(l.studentId, context: context),
+                          const SizedBox(height: 7),
+                          _GlowField(
+                            controller: _studentIdCtrl,
+                            hint: l.studentIdHint,
+                            prefixIcon: Icons.badge_outlined,
+                            accentColor: _roleColor,
+                            textCapitalization: TextCapitalization.characters,
+                            onChanged: (_) => setState(() => _error = null),
+                          ),
+                          const SizedBox(height: 4),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Text(l.studentIdDesc,
+                                style: AppTextStyles.body(11,
+                                    color: DarkColors.mutedSubtle,
+                                    context: context)),
+                          ),
+                          const SizedBox(height: 14),
+                        ],
 
-                    if (_error != null) ...[_ErrorBanner(_error!), const SizedBox(height: 14)],
+                        if (_error != null) ...[
+                          _ErrorBanner(_error!),
+                          const SizedBox(height: 14)
+                        ],
 
-                    // Next
-                    _PrimaryButton(label: l.continueBtn, icon: Icons.arrow_forward_rounded,
-                        color: _roleColor, onTap: () => _nextPage(l)),
+                        // Next
+                        _PrimaryButton(
+                            label: l.continueBtn,
+                            icon: Icons.arrow_forward_rounded,
+                            color: _roleColor,
+                            onTap: () => _nextPage(l)),
 
-                    const SizedBox(height: 14),
-                    Center(child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: RichText(text: TextSpan(children: [
-                        TextSpan(text: '${l.alreadyHaveAccount}  ',
-                            style: AppTextStyles.body(13, color: DarkColors.muted, context: context)),
-                        TextSpan(text: l.signIn,
-                            style: AppTextStyles.body(13, color: DarkColors.secondary, weight: FontWeight.w700, context: context)),
-                      ])),
-                    )),
-                  ]),
+                        const SizedBox(height: 14),
+                        Center(
+                            child: AccessibleTap(
+                          label: l.signIn,
+                          hint: l.alreadyHaveAccount,
+                          onTap: () => Navigator.pop(context),
+                          child: RichText(
+                              text: TextSpan(children: [
+                            TextSpan(
+                                text: '${l.alreadyHaveAccount}  ',
+                                style: AppTextStyles.body(13,
+                                    color: DarkColors.muted, context: context)),
+                            TextSpan(
+                                text: l.signIn,
+                                style: AppTextStyles.body(13,
+                                    color: DarkColors.secondary,
+                                    weight: FontWeight.w700,
+                                    context: context)),
+                          ])),
+                        )),
+                      ]),
                 ),
 
                 // PAGE 1
                 SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    // Faculty + Semester
-                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _FieldLabel(l.facultyLabel, context: context),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Faculty + Semester
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                    _FieldLabel(l.facultyLabel,
+                                        context: context),
+                                    const SizedBox(height: 7),
+                                    _DropdownField(
+                                        value:
+                                            _faculty.isEmpty ? null : _faculty,
+                                        hint: l.selectFaculty,
+                                        items: _faculties,
+                                        accentColor: _roleColor,
+                                        onChanged: (v) =>
+                                            setState(() => _faculty = v ?? '')),
+                                  ])),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                    _FieldLabel(l.semesterLabel,
+                                        context: context),
+                                    const SizedBox(height: 7),
+                                    _DropdownField(
+                                        value: _semester,
+                                        hint: l.semesterHint,
+                                        items: _semesters,
+                                        accentColor: _roleColor,
+                                        onChanged: (v) => setState(
+                                            () => _semester = v ?? _semester)),
+                                  ])),
+                            ]),
+
+                        const SizedBox(height: 14),
+
+                        // Phone
+                        _FieldLabel(l.phoneLabel, context: context),
                         const SizedBox(height: 7),
-                        _DropdownField(value: _faculty.isEmpty ? null : _faculty, hint: l.selectFaculty,
-                            items: _faculties, accentColor: _roleColor,
-                            onChanged: (v) => setState(() => _faculty = v ?? '')),
-                      ])),
-                      const SizedBox(width: 12),
-                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        _FieldLabel(l.semesterLabel, context: context),
-                        const SizedBox(height: 7),
-                        _DropdownField(value: _semester, hint: l.semesterHint, items: _semesters,
+                        _GlowField(
+                            controller: _phoneCtrl,
+                            hint: l.phoneHint,
+                            prefixIcon: Icons.phone_outlined,
                             accentColor: _roleColor,
-                            onChanged: (v) => setState(() => _semester = v ?? _semester)),
-                      ])),
-                    ]),
+                            keyboardType: TextInputType.phone,
+                            onChanged: (_) => setState(() => _error = null)),
 
-                    const SizedBox(height: 14),
+                        const SizedBox(height: 14),
 
-                    // Phone
-                    _FieldLabel(l.phoneLabel, context: context),
-                    const SizedBox(height: 7),
-                    _GlowField(controller: _phoneCtrl, hint: l.phoneHint,
-                        prefixIcon: Icons.phone_outlined, accentColor: _roleColor,
-                        keyboardType: TextInputType.phone,
-                        onChanged: (_) => setState(() => _error = null)),
+                        // Password
+                        _FieldLabel(l.passwordLabel, context: context),
+                        const SizedBox(height: 7),
+                        _GlowField(
+                            controller: _passCtrl,
+                            hint: l.passwordHint2,
+                            prefixIcon: Icons.lock_outline,
+                            accentColor: _roleColor,
+                            obscure: _obscureP,
+                            suffixIcon: _obscureP
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            onSuffixTap: () =>
+                                setState(() => _obscureP = !_obscureP),
+                            onChanged: (_) => setState(() => _error = null)),
 
-                    const SizedBox(height: 14),
+                        const SizedBox(height: 14),
 
-                    // Password
-                    _FieldLabel(l.passwordLabel, context: context),
-                    const SizedBox(height: 7),
-                    _GlowField(controller: _passCtrl, hint: l.passwordHint2,
-                        prefixIcon: Icons.lock_outline, accentColor: _roleColor,
-                        obscure: _obscureP,
-                        suffixIcon: _obscureP ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        onSuffixTap: () => setState(() => _obscureP = !_obscureP),
-                        onChanged: (_) => setState(() => _error = null)),
+                        // Confirm password
+                        _FieldLabel(l.confirmPasswordLabel, context: context),
+                        const SizedBox(height: 7),
+                        _GlowField(
+                            controller: _confirmCtrl,
+                            hint: l.confirmPasswordHint,
+                            prefixIcon: Icons.lock_outline,
+                            accentColor: _roleColor,
+                            obscure: _obscureC,
+                            suffixIcon: _obscureC
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            onSuffixTap: () =>
+                                setState(() => _obscureC = !_obscureC),
+                            onChanged: (_) => setState(() => _error = null),
+                            onSubmitted: (_) => _submit(l)),
 
-                    const SizedBox(height: 14),
+                        if (_error != null) ...[
+                          const SizedBox(height: 14),
+                          _ErrorBanner(_error!)
+                        ],
 
-                    // Confirm password
-                    _FieldLabel(l.confirmPasswordLabel, context: context),
-                    const SizedBox(height: 7),
-                    _GlowField(controller: _confirmCtrl, hint: l.confirmPasswordHint,
-                        prefixIcon: Icons.lock_outline, accentColor: _roleColor,
-                        obscure: _obscureC,
-                        suffixIcon: _obscureC ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                        onSuffixTap: () => setState(() => _obscureC = !_obscureC),
-                        onChanged: (_) => setState(() => _error = null),
-                        onSubmitted: (_) => _submit(l)),
+                        const SizedBox(height: 18),
 
-                    if (_error != null) ...[const SizedBox(height: 14), _ErrorBanner(_error!)],
-
-                    const SizedBox(height: 22),
-
-                    // Submit
-                    AnimatedBuilder(
-                      animation: _glowAnim,
-                      builder: (_, __) => GestureDetector(
-                        onTap: _loading ? null : () => _submit(l),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: double.infinity, height: 56,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: _loading
-                                  ? [DarkColors.muted, DarkColors.muted]
-                                  : [_roleColor, _roleColor.withValues(alpha: 0.75)],
+                        // ── Consent (WCAG 3.3.1 / Play policy) ──
+                        // Unchecked by default: a pre-ticked box is not valid consent.
+                        _ConsentRow(
+                          value: _consented,
+                          onChanged: (v) => setState(() {
+                            _consented = v;
+                            if (v) _error = null;
+                          }),
+                          label: l.signupTermsConsent,
+                          color: _roleColor,
+                        ),
+                        if (_error != null && _consentError) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            l.signupTermsConsentError,
+                            style: AppTextStyles.body(
+                              13,
+                              color: DarkColors.error,
+                              context: context,
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: _loading ? [] : [BoxShadow(
-                              color: _roleColor.withValues(alpha: 0.45 * _glowAnim.value),
-                              blurRadius: 24 * _glowAnim.value, spreadRadius: 1,
-                              offset: const Offset(0, 4),
-                            )],
                           ),
-                          child: Center(child: _loading
-                            ? const SizedBox(width: 24, height: 24,
-                                child: CircularProgressIndicator(strokeWidth: 2.5,
-                                    valueColor: AlwaysStoppedAnimation(Colors.white)))
-                            : Row(mainAxisSize: MainAxisSize.min, children: [
-                                Icon(_roles.firstWhere((r) => r.role == _role).icon,
-                                    color: Colors.white, size: 19),
-                                const SizedBox(width: 8),
-                                Flexible(
-                                  child: Text(
-                                    '${l.joinAs} ${_roles.firstWhere((r) => r.role == _role).localizedLabel(l)}',
-                                    style: AppTextStyles.body(16, color: Colors.white, weight: FontWeight.w800, context: context),
-                                    overflow: TextOverflow.ellipsis,
+                        ],
+
+                        const SizedBox(height: 8),
+
+                        // The consent sentence names two documents, so both
+                        // must actually be reachable at the point of consent
+                        // (Play: privacy policy must be linked, not described).
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 0,
+                          children: [
+                            for (final kind in const [
+                              LegalDocumentKind.terms,
+                              LegalDocumentKind.privacy,
+                            ])
+                              TextButton(
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        LegalDocumentScreen(kind: kind),
                                   ),
                                 ),
-                              ]),
+                                style: TextButton.styleFrom(
+                                  minimumSize: const Size(48, 44),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  tapTargetSize: MaterialTapTargetSize.padded,
+                                ),
+                                child: Text(
+                                  LegalContent.titleOf(
+                                      kind,
+                                      Localizations.localeOf(context)
+                                          .languageCode),
+                                  style: AppTextStyles.body(
+                                    12,
+                                    color: _roleColor,
+                                    weight: FontWeight.w600,
+                                    context: context,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 22),
+
+                        // Submit
+                        AnimatedBuilder(
+                          animation: _glowAnim,
+                          builder: (_, __) => Semantics(
+                            button: true,
+                            enabled: !_loading,
+                            label:
+                                '${l.joinAs} ${_roles.firstWhere((r) => r.role == _role).localizedLabel(l)}',
+                            onTap: _loading ? null : () => _submit(l),
+                            child: ExcludeSemantics(
+                              child: Material(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(16),
+                                child: InkWell(
+                                  onTap: _loading ? null : () => _submit(l),
+                                  canRequestFocus: !_loading,
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    width: double.infinity,
+                                    height: 56,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: _loading
+                                            ? [
+                                                DarkColors.muted,
+                                                DarkColors.muted
+                                              ]
+                                            : [
+                                                _roleColor,
+                                                _roleColor.withValues(
+                                                    alpha: 0.75)
+                                              ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: _loading
+                                          ? []
+                                          : [
+                                              BoxShadow(
+                                                color: _roleColor.withValues(
+                                                    alpha:
+                                                        0.45 * _glowAnim.value),
+                                                blurRadius:
+                                                    24 * _glowAnim.value,
+                                                spreadRadius: 1,
+                                                offset: const Offset(0, 4),
+                                              )
+                                            ],
+                                    ),
+                                    child: Center(
+                                      child: _loading
+                                          ? const SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2.5,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation(
+                                                          Colors.white)))
+                                          : Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                  Icon(
+                                                      _roles
+                                                          .firstWhere((r) =>
+                                                              r.role == _role)
+                                                          .icon,
+                                                      color: Colors.white,
+                                                      size: 19),
+                                                  const SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: Text(
+                                                      '${l.joinAs} ${_roles.firstWhere((r) => r.role == _role).localizedLabel(l)}',
+                                                      style: AppTextStyles.body(
+                                                          16,
+                                                          color: Colors.white,
+                                                          weight:
+                                                              FontWeight.w800,
+                                                          context: context),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ]),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ]),
+                      ]),
                 ),
               ],
             ),
@@ -444,18 +708,40 @@ class _BackButton extends StatelessWidget {
   final VoidCallback onTap;
   const _BackButton({required this.onTap});
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: 38, height: 38,
-      decoration: BoxDecoration(
-        color: DarkColors.surface,
-        borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: DarkColors.border),
-      ),
-      child: const Center(child: Icon(Icons.arrow_back_ios_new, color: DarkColors.muted, size: 15)),
-    ),
-  );
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: AppLocalizations.of(context)!.back,
+        onTap: onTap,
+        child: ExcludeSemantics(
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(11),
+            child: InkWell(
+              onTap: onTap,
+              canRequestFocus: true,
+              borderRadius: BorderRadius.circular(11),
+              // 44dp visual, 48dp target (WCAG 2.5.8).
+              child: Container(
+                width: 48,
+                height: 48,
+                alignment: Alignment.center,
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: DarkColors.surface,
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(color: DarkColors.border),
+                  ),
+                  child: const Center(
+                      child: Icon(Icons.arrow_back_ios_new,
+                          color: DarkColors.muted, size: 15)),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 class _StepDots extends StatelessWidget {
@@ -464,20 +750,21 @@ class _StepDots extends StatelessWidget {
   const _StepDots({required this.current, required this.color});
   @override
   Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: List.generate(2, (i) {
-      final active = i == current;
-      return AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        margin: const EdgeInsets.only(left: 5),
-        width: active ? 20 : 7, height: 7,
-        decoration: BoxDecoration(
-          color: active ? color : DarkColors.border,
-          borderRadius: BorderRadius.circular(4),
-        ),
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(2, (i) {
+          final active = i == current;
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            margin: const EdgeInsets.only(left: 5),
+            width: active ? 20 : 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: active ? color : DarkColors.border,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          );
+        }),
       );
-    }),
-  );
 }
 
 class _SectionLabel extends StatelessWidget {
@@ -495,10 +782,10 @@ class _FieldLabel extends StatelessWidget {
   final BuildContext context;
   @override
   Widget build(BuildContext context) => Text(
-    text.toUpperCase(),
-    style: AppTextStyles.label(color: DarkColors.muted, context: context)
-        .copyWith(fontSize: 10, letterSpacing: 1.1),
-  );
+        text.toUpperCase(),
+        style: AppTextStyles.label(color: DarkColors.muted, context: context)
+            .copyWith(fontSize: 10, letterSpacing: 1.1),
+      );
 }
 
 class _ErrorBanner extends StatelessWidget {
@@ -506,18 +793,22 @@ class _ErrorBanner extends StatelessWidget {
   const _ErrorBanner(this.message);
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-    decoration: BoxDecoration(
-      color: DarkColors.error.withValues(alpha: 0.09),
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: DarkColors.error.withValues(alpha: 0.35)),
-    ),
-    child: Row(children: [
-      const Icon(Icons.error_outline_rounded, color: DarkColors.error, size: 18),
-      const SizedBox(width: 9),
-      Expanded(child: Text(message, style: AppTextStyles.body(13, color: DarkColors.error, context: context))),
-    ]),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          color: DarkColors.error.withValues(alpha: 0.09),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: DarkColors.error.withValues(alpha: 0.35)),
+        ),
+        child: Row(children: [
+          const Icon(Icons.error_outline_rounded,
+              color: DarkColors.error, size: 18),
+          const SizedBox(width: 9),
+          Expanded(
+              child: Text(message,
+                  style: AppTextStyles.body(13,
+                      color: DarkColors.error, context: context))),
+        ]),
+      );
 }
 
 class _PrimaryButton extends StatelessWidget {
@@ -525,23 +816,102 @@ class _PrimaryButton extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
-  const _PrimaryButton({required this.label, required this.icon, required this.color, required this.onTap});
+  const _PrimaryButton(
+      {required this.label,
+      required this.icon,
+      required this.color,
+      required this.onTap});
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: double.infinity, height: 54,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.75)]),
-        borderRadius: BorderRadius.circular(16),
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: label,
+        onTap: onTap,
+        child: ExcludeSemantics(
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              onTap: onTap,
+              canRequestFocus: true,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: double.infinity,
+                height: 54,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [color, color.withValues(alpha: 0.75)]),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Text(label,
+                      style: AppTextStyles.body(16,
+                          color: Colors.white,
+                          weight: FontWeight.w700,
+                          context: context)),
+                  const SizedBox(width: 8),
+                  Icon(icon, color: Colors.white, size: 18),
+                ]),
+              ),
+            ),
+          ),
+        ),
+      );
+}
+
+/// Consent checkbox.
+///
+/// Uses [CheckboxListTile] rather than a hand-rolled [InkWell] + [Checkbox].
+/// Flutter merges the tile title into the checkbox's own semantics node and
+/// sets the `checked` flag, so a screen reader announces
+/// "… , checkbox, not checked" / "checkbox, checked" and announces the toggle
+/// again on state change. The earlier `Semantics` + `ExcludeSemantics` wrapper
+/// silently dropped the checked state because the exclusion removed the very
+/// node that carried it.
+///
+/// The whole tile is the hit area (>=48dp tall, WCAG 2.5.8) and the tile is a
+/// single focusable stop, so keyboard and switch users land on it once.
+class _ConsentRow extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final String label;
+  final Color color;
+
+  const _ConsentRow({
+    required this.value,
+    required this.onChanged,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDarkFill =
+        ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
+    return CheckboxListTile(
+      value: value,
+      onChanged: (v) => onChanged(v ?? false),
+      controlAffinity: ListTileControlAffinity.leading,
+      contentPadding: EdgeInsets.zero,
+      // Keep the whole row tappable without adding dead vertical space.
+      visualDensity: VisualDensity.compact,
+      // The tile title is merged into the checkbox's own semantics node, so it
+      // serves as the accessible name automatically.
+      title: Text(
+        label,
+        style: AppTextStyles.body(
+          13,
+          color: context.mutedColor,
+          context: context,
+        ),
       ),
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Text(label, style: AppTextStyles.body(16, color: Colors.white, weight: FontWeight.w700, context: context)),
-        const SizedBox(width: 8),
-        Icon(icon, color: Colors.white, size: 18),
-      ]),
-    ),
-  );
+      activeColor: color,
+      checkColor: isDarkFill ? DarkColors.onFill : Colors.white,
+      checkboxShape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      side: BorderSide(color: context.borderInteractiveColor, width: 1.6),
+    );
+  }
 }
 
 class _RoleMeta {
@@ -550,15 +920,15 @@ class _RoleMeta {
   const _RoleMeta({required this.role, required this.label});
   IconData get icon => role.icon;
   String localizedLabel(AppLocalizations l) => switch (role) {
-    UserRole.student => l.roleStudent,
-    UserRole.coach   => l.roleCoach,
-    UserRole.admin   => l.roleAdmin,
-  };
+        UserRole.student => l.roleStudent,
+        UserRole.coach => l.roleCoach,
+        UserRole.admin => l.roleAdmin,
+      };
   String localizedDesc(AppLocalizations l) => switch (role) {
-    UserRole.student => l.roleStudentDesc,
-    UserRole.coach   => l.roleCoachDesc,
-    UserRole.admin   => l.roleAdminDesc,
-  };
+        UserRole.student => l.roleStudentDesc,
+        UserRole.coach => l.roleCoachDesc,
+        UserRole.admin => l.roleAdminDesc,
+      };
 }
 
 class _GlowField extends StatefulWidget {
@@ -573,51 +943,100 @@ class _GlowField extends StatefulWidget {
   final TextCapitalization textCapitalization;
   final ValueChanged<String>? onChanged, onSubmitted;
   const _GlowField({
-    required this.controller, required this.hint, required this.prefixIcon,
-    required this.accentColor, this.obscure = false, this.suffixIcon,
-    this.onSuffixTap, this.keyboardType,
+    required this.controller,
+    required this.hint,
+    required this.prefixIcon,
+    required this.accentColor,
+    this.obscure = false,
+    this.suffixIcon,
+    this.onSuffixTap,
+    this.keyboardType,
     this.textCapitalization = TextCapitalization.none,
-    this.onChanged, this.onSubmitted,
+    this.onChanged,
+    this.onSubmitted,
   });
-  @override State<_GlowField> createState() => _GlowFieldState();
-}
-class _GlowFieldState extends State<_GlowField> {
-  bool _focused = false;
   @override
-  Widget build(BuildContext context) => AnimatedContainer(
-    duration: const Duration(milliseconds: 200),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(14),
-      boxShadow: _focused ? [BoxShadow(color: widget.accentColor.withValues(alpha: 0.25),
-          blurRadius: 16, spreadRadius: 1)] : [],
-    ),
-    child: Focus(
-      onFocusChange: (f) => setState(() => _focused = f),
+  State<_GlowField> createState() => _GlowFieldState();
+}
+
+class _GlowFieldState extends State<_GlowField> {
+  late final FocusNode _focusNode;
+  bool _focused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (_focusNode.hasFocus != _focused) {
+      setState(() => _focused = _focusNode.hasFocus);
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: _focused
+            ? [
+                BoxShadow(
+                    color: widget.accentColor.withValues(alpha: 0.25),
+                    blurRadius: 16,
+                    spreadRadius: 1)
+              ]
+            : [],
+      ),
       child: TextField(
-        controller: widget.controller, obscureText: widget.obscure,
+        controller: widget.controller,
+        focusNode: _focusNode,
+        obscureText: widget.obscure,
         keyboardType: widget.keyboardType,
         textCapitalization: widget.textCapitalization,
         style: AppTextStyles.body(15, color: DarkColors.text, context: context),
-        onChanged: widget.onChanged, onSubmitted: widget.onSubmitted,
+        onChanged: widget.onChanged,
+        onSubmitted: widget.onSubmitted,
         decoration: InputDecoration(
           hintText: widget.hint,
-          hintStyle: AppTextStyles.body(14, color: DarkColors.muted.withValues(alpha: 0.6), context: context),
+          hintStyle: AppTextStyles.body(14,
+              color: DarkColors.mutedSubtle, context: context),
           prefixIcon: Icon(widget.prefixIcon,
-              color: _focused ? widget.accentColor : DarkColors.muted, size: 20),
+              color: _focused ? widget.accentColor : DarkColors.muted,
+              size: 20),
           suffixIcon: widget.suffixIcon != null
-              ? GestureDetector(onTap: widget.onSuffixTap,
-                  child: Icon(widget.suffixIcon, color: DarkColors.muted, size: 20))
+              ? IconButton(
+                  icon: Icon(widget.suffixIcon,
+                      color: DarkColors.muted, size: 20),
+                  tooltip: widget.obscure ? l.showPassword : l.hidePassword,
+                  onPressed: widget.onSuffixTap,
+                )
               : null,
-          filled: true, fillColor: DarkColors.surface,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14),
+          filled: true,
+          fillColor: DarkColors.surface,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: DarkColors.border)),
-          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(color: widget.accentColor, width: 1.6)),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _DropdownField extends StatelessWidget {
@@ -626,26 +1045,41 @@ class _DropdownField extends StatelessWidget {
   final List<String> items;
   final Color accentColor;
   final void Function(String?) onChanged;
-  const _DropdownField({required this.value, required this.hint, required this.items,
-      required this.accentColor, required this.onChanged});
+  const _DropdownField(
+      {required this.value,
+      required this.hint,
+      required this.items,
+      required this.accentColor,
+      required this.onChanged});
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-    decoration: BoxDecoration(
-      color: DarkColors.surface,
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: DarkColors.border),
-    ),
-    child: DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        value: value, hint: Text(hint, style: AppTextStyles.body(14, color: DarkColors.muted, context: context)),
-        style: AppTextStyles.body(14, color: DarkColors.text, context: context),
-        dropdownColor: DarkColors.surface2, isExpanded: true,
-        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: DarkColors.muted, size: 20),
-        items: items.map((i) => DropdownMenuItem(value: i,
-            child: Text(i, style: AppTextStyles.body(14, color: DarkColors.text, context: context)))).toList(),
-        onChanged: onChanged,
-      ),
-    ),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        decoration: BoxDecoration(
+          color: DarkColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: DarkColors.border),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: value,
+            hint: Text(hint,
+                style: AppTextStyles.body(14,
+                    color: DarkColors.muted, context: context)),
+            style: AppTextStyles.body(14,
+                color: DarkColors.text, context: context),
+            dropdownColor: DarkColors.surface2,
+            isExpanded: true,
+            icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                color: DarkColors.muted, size: 20),
+            items: items
+                .map((i) => DropdownMenuItem(
+                    value: i,
+                    child: Text(i,
+                        style: AppTextStyles.body(14,
+                            color: DarkColors.text, context: context))))
+                .toList(),
+            onChanged: onChanged,
+          ),
+        ),
+      );
 }

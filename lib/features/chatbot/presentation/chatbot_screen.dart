@@ -13,7 +13,8 @@ class ChatMessage {
   final String text;
   final bool isUser;
   final DateTime time;
-  ChatMessage({required this.text, required this.isUser}) : time = DateTime.now();
+  ChatMessage({required this.text, required this.isUser})
+      : time = DateTime.now();
 }
 
 // ─── CHATBOT LOGIC ────────────────────────────────────────────────────────────
@@ -28,42 +29,105 @@ String chatbotReply({
   final m = message.toLowerCase();
 
   // Greetings
-  if (['hello','hi','hey','good morning','good afternoon','مرحبا','سلام','هاي','اهلا'].any(m.contains)) {
+  if ([
+    'hello',
+    'hi',
+    'hey',
+    'good morning',
+    'good afternoon',
+    'مرحبا',
+    'سلام',
+    'هاي',
+    'اهلا'
+  ].any(m.contains)) {
     return role == UserRole.admin || role == UserRole.coach
         ? l10n.chatbotReplyGreetingAdmin
         : l10n.chatbotReplyGreetingStudent;
   }
 
   // Activities
-  if (['activities','sports','join','available','what sports','what can i do','الأنشطة','النشاطات','arts','sing','act','music','opera','poetry','dance','رياضة','فنون'].any(m.contains)) {
-    const sports = '⚽ Football  🎾 Padel  🏀 Basketball  🏐 Volleyball\n🏋️ Gym  🥋 Martial Arts  🏊 Swimming  🎱 Table Tennis\n🏸 Badminton  🤸 Gymnastics & Yoga  🏃 Athletics  ♟️ Chess';
-    const arts   = '🎭 Acting & Theatre  🎤 Vocal Singing  🎹 Piano\n🎻 Strings  🥁 Percussion  🎷 Wind & Brass  🎸 Guitar & Oud\n📜 Poetry & Spoken Word  💃 Dance  🎬 Opera & Musical Theatre\n🖼️ Creative Writing  🎙️ Public Speaking & Debate';
+  if ([
+    'activities',
+    'sports',
+    'join',
+    'available',
+    'what sports',
+    'what can i do',
+    'الأنشطة',
+    'النشاطات',
+    'arts',
+    'sing',
+    'act',
+    'music',
+    'opera',
+    'poetry',
+    'dance',
+    'رياضة',
+    'فنون'
+  ].any(m.contains)) {
+    const sports =
+        '⚽ Football  🎾 Padel  🏀 Basketball  🏐 Volleyball\n🏋️ Gym  🥋 Martial Arts  🏊 Swimming  🎱 Table Tennis\n🏸 Badminton  🤸 Gymnastics & Yoga  🏃 Athletics  ♟️ Chess';
+    const arts =
+        '🎭 Acting & Theatre  🎤 Vocal Singing  🎹 Piano\n🎻 Strings  🥁 Percussion  🎷 Wind & Brass  🎸 Guitar & Oud\n📜 Poetry & Spoken Word  💃 Dance  🎬 Opera & Musical Theatre\n🖼️ Creative Writing  🎙️ Public Speaking & Debate';
     return l10n.chatbotReplyActivities(sports, arts);
   }
 
   // Register
-  if (['register','sign up','enroll','how to join','application','apply','سجل','تسجيل','اشتراك'].any(m.contains)) {
+  if ([
+    'register',
+    'sign up',
+    'enroll',
+    'how to join',
+    'application',
+    'apply',
+    'سجل',
+    'تسجيل',
+    'اشتراك'
+  ].any(m.contains)) {
     return role == UserRole.admin || role == UserRole.coach
         ? l10n.chatbotReplyRegisterAdmin
         : l10n.chatbotReplyRegisterStudent;
   }
 
   // Events
-  if (['events','tournament','competition','upcoming','cup','championship','بطولة','فعالية','مسابقة'].any(m.contains)) {
+  if ([
+    'events',
+    'tournament',
+    'competition',
+    'upcoming',
+    'cup',
+    'championship',
+    'بطولة',
+    'فعالية',
+    'مسابقة'
+  ].any(m.contains)) {
     return l10n.chatbotReplyEvents;
   }
 
   // Status check
-  if (['status','pending','approved','rejected','my registration','check','application','طلبي','حالة','مقبول','مرفوض'].any(m.contains)) {
+  if ([
+    'status',
+    'pending',
+    'approved',
+    'rejected',
+    'my registration',
+    'check',
+    'application',
+    'طلبي',
+    'حالة',
+    'مقبول',
+    'مرفوض'
+  ].any(m.contains)) {
     if (role == UserRole.student) {
-      final myRegs = registrations.where((r) => r.studentEmail == userEmail).toList();
+      final myRegs =
+          registrations.where((r) => r.studentEmail == userEmail).toList();
       if (myRegs.isEmpty) return l10n.chatbotReplyNoRegistrations;
-      
+
       final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       final lines = myRegs.map((r) {
         String statusLabel;
         if (isArabic) {
-          statusLabel = switch(r.status) {
+          statusLabel = switch (r.status) {
             RegistrationStatus.pending => 'قيد الانتظار',
             RegistrationStatus.approved => 'مقبول',
             RegistrationStatus.rejected => 'مرفوض',
@@ -73,37 +137,66 @@ String chatbotReply({
         }
         return '${r.activity.emoji} ${r.activity.name}: ${r.status.emoji} $statusLabel';
       }).join('\n');
-      
+
       return l10n.chatbotReplyMyRegistrations(lines);
     }
-    
-    final pendingCount = registrations.where((r) => r.status == RegistrationStatus.pending).length;
-    final approvedCount = registrations.where((r) => r.status == RegistrationStatus.approved).length;
-    final rejectedCount = registrations.where((r) => r.status == RegistrationStatus.rejected).length;
-    
-    return l10n.chatbotReplyAdminSummary(pendingCount, approvedCount, rejectedCount);
+
+    final pendingCount = registrations
+        .where((r) => r.status == RegistrationStatus.pending)
+        .length;
+    final approvedCount = registrations
+        .where((r) => r.status == RegistrationStatus.approved)
+        .length;
+    final rejectedCount = registrations
+        .where((r) => r.status == RegistrationStatus.rejected)
+        .length;
+
+    return l10n.chatbotReplyAdminSummary(
+        pendingCount, approvedCount, rejectedCount);
   }
 
   // Admin-specific
-  if (['admin','approve','reject','manage','dashboard','إداري','مسؤول','لوحة'].any(m.contains)) {
+  if ([
+    'admin',
+    'approve',
+    'reject',
+    'manage',
+    'dashboard',
+    'إداري',
+    'مسؤول',
+    'لوحة'
+  ].any(m.contains)) {
     if (role == UserRole.admin || role == UserRole.coach) {
-      final pending = registrations.where((r) => r.status == RegistrationStatus.pending).length;
+      final pending = registrations
+          .where((r) => r.status == RegistrationStatus.pending)
+          .length;
       return l10n.chatbotReplyAdminQuickSummary(pending);
     }
   }
 
   // Points & leaderboard
-  if (['points','score','rank','leaderboard','نقاط','ترتيب','ترتيبي','الابطال'].any(m.contains)) {
+  if ([
+    'points',
+    'score',
+    'rank',
+    'leaderboard',
+    'نقاط',
+    'ترتيب',
+    'ترتيبي',
+    'الابطال'
+  ].any(m.contains)) {
     return l10n.chatbotReplyPoints;
   }
 
   // Facilities / booking
-  if (['book','facility','field','court','reserve','حجز','ملعب'].any(m.contains)) {
+  if (['book', 'facility', 'field', 'court', 'reserve', 'حجز', 'ملعب']
+      .any(m.contains)) {
     return l10n.chatbotReplyBooking;
   }
 
   // Help
-  if (['help','guide','how','what can','support','مساعدة','كيف'].any(m.contains)) {
+  if (['help', 'guide', 'how', 'what can', 'support', 'مساعدة', 'كيف']
+      .any(m.contains)) {
     return role == UserRole.admin || role == UserRole.coach
         ? l10n.chatbotReplyHelpAdmin
         : l10n.chatbotReplyHelpStudent;
@@ -120,17 +213,28 @@ class ChatbotScreen extends StatefulWidget {
 }
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
-  final _ctrl    = TextEditingController();
-  final _scroll  = ScrollController();
+  final _ctrl = TextEditingController();
+  final _scroll = ScrollController();
   final _messages = <ChatMessage>[];
-  bool _typing   = false;
+  bool _typing = false;
 
   List<String> _getSuggestions(BuildContext context, UserRole role) {
     final l10n = AppLocalizations.of(context)!;
     if (role == UserRole.admin || role == UserRole.coach) {
-      return [l10n.suggPendingRegs, l10n.suggHowToApprove, l10n.suggDashboard, l10n.suggEvents];
+      return [
+        l10n.suggPendingRegs,
+        l10n.suggHowToApprove,
+        l10n.suggDashboard,
+        l10n.suggEvents
+      ];
     }
-    return [l10n.suggSports, l10n.suggArts, l10n.suggHowToRegister, l10n.suggMyStatus, l10n.suggPoints];
+    return [
+      l10n.suggSports,
+      l10n.suggArts,
+      l10n.suggHowToRegister,
+      l10n.suggMyStatus,
+      l10n.suggPoints
+    ];
   }
 
   @override
@@ -150,7 +254,11 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   }
 
   @override
-  void dispose() { _ctrl.dispose(); _scroll.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    _scroll.dispose();
+    super.dispose();
+  }
 
   Future<void> _send(String text) async {
     if (text.trim().isEmpty) return;
@@ -165,7 +273,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     final user = context.read<AppState>().user;
     final regs = context.read<ActivityRegistrationState>().all;
 
-    await Future.delayed(Duration(milliseconds: 600 + (text.length * 8).clamp(0, 800)));
+    await Future.delayed(
+        Duration(milliseconds: 600 + (text.length * 8).clamp(0, 800)));
     if (!mounted) return;
 
     final reply = chatbotReply(
@@ -194,15 +303,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   @override
   Widget build(BuildContext context) {
     final primary = context.primaryColor;
-    final second  = context.secondaryColor;
-    final txt     = context.textColor;
-    final border  = context.borderColor;
-    final surf    = context.surfaceColor;
-    final bg      = context.bgColor;
-    final muted   = context.mutedColor;
-    final hPad    = context.hPadding;
-    final role    = context.read<AppState>().user.role;
-    final suggs   = _getSuggestions(context, role);
+    final second = context.secondaryColor;
+    final txt = context.textColor;
+    final border = context.borderColor;
+    final surf = context.surfaceColor;
+    final bg = context.bgColor;
+    final muted = context.mutedColor;
+    final hPad = context.hPadding;
+    final role = context.read<AppState>().user.role;
+    final suggs = _getSuggestions(context, role);
 
     return Scaffold(
       backgroundColor: bg,
@@ -211,13 +320,18 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         surfaceTintColor: Colors.transparent,
         title: Row(children: [
           Container(
-            width: 36, height: 36,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [primary, const Color(0xFF0097A7)],
-                  begin: Alignment.topLeft, end: Alignment.bottomRight),
+              gradient: LinearGradient(
+                  colors: [primary, const Color(0xFF0097A7)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Center(child: Icon(Icons.smart_toy_rounded, size: 18, color: Colors.white)),
+            child: const Center(
+                child: Icon(Icons.smart_toy_rounded,
+                    size: 18, color: Colors.white)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -228,7 +342,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 Text(AppLocalizations.of(context)!.aiGuideTitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.heading(16, context: context, color: txt)),
+                    style: AppTextStyles.heading(16,
+                        context: context, color: txt)),
                 Row(children: [
                   Container(
                       width: 7,
@@ -240,7 +355,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     child: Text(AppLocalizations.of(context)!.online,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.body(11, context: context, color: second)),
+                        style: AppTextStyles.body(11,
+                            context: context, color: second)),
                   ),
                 ]),
               ],
@@ -256,12 +372,14 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               final l10n = AppLocalizations.of(context)!;
               final name = context.read<AppState>().user.name.split(' ').first;
               _messages.add(ChatMessage(
-                  text: '👋 ${l10n.chatCleared}, $name.\n\n${l10n.askMeAnything}',
+                  text:
+                      '👋 ${l10n.chatCleared}, $name.\n\n${l10n.askMeAnything}',
                   isUser: false));
             }),
           ),
         ],
-        bottom: PreferredSize(preferredSize: const Size.fromHeight(1),
+        bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
             child: Divider(height: 1, color: border)),
       ),
       body: Column(children: [
@@ -299,8 +417,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 ),
                 alignment: Alignment.center,
                 child: Text(suggs[i],
-                    maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.body(12, context: context, color: muted, weight: FontWeight.w600)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.body(12,
+                        context: context,
+                        color: muted,
+                        weight: FontWeight.w600)),
               ),
             ),
           ),
@@ -310,7 +432,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         // ── Input ────────────────────────────────────────────────────────
         Container(
           color: bg,
-          padding: EdgeInsets.fromLTRB(hPad, 10, hPad, 10 + MediaQuery.of(context).viewInsets.bottom),
+          padding: EdgeInsets.fromLTRB(
+              hPad, 10, hPad, 10 + MediaQuery.of(context).viewInsets.bottom),
           child: Row(children: [
             Expanded(
               child: TextField(
@@ -318,13 +441,17 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 style: AppTextStyles.body(14, context: context, color: txt),
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context)!.askMeAnything,
-                  hintStyle: AppTextStyles.body(14, context: context, color: muted),
+                  hintStyle:
+                      AppTextStyles.body(14, context: context, color: muted),
                   filled: true,
                   fillColor: surf,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
                       borderSide: BorderSide(color: border)),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
                       borderSide: BorderSide(color: primary, width: 1.5)),
                 ),
                 onSubmitted: _send,
@@ -335,12 +462,20 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             GestureDetector(
               onTap: () => _send(_ctrl.text),
               child: Container(
-                width: 46, height: 46,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [second, const Color(0xFF7ACC2A)],
-                      begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  gradient: LinearGradient(
+                      colors: [second, const Color(0xFF7ACC2A)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight),
                   borderRadius: BorderRadius.circular(14),
-                  boxShadow: [BoxShadow(color: second.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))],
+                  boxShadow: [
+                    BoxShadow(
+                        color: second.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4))
+                  ],
                 ),
                 child: Icon(Icons.arrow_upward_rounded, color: bg, size: 22),
               ),
@@ -360,24 +495,29 @@ class _ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primary = context.primaryColor;
-    final border  = context.borderColor;
-    final surf    = context.surfaceColor;
-    final isUser  = message.isUser;
+    final border = context.borderColor;
+    final surf = context.surfaceColor;
+    final isUser = message.isUser;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
-        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isUser) ...[
             Container(
-              width: 30, height: 30,
+              width: 30,
+              height: 30,
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [primary, const Color(0xFF0097A7)]),
+                gradient:
+                    LinearGradient(colors: [primary, const Color(0xFF0097A7)]),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Center(child: Icon(Icons.smart_toy_rounded, size: 14, color: Colors.white)),
+              child: const Center(
+                  child: Icon(Icons.smart_toy_rounded,
+                      size: 14, color: Colors.white)),
             ),
             const SizedBox(width: 8),
           ],
@@ -386,17 +526,18 @@ class _ChatBubble extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isUser ? primary.withValues(alpha: 0.15) : surf,
-                border: Border.all(color: isUser
-                    ? primary.withValues(alpha: 0.4) : border),
+                border: Border.all(
+                    color: isUser ? primary.withValues(alpha: 0.4) : border),
                 borderRadius: BorderRadiusDirectional.only(
-                  topStart:    const Radius.circular(16),
-                  topEnd:      const Radius.circular(16),
+                  topStart: const Radius.circular(16),
+                  topEnd: const Radius.circular(16),
                   bottomStart: Radius.circular(isUser ? 16 : 4),
-                  bottomEnd:   Radius.circular(isUser ? 4 : 16),
+                  bottomEnd: Radius.circular(isUser ? 4 : 16),
                 ),
               ),
               child: Text(message.text,
-                  style: AppTextStyles.body(13.5, context: context, color: context.textColor)),
+                  style: AppTextStyles.body(13.5,
+                      context: context, color: context.textColor)),
             ),
           ),
           if (isUser) const SizedBox(width: 8),
@@ -409,7 +550,7 @@ class _ChatBubble extends StatelessWidget {
 class _TypingBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final surf   = context.surfaceColor;
+    final surf = context.surfaceColor;
     final border = context.borderColor;
     final primary = context.primaryColor;
 
@@ -417,25 +558,34 @@ class _TypingBubble extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(children: [
         Container(
-          width: 30, height: 30,
+          width: 30,
+          height: 30,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [primary, const Color(0xFF0097A7)]),
+            gradient:
+                LinearGradient(colors: [primary, const Color(0xFF0097A7)]),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Center(child: Icon(Icons.smart_toy_rounded, size: 14, color: Colors.white)),
+          child: const Center(
+              child:
+                  Icon(Icons.smart_toy_rounded, size: 14, color: Colors.white)),
         ),
         const SizedBox(width: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           decoration: BoxDecoration(
-            color: surf, border: Border.all(color: border),
+            color: surf,
+            border: Border.all(color: border),
             borderRadius: const BorderRadiusDirectional.only(
-              topStart: Radius.circular(16), topEnd: Radius.circular(16),
-              bottomStart: Radius.circular(4), bottomEnd: Radius.circular(16),
+              topStart: Radius.circular(16),
+              topEnd: Radius.circular(16),
+              bottomStart: Radius.circular(4),
+              bottomEnd: Radius.circular(16),
             ),
           ),
           child: const Row(mainAxisSize: MainAxisSize.min, children: [
-            _Dot(delay: 0), _Dot(delay: 200), _Dot(delay: 400),
+            _Dot(delay: 0),
+            _Dot(delay: 200),
+            _Dot(delay: 400),
           ]),
         ),
       ]),
@@ -457,28 +607,33 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600))
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 600))
       ..repeat(reverse: true);
-    _anim = Tween<double>(begin: 0.3, end: 1).animate(
-        CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    _anim = Tween<double>(begin: 0.3, end: 1)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
     Future.delayed(Duration(milliseconds: widget.delay), () {
       if (mounted) _ctrl.forward();
     });
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: _anim,
-    builder: (_, __) => Container(
-      width: 7, height: 7,
-      margin: const EdgeInsets.symmetric(horizontal: 2),
-      decoration: BoxDecoration(
-        color: context.mutedColor.withValues(alpha: _anim.value),
-        shape: BoxShape.circle,
-      ),
-    ),
-  );
+        animation: _anim,
+        builder: (_, __) => Container(
+          width: 7,
+          height: 7,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+            color: context.mutedColor.withValues(alpha: _anim.value),
+            shape: BoxShape.circle,
+          ),
+        ),
+      );
 }

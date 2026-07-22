@@ -1,0 +1,64 @@
+# Third-party SDK & data-flow audit
+
+Scope: every direct dependency in `pubspec.yaml`, plus the Firebase and Google
+backends the app talks to. Audited against the shipped source on 2026-03-01.
+
+## Verdict in one line
+
+No advertising SDK, no behavioural analytics SDK, and no third-party data broker
+is present. Every external dependency is either a Google Firebase service needed
+to run the product, a Flutter/Dart platform package, or a pure-UI package.
+
+## Direct dependencies
+
+| Package | Purpose | Personal data it can reach | Network | Verdict |
+|---|---|---|---|---|
+| `firebase_core` | SDK bootstrap | none by itself | Firebase endpoints | Justified |
+| `firebase_auth` | Email/password sign-in | email, password (to Google Auth only) | Google Identity | Justified, disclosed in Privacy Policy §6 |
+| `cloud_firestore` | App database | full user profile, bookings, events, points | Firestore | Justified, disclosed |
+| `firebase_messaging` | Push notifications | device push token | FCM | Justified, disclosed; opt-out revokes the token |
+| `flutter_local_notifications` | Renders push messages on device | notification text | none | Justified |
+| `shared_preferences` | Local settings + short-lived session marker | language, theme, notification prefs, cached own profile, session marker | none | Justified, disclosed in Cookie Policy §1 |
+| `google_fonts` | Font rendering | **IP address + request metadata on first fetch** | fonts.gstatic.com | **Disclosed.** Fonts are fetched from Google at runtime rather than bundled. Bundle the `.ttf` files and drop this dependency to remove the request entirely. |
+| `provider` | State management | none | none | Justified |
+| `intl` | Date/number formatting | none | none | Justified |
+| `uuid` | Local ID generation | none | none | Justified |
+| `flutter_localizations` | Localised strings | none | none | Justified |
+| `flutter_test` / `flutter_lints` | Dev-only | n/a | n/a | Dev-only |
+
+## Confirmed absent
+
+Searched the whole of `lib/`, `android/` and `ios/` for the usual offenders.
+None are present:
+
+- Advertising / attribution: Google Mobile Ads, Facebook SDK, Unity Ads, Adjust,
+  AppsFlyer, Branch, Singular — none.
+- Analytics / tracking: Firebase Analytics, Google Analytics, Mixpanel,
+  Amplitude, Segment, Sentry, Crashlytics — none.
+- Location: no geolocation, no location permission requested. Booking asks the
+  user to type a facility; the app never reads GPS.
+- Contacts, SMS, call log, camera, microphone, health, "background location":
+  no permission is declared in `AndroidManifest.xml` or `Info.plist`.
+- Advertising ID: never requested. `android:allowBackup="false"`, no
+  `usesCleartextTraffic`, and no storage-permission declarations.
+
+## Data minimisation
+
+Fields collected exist to run the product. Two notable points:
+
+1. **Card details are validated locally and discarded.** The booking form asks
+   for a card number, expiry and CVC and checks their shape, but nothing is
+   transmitted, persisted, or sent to a processor. Because the app takes no
+   payment, this field is arguably unnecessary collection — see
+   `docs/pci-card-form.md` for the recommendation to remove it.
+2. **The leaderboard is a projection.** The public ranking reads
+   `leaderboard/{uid}`, not `users/{uid}`, so email, phone and student ID are
+   never exposed to other students.
+
+## Outstanding actions
+
+- [ ] Replace `google_fonts` runtime fetching with bundled font assets.
+- [ ] Remove the card form from the booking flow (removes the PCI question
+      entirely and removes a field we do not need).
+- [ ] Re-run this audit whenever `pubspec.yaml` gains a dependency, and before
+      any Play Store / App Store Data Safety declaration is submitted.
