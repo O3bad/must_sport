@@ -536,7 +536,7 @@ class _GlassCardFormState extends State<_GlassCardForm> {
     if (digits.length != 16) return l.errorCardNumber;
 
     final exp      = _expCtrl.text.trim();
-    final expMatch = RegExp(r'^(0[1-9]|1[0-2])\/\d{2}$').hasMatch(exp);
+    final expMatch = RegExp(r'^(0[1-9]|1[0-2])/\d{2}$').hasMatch(exp);
     if (!expMatch) return l.errorExpiry;
 
     final parts = exp.split('/');
