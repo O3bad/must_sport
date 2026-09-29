@@ -149,7 +149,7 @@ void main() {
     test('reserves booking reassignment for admins', () {
       expect(
         rules,
-        contains("hasOnly(['status', 'paymentMethod'])"),
+        contains(".affectedKeys().hasOnly(['status'])"),
       );
     });
   });

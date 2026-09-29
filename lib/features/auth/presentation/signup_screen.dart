@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../../core/legal/legal_config.dart';
 import '../../../core/legal/legal_content.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/widgets.dart';
@@ -43,6 +44,8 @@ class _SignUpScreenState extends State<SignUpScreen>
   int _page = 0;
   bool _consented = false;
   bool _consentError = false;
+  bool _ageConfirmed = false;
+  bool _ageConsentError = false;
 
   late AnimationController _glowCtrl;
   late Animation<double> _glowAnim;
@@ -167,6 +170,13 @@ class _SignUpScreenState extends State<SignUpScreen>
       setState(() => _error = err);
       return;
     }
+    if (!_ageConfirmed) {
+      setState(() {
+        _ageConsentError = true;
+        _error = l.signupAgeConsentError(LegalConfig.minimumAge);
+      });
+      return;
+    }
     if (_consentMissing) {
       setState(() {
         _consentError = true;
@@ -178,6 +188,7 @@ class _SignUpScreenState extends State<SignUpScreen>
       _loading = true;
       _error = null;
       _consentError = false;
+      _ageConsentError = false;
     });
 
     final name = _nameCtrl.text.trim();
@@ -535,10 +546,39 @@ class _SignUpScreenState extends State<SignUpScreen>
                         // ── Consent (WCAG 3.3.1 / Play policy) ──
                         // Unchecked by default: a pre-ticked box is not valid consent.
                         _ConsentRow(
+                          value: _ageConfirmed,
+                          onChanged: (v) => setState(() {
+                            _ageConfirmed = v;
+                            if (v &&
+                                _error ==
+                                    l.signupAgeConsentError(
+                                        LegalConfig.minimumAge)) {
+                              _error = null;
+                              _ageConsentError = false;
+                            }
+                          }),
+                          label: l.signupAgeConsent(LegalConfig.minimumAge),
+                          color: _roleColor,
+                        ),
+                        if (_error != null && _ageConsentError) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            l.signupAgeConsentError(LegalConfig.minimumAge),
+                            style: AppTextStyles.body(
+                              13,
+                              color: DarkColors.error,
+                              context: context,
+                            ),
+                          ),
+                        ],
+                        _ConsentRow(
                           value: _consented,
                           onChanged: (v) => setState(() {
                             _consented = v;
-                            if (v) _error = null;
+                            if (v && _error == l.signupTermsConsentError) {
+                              _error = null;
+                              _consentError = false;
+                            }
                           }),
                           label: l.signupTermsConsent,
                           color: _roleColor,

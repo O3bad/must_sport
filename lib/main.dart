@@ -8,6 +8,7 @@ import 'core/state/app_state.dart';
 import 'core/state/activity_state.dart';
 import 'core/state/notification_state.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/widgets.dart';
 import 'core/services/fcm_service.dart';
 import 'core/services/cache_service.dart';
 import 'core/services/notification_preferences.dart';
@@ -25,24 +26,24 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Initialise Firebase — errors are caught so the app still works
-  // with mock credentials if Firebase isn't configured yet.
-  bool firebaseReady = false;
+  await _startApp();
+}
+
+Future<void> _startApp() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    firebaseReady = true;
-  } catch (e) {
-    debugPrint('⚠️  Firebase init skipped: $e');
+  } catch (error, stackTrace) {
+    debugPrint('Firebase initialization failed: $error\n$stackTrace');
+    runApp(const _FirebaseUnavailableApp());
+    return;
   }
 
-  if (firebaseReady) {
-    try {
-      await FCMService().initialize();
-    } catch (e) {
-      debugPrint('⚠️  FCM init skipped: $e');
-    }
+  try {
+    await FCMService().initialize();
+  } catch (error) {
+    debugPrint('Push notification initialization failed: $error');
   }
 
   // Initialise CacheService (low-level persistence)
@@ -72,6 +73,86 @@ Future<void> main() async {
       child: const MusterApp(),
     ),
   );
+}
+
+class _FirebaseUnavailableApp extends StatefulWidget {
+  const _FirebaseUnavailableApp();
+
+  @override
+  State<_FirebaseUnavailableApp> createState() =>
+      _FirebaseUnavailableAppState();
+}
+
+class _FirebaseUnavailableAppState extends State<_FirebaseUnavailableApp> {
+  bool _retrying = false;
+
+  Future<void> _retry() async {
+    setState(() => _retrying = true);
+    await _startApp();
+    if (mounted) setState(() => _retrying = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'MUSTER',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Builder(
+        builder: (context) {
+          final l = AppLocalizations.of(context)!;
+          return Scaffold(
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.cloud_off_rounded,
+                        size: 52, color: context.errorColor),
+                    const SizedBox(height: 20),
+                    Text(
+                      l.firebaseUnavailableTitle,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.heading(
+                        20,
+                        color: context.textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      l.firebaseUnavailableMessage,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.body(
+                        14,
+                        context: context,
+                        color: context.mutedColor,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _retrying ? null : _retry,
+                      child: _retrying
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2),
+                            )
+                          : Text(l.retry),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 class MusterApp extends StatelessWidget {

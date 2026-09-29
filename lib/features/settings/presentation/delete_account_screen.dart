@@ -71,6 +71,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       _busy = false;
       _error = switch (reason) {
         'wrongPassword' || 'reauthFailed' => l.errorGeneric,
+        'dataDeletionFailed' => l.deleteAccountDataRemovalFailed,
         _ => l.deleteAccountFailed(reason),
       };
     });

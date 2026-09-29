@@ -319,13 +319,13 @@ class ActivityRegistrationState extends ChangeNotifier {
   static final ActivityRegistrationState instance =
       ActivityRegistrationState._();
   ActivityRegistrationState._() {
-    _load();
+    _ready = _load();
   }
 
   static const _kRegsKey = 'muster_activity_regs';
   final _uuid = const Uuid();
   final List<ActivityRegistration> _registrations = [];
-  bool _loaded = false;
+  late final Future<void> _ready;
 
   List<ActivityRegistration> get all => List.unmodifiable(_registrations);
   List<ActivityRegistration> get pending => _registrations
@@ -364,12 +364,29 @@ class ActivityRegistrationState extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteForStudent(String email) async {
+    await _ready;
+    final remaining = _registrations
+        .where((registration) => registration.studentEmail != email)
+        .toList();
+    final prefs = await SharedPreferences.getInstance();
+    final saved = await prefs.setString(
+      _kRegsKey,
+      jsonEncode(remaining.map(_regToJson).toList()),
+    );
+    if (!saved) {
+      throw StateError('Could not persist registration deletion.');
+    }
+    _registrations
+      ..clear()
+      ..addAll(remaining);
+    notifyListeners();
+  }
+
   String generateId() => _uuid.v4().substring(0, 8);
 
   // ── Persistence ───────────────────────────────────────────────────────────
   Future<void> _load() async {
-    if (_loaded) return;
-    _loaded = true;
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_kRegsKey);
@@ -386,7 +403,7 @@ class ActivityRegistrationState extends ChangeNotifier {
     } catch (_) {}
     // Seed demo data on first launch
     _seedDemo();
-    _save();
+    await _save();
     notifyListeners();
   }
 

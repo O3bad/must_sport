@@ -106,57 +106,34 @@ class FirestoreService {
   /// letting the client read or write this user's documents, so this has to
   /// happen first.
   ///
-  /// Order matters: bookings and enrolment subcollections are removed before
-  /// the user document, and each step is best-effort so that one failed
-  /// collection cannot strand the rest of the cleanup.
+  /// Failures must be surfaced so account deletion can stop and be retried.
   Future<void> deleteAllUserData(String uid) async {
-    // 1. Bookings owned by the user.
-    //    Previously this scanned the entire `bookings` collection client-side
-    //    (`where((q) => ...)`), which read every user's bookings, defeated the
-    //    per-user read rule, and is quadratic in collection size. `addBooking`
-    //    stamps `uid` on every document, so a server-side equality filter is
-    //    both correct and cheap. Requires the composite index declared in
-    //    firestore.indexes.json only if combined with orderBy; this is not.
-    try {
-      final bookingQuery = _bookings.where('uid', isEqualTo: uid);
-      final bookingSnap = await bookingQuery.get();
-      if (bookingSnap.docs.isNotEmpty) {
-        final batch = _db.batch();
-        for (final doc in bookingSnap.docs) {
-          batch.delete(doc.reference);
-        }
-        await batch.commit();
-      }
-    } catch (_) {
-      // Best-effort — a rules or index restriction must not block deletion.
-    }
-
-    // 2. Per-event enrolment records.
-    //    `collectionGroup` targets the `enrollments` subcollections directly
-    //    instead of reading every event document, and the document id is the
-    //    enrolling uid, so filtering on FieldPath.documentId() scopes the
-    //    query to this user alone. Requires no composite index.
-    try {
-      final enrSnap = await _db
+    await _db.collection('leaderboard').doc(uid).delete();
+    await _deleteMatchingDocuments(_bookings.where('uid', isEqualTo: uid));
+    await _deleteMatchingDocuments(
+      _db
           .collectionGroup('enrollments')
-          .where(FieldPath.documentId, isEqualTo: uid)
-          .get();
-      if (enrSnap.docs.isNotEmpty) {
-        final batch = _db.batch();
-        for (final doc in enrSnap.docs) {
-          batch.delete(doc.reference);
-        }
-        await batch.commit();
-      }
-    } catch (_) {
-      // Best-effort.
-    }
+          .where(FieldPath.documentId, isEqualTo: uid),
+    );
+    await _users.doc(uid).delete();
+  }
 
-    // 3. The user profile document itself.
-    try {
-      await _users.doc(uid).delete();
-    } catch (_) {
-      // Best-effort.
+  Future<void> _deleteMatchingDocuments(
+    Query<Map<String, dynamic>> query,
+  ) async {
+    const pageSize = 400;
+    while (true) {
+      final page = await query.limit(pageSize).get();
+      if (page.docs.isEmpty) return;
+
+      final batch = _db.batch();
+      for (final document in page.docs) {
+        batch.delete(document.reference);
+      }
+      await batch.commit();
+
+      if (page.docs.length < pageSize) return;
+      query = query.startAfterDocument(page.docs.last);
     }
   }
 

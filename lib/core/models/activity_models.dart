@@ -77,6 +77,7 @@ class ActivityModel {
   final String venue;
   final String coach;
   final String fee;
+  final bool feeIsConfirmed;
   final String level;
 
   const ActivityModel({
@@ -90,6 +91,7 @@ class ActivityModel {
     required this.venue,
     required this.coach,
     required this.fee,
+    this.feeIsConfirmed = false,
     required this.level,
   });
 }

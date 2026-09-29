@@ -232,8 +232,21 @@ class Booking {
     required this.timeSlot,
     required this.status,
     this.studentName,
-    this.paymentMethod = 'instapay',
+    this.paymentMethod = 'pay_at_facility',
   });
+
+  static String idForSlot({
+    required String facilityId,
+    required DateTime date,
+    required String timeSlot,
+  }) {
+    final dateKey =
+        '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+    return '$facilityId|$dateKey|$timeSlot';
+  }
+
   Booking copyWith({BookingStatus? status, String? paymentMethod}) => Booking(
         bookingId: bookingId,
         facilityId: facilityId,
@@ -252,13 +265,16 @@ class Booking {
         timeSlot: j['timeSlot'],
         status: _parseStatus(j['status'] as String),
         studentName: j['studentName'] as String?,
-        paymentMethod: (j['paymentMethod'] as String?) ?? 'instapay',
+        paymentMethod: 'pay_at_facility',
       );
   Map<String, dynamic> toJson() => {
         'bookingId': bookingId,
         'facilityId': facilityId,
         'facilityName': facilityName,
-        'date': date.toIso8601String(),
+        'date':
+            '${date.year.toString().padLeft(4, '0')}-'
+            '${date.month.toString().padLeft(2, '0')}-'
+            '${date.day.toString().padLeft(2, '0')}',
         'timeSlot': timeSlot,
         'status': status.name,
         'studentName': studentName,

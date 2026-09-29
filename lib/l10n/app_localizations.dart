@@ -473,26 +473,20 @@ abstract class AppLocalizations {
   /// No description provided for @cookieBannerTitle.
   ///
   /// In en, this message translates to:
-  /// **'Cookies on the web app'**
+  /// **'Browser storage on MUSTER Sport'**
   String get cookieBannerTitle;
 
   /// No description provided for @cookieBannerBody.
   ///
   /// In en, this message translates to:
-  /// **'We use storage to keep you signed in and remember your preferences. There is no advertising or cross-site tracking.'**
+  /// **'This web app uses browser storage for sign-in, preferences and locally cached app data. We do not use advertising or analytics cookies.'**
   String get cookieBannerBody;
 
-  /// No description provided for @cookieBannerAccept.
+  /// No description provided for @cookieBannerContinue.
   ///
   /// In en, this message translates to:
-  /// **'Accept'**
-  String get cookieBannerAccept;
-
-  /// No description provided for @cookieBannerDecline.
-  ///
-  /// In en, this message translates to:
-  /// **'Decline'**
-  String get cookieBannerDecline;
+  /// **'Continue'**
+  String get cookieBannerContinue;
 
   /// No description provided for @cookieBannerLearnMore.
   ///
@@ -1213,6 +1207,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Booking failed. Please try again.'**
   String get bookingFailedTryAgain;
+
+  /// No description provided for @firebaseUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MUSTER is temporarily unavailable'**
+  String get firebaseUnavailableTitle;
+
+  /// No description provided for @firebaseUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Firebase could not be reached. Check your connection and try again. If the problem continues, contact support.'**
+  String get firebaseUnavailableMessage;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
 
   /// No description provided for @notificationsTitle.
   ///
@@ -2042,6 +2054,12 @@ abstract class AppLocalizations {
   /// **'Registration Fee'**
   String get regFee;
 
+  /// No description provided for @feeConfirmWithUniversity.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm amount with the university'**
+  String get feeConfirmWithUniversity;
+
   /// No description provided for @studentsCount.
   ///
   /// In en, this message translates to:
@@ -2233,6 +2251,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payment Method'**
   String get paymentMethod;
+
+  /// No description provided for @payAtFacility.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay at the facility'**
+  String get payAtFacility;
+
+  /// No description provided for @appDoesNotProcessPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'MUSTER does not collect or process payments in the app.'**
+  String get appDoesNotProcessPayments;
 
   /// No description provided for @payInstaPay.
   ///
@@ -2885,7 +2915,7 @@ abstract class AppLocalizations {
   /// No description provided for @signupTermsConsent.
   ///
   /// In en, this message translates to:
-  /// **'I agree to the Terms of Service and Privacy Policy, and I confirm I am at least 18 years old.'**
+  /// **'I agree to the Terms of Service and Privacy Policy.'**
   String get signupTermsConsent;
 
   /// No description provided for @signupTermsConsentError.
@@ -2893,6 +2923,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You must accept the terms to create an account.'**
   String get signupTermsConsentError;
+
+  /// No description provided for @signupAgeConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'I confirm that I am at least {minimumAge} years old.'**
+  String signupAgeConsent(int minimumAge);
+
+  /// No description provided for @signupAgeConsentError.
+  ///
+  /// In en, this message translates to:
+  /// **'You must confirm that you are at least {minimumAge} to create an account.'**
+  String signupAgeConsentError(int minimumAge);
 
   /// No description provided for @deleteAccount.
   ///
@@ -2972,6 +3014,12 @@ abstract class AppLocalizations {
   /// **'Could not delete your account: {reason}'**
   String deleteAccountFailed(Object reason);
 
+  /// No description provided for @deleteAccountDataRemovalFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not remove all of your data, so your account was not deleted. Please try again.'**
+  String get deleteAccountDataRemovalFailed;
+
   /// No description provided for @licenses.
   ///
   /// In en, this message translates to:
@@ -3049,12 +3097,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back'**
   String get back;
-
-  /// No description provided for @retry.
-  ///
-  /// In en, this message translates to:
-  /// **'Retry'**
-  String get retry;
 
   /// No description provided for @loading.
   ///

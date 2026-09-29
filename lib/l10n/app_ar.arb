@@ -63,10 +63,9 @@
   "requiredFormsDesc": "نماذج مطلوبة للتسجيل",
   "privacy": "الخصوصية",
   "legal": "الشؤون القانونية",
-  "cookieBannerTitle": "ملفات تعريف الارتباط على نسخة الويب",
-  "cookieBannerBody": "نستخدم التخزين لإبقائك مسجّل الدخول ولتذكّر تفضيلاتك. لا توجد إعلانات ولا تتبّع عبر المواقع.",
-  "cookieBannerAccept": "قبول",
-  "cookieBannerDecline": "رفض",
+  "cookieBannerTitle": "تخزين المتصفح في MUSTER Sport",
+  "cookieBannerBody": "يستخدم تطبيق الويب تخزين المتصفح لتسجيل الدخول والتفضيلات وبيانات التطبيق المخزنة محليًا. لا نستخدم ملفات تعريف ارتباط للإعلانات أو التحليلات.",
+  "cookieBannerContinue": "متابعة",
   "cookieBannerLearnMore": "اقرأ سياسة ملفات تعريف الارتباط",
   "legalDocumentsSubtitle": "السياسات والشروط وحقوقك في بياناتك",
   "showMyProfile": "إظهار ملفي الشخصي",
@@ -187,6 +186,9 @@
   "noStudentsYet": "لا يوجد طلاب بعد",
   "noRankedStudentsYet": "لا يوجد طلاب مصنفون بعد",
   "bookingFailedTryAgain": "فشل الحجز. حاول مرة أخرى.",
+  "firebaseUnavailableTitle": "ماستر غير متاح مؤقتاً",
+  "firebaseUnavailableMessage": "تعذر الاتصال بخدمة Firebase. تحقق من اتصالك وحاول مجدداً. إذا استمرت المشكلة، تواصل مع الدعم.",
+  "retry": "إعادة المحاولة",
   "notificationsTitle": "التنبيهات",
   "unread": "غير مقروء",
   "markAllRead": "تحديد الكل كمقروء",
@@ -337,6 +339,7 @@
   "coachLabel": "المدرب",
   "activeMembers": "الأعضاء النشطون",
   "regFee": "رسوم التسجيل",
+  "feeConfirmWithUniversity": "تأكد من المبلغ لدى الجامعة",
   "studentsCount": "{count} طالب",
   "@studentsCount": {"placeholders":{"count":{"type":"int"}}},
   "alreadyRegistered": "أنت مسجل بالفعل!",
@@ -375,6 +378,8 @@
   "@appSubmittedDesc": {"placeholders":{"activity":{"type":"String"}}},
   "backToActivities": "العودة للأنشطة",
   "paymentMethod": "طريقة الدفع",
+  "payAtFacility": "الدفع في المنشأة",
+  "appDoesNotProcessPayments": "لا يجمع MUSTER المدفوعات ولا يعالجها داخل التطبيق.",
   "payInstaPay": "إنستا باي",
   "payVodafoneCash": "فودافون كاش",
   "payFawry": "فوري",
@@ -486,8 +491,24 @@
   "userActivated": "تم تفعيل المستخدم",
   "userDeactivated": "تم إيقاف المستخدم",
   "notificationSent": "تم إرسال الإشعار!",
-  "signupTermsConsent": "أوافق على شروط الخدمة وسياسة الخصوصية، وأؤكد أن عمري لا يقل عن ١٨ عامًا.",
+  "signupTermsConsent": "أوافق على شروط الخدمة وسياسة الخصوصية.",
   "signupTermsConsentError": "يجب الموافقة على الشروط لإنشاء حساب.",
+  "signupAgeConsent": "أؤكد أن عمري لا يقل عن {minimumAge} عامًا.",
+  "@signupAgeConsent": {
+    "placeholders": {
+      "minimumAge": {
+        "type": "int"
+      }
+    }
+  },
+  "signupAgeConsentError": "يجب تأكيد أن عمرك لا يقل عن {minimumAge} عامًا لإنشاء حساب.",
+  "@signupAgeConsentError": {
+    "placeholders": {
+      "minimumAge": {
+        "type": "int"
+      }
+    }
+  },
   "deleteAccount": "حذف الحساب",
   "deleteAccountSectionTitle": "الحساب",
   "deleteAccountWarning": "حذف حسابك يزيل نهائيًا ملفك الشخصي وحجوزاتك وسجل مشاركتك من تطبيق MUSTER Sport.",
@@ -501,6 +522,7 @@
   "deleteAccountInProgress": "جارٍ حذف حسابك…",
   "deleteAccountSuccess": "تم حذف حسابك.",
   "deleteAccountFailed": "تعذّر حذف حسابك: {reason}",
+  "deleteAccountDataRemovalFailed": "تعذّر حذف جميع بياناتك، لذلك لم يتم حذف حسابك. يُرجى المحاولة مرة أخرى.",
   "licenses": "تراخيص المصادر المفتوحة",
   "licensesIntro": "بُني تطبيق MUSTER Sport على البرامج والخطوط مفتوحة المصدر التالية.",
   "showPassword": "إظهار كلمة المرور",

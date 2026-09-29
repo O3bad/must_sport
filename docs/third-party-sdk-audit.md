@@ -1,7 +1,8 @@
 # Third-party SDK & data-flow audit
 
 Scope: every direct dependency in `pubspec.yaml`, plus the Firebase and Google
-backends the app talks to. Audited against the shipped source on 2026-03-01.
+backends the app talks to. Audited against the repository source on 2026-09-30;
+repeat the audit against the actual store/web artifacts before release.
 
 ## Verdict in one line
 
@@ -18,8 +19,8 @@ to run the product, a Flutter/Dart platform package, or a pure-UI package.
 | `cloud_firestore` | App database | full user profile, bookings, events, points | Firestore | Justified, disclosed |
 | `firebase_messaging` | Push notifications | device push token | FCM | Justified, disclosed; opt-out revokes the token |
 | `flutter_local_notifications` | Renders push messages on device | notification text | none | Justified |
-| `shared_preferences` | Local settings + short-lived session marker | language, theme, notification prefs, cached own profile, session marker | none | Justified, disclosed in Cookie Policy §1 |
-| `google_fonts` | Font rendering | **IP address + request metadata on first fetch** | fonts.gstatic.com | **Disclosed.** Fonts are fetched from Google at runtime rather than bundled. Bundle the `.ttf` files and drop this dependency to remove the request entirely. |
+| `shared_preferences` | Local settings, session marker and cached app state | language, theme, notification prefs, cached profile, bookings, enrolments, activity registrations, in-app notifications and session marker | none | Disclosed in the Privacy and Cookie Policies; cached data may remain after sign-out |
+| `google_fonts` | Font rendering | **IP address + request metadata when a font is fetched** | Google Fonts endpoints | Disclosed in the Privacy Policy and in-app license attribution. Fonts are fetched at runtime rather than bundled; bundle fonts and remove this dependency if eliminating this third-party request is required. |
 | `provider` | State management | none | none | Justified |
 | `intl` | Date/number formatting | none | none | Justified |
 | `uuid` | Local ID generation | none | none | Justified |
@@ -44,13 +45,18 @@ None are present:
 
 ## Data minimisation
 
-Fields collected exist to run the product. Two notable points:
+Fields collected are defined by the current product implementation; their
+necessity has not been approved by the university. Confirm each field before
+production. Activity registration currently requests contact phone, faculty,
+semester, experience level and an optional message. Team registration may also
+request teammates' names, student IDs and faculties. Remove fields that the
+university cannot justify as necessary.
 
-1. **Card details are validated locally and discarded.** The booking form asks
-   for a card number, expiry and CVC and checks their shape, but nothing is
-   transmitted, persisted, or sent to a processor. Because the app takes no
-   payment, this field is arguably unnecessary collection — see
-   `docs/pci-card-form.md` for the recommendation to remove it.
+Other findings:
+
+1. **Payments are handled outside the app.** The booking flow collects no
+   card, wallet, or other payment credentials. Amounts, collection, and refunds
+   are handled directly by the university or facility.
 2. **The leaderboard is a projection.** The public ranking reads
    `leaderboard/{uid}`, not `users/{uid}`, so email, phone and student ID are
    never exposed to other students.
@@ -58,7 +64,13 @@ Fields collected exist to run the product. Two notable points:
 ## Outstanding actions
 
 - [ ] Replace `google_fonts` runtime fetching with bundled font assets.
-- [ ] Remove the card form from the booking flow (removes the PCI question
-      entirely and removes a field we do not need).
+- [ ] Confirm licensing/provenance for the app icon and splash artwork; this
+      repository audit does not establish their redistribution rights.
+- [ ] Verify the operator's legal status and whether email-only contact is
+      sufficient for the privacy notice in each target jurisdiction. The
+      provided project contact requested publishing the email without a postal
+      address.
+- [ ] Verify approved facilities, activities, availability and fee data are
+      configured; the current repository still contains mock fixtures.
 - [ ] Re-run this audit whenever `pubspec.yaml` gains a dependency, and before
       any Play Store / App Store Data Safety declaration is submitted.

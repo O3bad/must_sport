@@ -196,17 +196,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legal => 'Legal';
 
   @override
-  String get cookieBannerTitle => 'Cookies on the web app';
+  String get cookieBannerTitle => 'Browser storage on MUSTER Sport';
 
   @override
   String get cookieBannerBody =>
-      'We use storage to keep you signed in and remember your preferences. There is no advertising or cross-site tracking.';
+      'This web app uses browser storage for sign-in, preferences and locally cached app data. We do not use advertising or analytics cookies.';
 
   @override
-  String get cookieBannerAccept => 'Accept';
-
-  @override
-  String get cookieBannerDecline => 'Decline';
+  String get cookieBannerContinue => 'Continue';
 
   @override
   String get cookieBannerLearnMore => 'Read the cookie policy';
@@ -570,6 +567,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookingFailedTryAgain => 'Booking failed. Please try again.';
+
+  @override
+  String get firebaseUnavailableTitle => 'MUSTER is temporarily unavailable';
+
+  @override
+  String get firebaseUnavailableMessage =>
+      'Firebase could not be reached. Check your connection and try again. If the problem continues, contact support.';
+
+  @override
+  String get retry => 'Retry';
 
   @override
   String get notificationsTitle => 'Notifications';
@@ -1026,6 +1033,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get regFee => 'Registration Fee';
 
   @override
+  String get feeConfirmWithUniversity => 'Confirm amount with the university';
+
+  @override
   String studentsCount(int count) {
     return '$count students';
   }
@@ -1138,6 +1148,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentMethod => 'Payment Method';
+
+  @override
+  String get payAtFacility => 'Pay at the facility';
+
+  @override
+  String get appDoesNotProcessPayments =>
+      'MUSTER does not collect or process payments in the app.';
 
   @override
   String get payInstaPay => 'InstaPay';
@@ -1477,11 +1494,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signupTermsConsent =>
-      'I agree to the Terms of Service and Privacy Policy, and I confirm I am at least 18 years old.';
+      'I agree to the Terms of Service and Privacy Policy.';
 
   @override
   String get signupTermsConsentError =>
       'You must accept the terms to create an account.';
+
+  @override
+  String signupAgeConsent(int minimumAge) {
+    return 'I confirm that I am at least $minimumAge years old.';
+  }
+
+  @override
+  String signupAgeConsentError(int minimumAge) {
+    return 'You must confirm that you are at least $minimumAge to create an account.';
+  }
 
   @override
   String get deleteAccount => 'Delete Account';
@@ -1525,6 +1552,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String deleteAccountFailed(Object reason) {
     return 'Could not delete your account: $reason';
   }
+
+  @override
+  String get deleteAccountDataRemovalFailed =>
+      'We could not remove all of your data, so your account was not deleted. Please try again.';
 
   @override
   String get licenses => 'Open Source Licenses';
@@ -1573,9 +1604,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get back => 'Back';
-
-  @override
-  String get retry => 'Retry';
 
   @override
   String get loading => 'Loading';

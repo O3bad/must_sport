@@ -63,10 +63,9 @@
   "requiredFormsDesc": "Forms needed for registration",
   "privacy": "Privacy",
   "legal": "Legal",
-  "cookieBannerTitle": "Cookies on the web app",
-  "cookieBannerBody": "We use storage to keep you signed in and remember your preferences. There is no advertising or cross-site tracking.",
-  "cookieBannerAccept": "Accept",
-  "cookieBannerDecline": "Decline",
+  "cookieBannerTitle": "Browser storage on MUSTER Sport",
+  "cookieBannerBody": "This web app uses browser storage for sign-in, preferences and locally cached app data. We do not use advertising or analytics cookies.",
+  "cookieBannerContinue": "Continue",
   "cookieBannerLearnMore": "Read the cookie policy",
   "legalDocumentsSubtitle": "Policies, terms and your data rights",
   "showMyProfile": "Show my profile",
@@ -187,6 +186,9 @@
   "noStudentsYet": "No students yet",
   "noRankedStudentsYet": "No ranked students yet",
   "bookingFailedTryAgain": "Booking failed. Please try again.",
+  "firebaseUnavailableTitle": "MUSTER is temporarily unavailable",
+  "firebaseUnavailableMessage": "Firebase could not be reached. Check your connection and try again. If the problem continues, contact support.",
+  "retry": "Retry",
   "notificationsTitle": "Notifications",
   "unread": "unread",
   "markAllRead": "Mark all read",
@@ -337,6 +339,7 @@
   "coachLabel": "Coach",
   "activeMembers": "Active Members",
   "regFee": "Registration Fee",
+  "feeConfirmWithUniversity": "Confirm amount with the university",
   "studentsCount": "{count} students",
   "@studentsCount": {"placeholders":{"count":{"type":"int"}}},
   "alreadyRegistered": "You are registered!",
@@ -375,6 +378,8 @@
   "@appSubmittedDesc": {"placeholders":{"activity":{"type":"String"}}},
   "backToActivities": "Back to Activities",
   "paymentMethod": "Payment Method",
+  "payAtFacility": "Pay at the facility",
+  "appDoesNotProcessPayments": "MUSTER does not collect or process payments in the app.",
   "payInstaPay": "InstaPay",
   "payVodafoneCash": "Vodafone Cash",
   "payFawry": "Fawry",
@@ -486,8 +491,24 @@
   "userActivated": "User activated",
   "userDeactivated": "User deactivated",
   "notificationSent": "Notification sent!",
-  "signupTermsConsent": "I agree to the Terms of Service and Privacy Policy, and I confirm I am at least 18 years old.",
+  "signupTermsConsent": "I agree to the Terms of Service and Privacy Policy.",
   "signupTermsConsentError": "You must accept the terms to create an account.",
+  "signupAgeConsent": "I confirm that I am at least {minimumAge} years old.",
+  "@signupAgeConsent": {
+    "placeholders": {
+      "minimumAge": {
+        "type": "int"
+      }
+    }
+  },
+  "signupAgeConsentError": "You must confirm that you are at least {minimumAge} to create an account.",
+  "@signupAgeConsentError": {
+    "placeholders": {
+      "minimumAge": {
+        "type": "int"
+      }
+    }
+  },
   "deleteAccount": "Delete Account",
   "deleteAccountSectionTitle": "Account",
   "deleteAccountWarning": "Deleting your account permanently removes your profile, reservations and participation history from MUSTER Sport.",
@@ -501,6 +522,7 @@
   "deleteAccountInProgress": "Deleting your account…",
   "deleteAccountSuccess": "Your account has been deleted.",
   "deleteAccountFailed": "Could not delete your account: {reason}",
+  "deleteAccountDataRemovalFailed": "We could not remove all of your data, so your account was not deleted. Please try again.",
   "licenses": "Open Source Licenses",
   "licensesIntro": "MUSTER Sport is built on the following open source software and fonts.",
   "showPassword": "Show password",

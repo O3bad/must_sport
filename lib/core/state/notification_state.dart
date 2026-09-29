@@ -99,15 +99,28 @@ class AppNotification {
 class NotificationState extends ChangeNotifier {
   static final NotificationState instance = NotificationState._();
   NotificationState._() {
-    _load();
+    _ready = _load();
   }
 
   static const _kKey = 'muster_notifications';
   final List<AppNotification> _notifs = [];
   bool _seeded = false;
+  late final Future<void> _ready;
 
   List<AppNotification> get all => List.unmodifiable(_notifs);
   int get unreadCount => _notifs.where((n) => !n.isRead).length;
+
+  Future<void> clearForAccountDeletion() async {
+    await _ready;
+    final prefs = await SharedPreferences.getInstance();
+    final saved = await prefs.setString(_kKey, '[]');
+    if (!saved) {
+      throw StateError('Could not persist notification deletion.');
+    }
+    _notifs.clear();
+    _seeded = true;
+    notifyListeners();
+  }
 
   // ── Persistence ───────────────────────────────────────────────────────────
   Future<void> _load() async {
@@ -125,7 +138,7 @@ class NotificationState extends ChangeNotifier {
     if (!_seeded) {
       _seeded = true;
       _seed();
-      _save();
+      await _save();
       notifyListeners();
     }
   }

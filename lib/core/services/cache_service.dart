@@ -121,7 +121,11 @@ class CacheService {
       copy.remove('password');
       return copy;
     }).toList();
-    await _prefs.setString(_kUsersJson, jsonEncode({'users': sanitised}));
+    final saved =
+        await _prefs.setString(_kUsersJson, jsonEncode({'users': sanitised}));
+    if (!saved) {
+      throw StateError('Could not persist cached user data.');
+    }
   }
 
   // ── AUTH ─────────────────────────────────────────────────────────────────
@@ -216,7 +220,7 @@ class CacheService {
         }),
       );
 
-  Future<void> logout() async => _prefs.remove(_kSession);
+  Future<bool> logout() => _prefs.remove(_kSession);
 
   // ── THEME / LOCALE ───────────────────────────────────────────────────────
   String get savedTheme => _prefs.getString(_kTheme) ?? 'dark';
@@ -227,7 +231,7 @@ class CacheService {
   // ── ENROLLED IDS ─────────────────────────────────────────────────────────
   Set<String> get enrolledIds =>
       (_prefs.getStringList(_kEnrolled) ?? []).toSet();
-  Future<void> saveEnrolledIds(Set<String> ids) =>
+  Future<bool> saveEnrolledIds(Set<String> ids) =>
       _prefs.setStringList(_kEnrolled, ids.toList());
 
   // ── BOOKINGS ─────────────────────────────────────────────────────────────
@@ -243,7 +247,7 @@ class CacheService {
     }
   }
 
-  Future<void> saveBookings(List<Booking> bookings) => _prefs.setString(
+  Future<bool> saveBookings(List<Booking> bookings) => _prefs.setString(
       _kBookings, jsonEncode(bookings.map((b) => b.toJson()).toList()));
 
   // ── USER LIST ────────────────────────────────────────────────────────────

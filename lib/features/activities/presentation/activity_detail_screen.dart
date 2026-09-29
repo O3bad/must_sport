@@ -103,7 +103,12 @@ class ActivityDetailScreen extends StatelessWidget {
                   const Divider(height: 20),
                   _DetailRow(l.activeMembers, l.studentsCount(activity.slots)),
                   const Divider(height: 20),
-                  _DetailRow(l.regFee, activity.fee),
+                  _DetailRow(
+                    l.regFee,
+                    activity.feeIsConfirmed
+                        ? activity.fee
+                        : l.feeConfirmWithUniversity,
+                  ),
                 ]),
               ),
               const SizedBox(height: 24),

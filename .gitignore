@@ -1,8 +1,5 @@
-# Firebase secrets
-lib/firebase_options.dart
-google-services.json
-android/app/google-services.json
-ios/Runner/GoogleService-Info.plist
+# Firebase client configuration (public app identifiers; required to build).
+# Keep service-account credentials and local environment files ignored.
 
 # Keystore & signing
 android/key.properties
@@ -15,7 +12,6 @@ build/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-pubspec.lock
 
 # IDE
 .idea/
@@ -32,7 +28,8 @@ functions/node_modules/
 functions/lib/
 *.tsbuildinfo
 .firebase/
-firebase-debug.log
+**/firebase-debug.log
+**/firestore-debug.log
 uids.txt
 
 # Secrets

@@ -6,8 +6,7 @@
 //   * no advertising, no data sale, no behavioural analytics SDK is present
 //   * the only processors are Firebase (Auth / Firestore / Cloud Messaging)
 //     and google_fonts, which fetches font files from Google
-//   * card details entered in the booking form are validated locally and are
-//     never transmitted or persisted
+//   * the booking flow collects no payment credentials or processes payments
 //   * deletion is available in-app (Settings -> Delete account)
 // Anything the repository cannot prove (a registered legal entity, a governing
 // jurisdiction) is deliberately left generic rather than invented.
@@ -60,9 +59,10 @@ class LegalContent {
       LegalSection(
         '1. Who we are',
         [
-          'MUSTER Sport is operated by ${LegalConfig.organisation} as a '
-              'graduation project ("we", "us"). We are the data controller for '
-              'the personal data described in this policy.',
+          '${LegalConfig.operatorName} operates MUSTER Sport as a graduation '
+              'project associated with ${LegalConfig.organisation} ("we", "us"). '
+              'The project operator is the contact for the personal data '
+              'described in this policy.',
           'Questions about this policy or your data: ${LegalConfig.contactDisplay}',
         ],
       ),
@@ -74,6 +74,9 @@ class LegalContent {
         ],
         bullets: [
           'Account: name, university email address, phone number, student ID, faculty.',
+          'Activity registration: contact phone number, faculty, semester, experience '
+              'level and any message you choose to provide. Team registration may '
+              'also include teammates’ names, student IDs and faculties.',
           'Profile: avatar, bio, and your role (every new account is created as a student).',
           'Activity: the events you register for, the facilities you book, and the '
               'status of each registration or booking.',
@@ -93,6 +96,10 @@ class LegalContent {
           'Local preferences on your device: selected theme, language, and a short-'
               'lived sign-in marker. This marker is bound to your account ID, expires '
               'after 30 days, and is deleted when you sign out.',
+          'The app may cache your profile, bookings, enrolments, activity '
+              'registrations and in-app notifications on your device or browser. '
+              'Signing out removes the session marker but does not clear all cached '
+              'data; account deletion clears the cached data associated with your account.',
         ],
       ),
       LegalSection(
@@ -130,19 +137,18 @@ class LegalContent {
           'Google Firebase Authentication — signs you in and stores your account credentials.',
           'Google Cloud Firestore — stores your profile, events, bookings and points.',
           'Firebase Cloud Messaging — delivers push notifications.',
-          'Google Fonts — supplies the font files used by the interface.',
-          'Shared device storage (your operating system) — holds local preferences.',
+          'Google Fonts — supplies interface font files at runtime through the '
+              'google_fonts package. Font requests disclose your IP address and '
+              'request metadata to Google.',
+          'Shared device or browser storage — holds preferences and cached app data.',
         ],
       ),
       LegalSection(
-        '7. Payment and card data',
+        '7. Payments',
         [
-          'MUSTER Sport does not process payments. If you select the card option '
-              'while booking a facility, the card number, expiry and security code '
-              'are typed into the app and checked locally for format only. They are '
-              'never transmitted to us, never written to our servers, and never '
-              'stored on the device. Any amount due is settled directly with the '
-              'university through the channels it provides.',
+          'MUSTER Sport does not collect or process payments. The app does not '
+              'request or store payment credentials. Any amount due is paid '
+              'directly to the university or facility using the channels it provides.',
         ],
       ),
       LegalSection(
@@ -240,13 +246,14 @@ class LegalContent {
       LegalSection(
         '4. Bookings and payments',
         [
-          'Facility bookings and event entries are subject to availability and to '
-              'confirmation by the university. Any amount due is shown before you '
-              'confirm, and MUSTER Sport does not add charges at a later step.',
-          'The app does not process card payments. If you enter card details during '
-              'booking, they are used for a local format check only, are not '
-              'transmitted or stored, and settlement happens directly with the '
-              'university.',
+          'Facility bookings and event entries are subject to availability and '
+              'confirmation by the university. Any fee information shown for an '
+              'activity is unverified unless explicitly confirmed in the app. '
+              'Confirm the final amount and payment arrangements with the university '
+              'or facility before registering.',
+          'MUSTER Sport does not collect or process payment. Any amount due is '
+              'paid directly to the university or facility; no payment credentials '
+              'are requested or stored in the app.',
         ],
       ),
       LegalSection(
@@ -295,9 +302,9 @@ class LegalContent {
     kind: LegalDocumentKind.refund,
     title: 'Refund Policy',
     intro:
-        'This policy explains what you pay for, when a fee applies, and how a '
-        'refund is handled. The short version: any charge is shown to you before '
-        'you confirm, and there are no hidden fees.',
+        'This policy explains how facility fees and refunds are handled. MUSTER '
+        'Sport does not set, collect, or process facility payments; contact the '
+        'university or facility to confirm the current amount and refund rules.',
     sections: [
       LegalSection(
         '1. What the app costs',
@@ -309,10 +316,10 @@ class LegalContent {
       LegalSection(
         '2. Fees you may see',
         [
-          'A facility booking or an organised event may carry a fee set by the '
-              'university. That amount is displayed in full, together with the '
-              'facility or event it applies to, before you confirm the booking. The '
-              'price does not change after you confirm.',
+          'A facility booking or organised event may carry a fee set by the '
+              'university. Confirm the applicable amount and payment arrangements '
+              'directly with the university or facility before booking. Any fee '
+              'shown for an activity is unverified unless explicitly marked as confirmed.',
           'MUSTER Sport does not add service charges, delivery fees, or any other '
               'surcharge on top of that amount.',
         ],
@@ -320,29 +327,27 @@ class LegalContent {
       LegalSection(
         '3. How payment is taken',
         [
-          'The app does not process payments. If you enter card details in the '
-              'booking form, they are checked for format on your device only, and '
-              'are not transmitted to or stored by us. Any amount due is settled '
-              'directly with the university through the channels it provides.',
+          'MUSTER Sport does not collect or process payment. Any amount due is '
+              'paid directly to the university or facility through the channels '
+              'it provides.',
         ],
       ),
       LegalSection(
         '4. Refunds for cancelled bookings',
         [
-          'If a booking you paid for is cancelled by the university, the amount is '
-              'returned through the same payment method you used, on the timescale '
-              'that provider applies.',
-          'If you cancel yourself, whether a fee is refundable depends on the '
-              'notice period set by the university for that facility. That policy is '
-              'shown to you before you confirm, so you can see it before committing.',
+          'Any refund for a booking fee is handled by the university or facility '
+              'under its published refund policy. Contact it directly for the '
+              'applicable process and timescale.',
+          'If you cancel yourself, any refund depends on the policy set by the '
+              'university or facility. Contact it directly for the applicable '
+              'conditions and process.',
         ],
       ),
       LegalSection(
         '5. Duplicate or incorrect charges',
         [
-          'If you believe you have been charged twice or charged for the wrong '
-              'booking, contact us and we will investigate and correct it.',
-          'Contact: ${LegalConfig.contactDisplay}',
+          'If you believe a payment was charged incorrectly, contact the university '
+              'or facility that collected it.',
         ],
       ),
     ],
@@ -354,7 +359,7 @@ class LegalContent {
     intro:
         'This policy explains how MUSTER Sport uses cookies and similar local '
         'storage. The short version: the mobile app does not use cookies at all, '
-        'and the web app uses storage only to keep you signed in.',
+        'and the web app uses browser storage for sign-in, preferences and local app data.',
     sections: [
       LegalSection(
         '1. On the Android and iOS apps',
@@ -369,28 +374,32 @@ class LegalContent {
           'Your notification preferences.',
           'A sign-in marker, bound to your account, which expires after 30 days and '
               'is removed when you sign out.',
-          'A cached copy of your own profile, used for display only.',
+          'Cached profile, booking, enrolment, activity registration and notification data.',
           'No cookies, no advertising identifiers, and no cross-site tracking.',
         ],
       ),
       LegalSection(
         '2. On the web app',
         [
-          'The web version may store a small amount of data in your browser to keep '
-              'you signed in and to remember your preferences.',
+          'The web version uses browser storage to keep you signed in, remember '
+              'preferences and retain local app data.',
         ],
         bullets: [
           'Sign-in and session storage, required for you to stay logged in.',
           'Preference storage, such as language and theme.',
+          'Cached profile, booking, enrolment, activity registration and notification data.',
+          'No advertising or analytics cookies are used.',
         ],
       ),
       LegalSection(
         '3. How to control it',
         [
-          'On mobile, clearing the app\'s storage, or signing out, removes the local '
-              'data. Uninstalling the app removes it entirely.',
+          'On mobile, clearing the app\'s storage or uninstalling the app removes '
+              'local data. Signing out removes the session marker but may leave '
+              'other cached data on the device.',
           'In a browser, you can clear cookies and site data for this site at any '
-              'time. Doing so signs you out but does not delete your account.',
+              'time. Doing so signs you out and clears locally cached app data, but '
+              'does not delete your account.',
         ],
       ),
     ],
@@ -408,8 +417,9 @@ class LegalContent {
       LegalSection(
         '١. من نحن',
         [
-          'يتولى تشغيل MUSTER Sport ${LegalConfig.organisation} كمشروع تخرج '
-              '("نحن"). نحن الجهة المتحكمة في البيانات الشخصية الموضحة في هذه السياسة.',
+          'يدير ${LegalConfig.operatorName} تطبيق MUSTER Sport كمشروع تخرج '
+              'مرتبط بـ ${LegalConfig.organisation} ("نحن"). مشغّل المشروع هو '
+              'جهة التواصل بشأن البيانات الشخصية الموضحة في هذه السياسة.',
           'لأي استفسار عن هذه السياسة أو عن بياناتك: ${LegalConfig.contactDisplay}',
         ],
       ),
@@ -421,6 +431,9 @@ class LegalContent {
         ],
         bullets: [
           'الحساب: الاسم، والبريد الإلكتروني الجامعي، ورقم الهاتف، والرقم الجامعي، والكلية.',
+          'التسجيل في الأنشطة: رقم هاتف للتواصل، والكلية، والفصل الدراسي، '
+              'ومستوى الخبرة وأي رسالة تختار إرسالها. وقد يتضمن تسجيل الفريق '
+              'أسماء زملائك وأرقامهم الجامعية وكلياتهم.',
           'الملف الشخصي: الصورة، ونبذة تعريف، والدور (كل حساب جديد يُنشأ كطالب).',
           'النشاط: الفعاليات التي تسجّل فيها، والمنشآت التي تحجزها، وحالة كل تسجيل أو حجز.',
           'الأداء: النقاط والترتيب والإنجازات وسجل المباريات المستخدمة في لوحة المتصدرين.',
@@ -437,6 +450,9 @@ class LegalContent {
           'تفضيلات محفوظة على جهازك: اللغة، ونمط العرض، وعلامة تسجيل دخول قصيرة الأجل. '
               'هذه العلامة مرتبطة بمعرّف حسابك، وتنتهي صلاحيتها بعد ٣٠ يومًا، '
               'وتُحذف عند تسجيل الخروج.',
+          'قد يحتفظ التطبيق بنسخة محلية من ملفك الشخصي وحجوزاتك وتسجيلاتك '
+              'وإشعاراتك على الجهاز أو المتصفح. يؤدي تسجيل الخروج إلى إزالة علامة '
+              'الجلسة لكنه لا يمسح كل البيانات المخزّنة؛ وحذف الحساب يمسح بياناته المحلية.',
         ],
       ),
       LegalSection(
@@ -471,17 +487,17 @@ class LegalContent {
           'Google Firebase Authentication — لتسجيل الدخول وحفظ بيانات اعتماد الحساب.',
           'Google Cloud Firestore — لحفظ ملفك الشخصي والفعاليات والحجوزات والنقاط.',
           'Firebase Cloud Messaging — لإرسال الإشعارات الفورية.',
-          'Google Fonts — لتوفير ملفات الخطوط المستخدمة في الواجهة.',
-          'التخزين المحلي في نظام التشغيل — لحفظ التفضيلات.',
+          'Google Fonts — توفّر ملفات خطوط الواجهة عند التشغيل عبر حزمة '
+              'google_fonts. تكشف طلبات الخطوط عنوان IP وبيانات الطلب لشركة Google.',
+          'التخزين المحلي على الجهاز أو المتصفح — لحفظ التفضيلات ونسخ بيانات التطبيق.',
         ],
       ),
       LegalSection(
-        '٧. المدفوعات وبيانات البطاقات',
+        '٧. المدفوعات',
         [
-          'لا يعالج MUSTER Sport المدفوعات. إذا اخترت خيار البطاقة أثناء حجز منشأة، '
-              'فإن رقم البطاقة وتاريخ الانتهاء ورمز الأمان تُكتب داخل التطبيق '
-              'ويُتحقق من شكلها على جهازك فقط، ولا تُرسل إلينا ولا تُحفظ على خوادمنا '
-              'ولا على الجهاز. أي مبلغ مستحق يُسوّى مباشرة مع الجامعة عبر القنوات التي توفرها.',
+          'لا يجمع MUSTER Sport المدفوعات ولا يعالجها. لا يطلب التطبيق بيانات '
+              'الدفع ولا يحفظها. يُدفع أي مبلغ مستحق مباشرة إلى الجامعة أو المنشأة '
+              'عبر القنوات التي توفرها.',
         ],
       ),
       LegalSection(
@@ -569,19 +585,19 @@ class LegalContent {
       LegalSection(
         '٤. الحجوزات والمدفوعات',
         [
-          'تخضع حجوزات المنشآت والمشاركة في الفعاليات للتوافر وللتأكيد من الجامعة. '
-              'يظهر أي مبلغ مستحق بالكامل قبل التأكيد، ولا يضيف MUSTER Sport أي '
-              'رسوم إضافية في خطوة لاحقة.',
-          'لا يعالج التطبيق مدفوعات البطاقات. وإذا أدخلت بيانات بطاقة أثناء الحجز '
-              'فإنها تُستخدم للتحقق من الشكل على جهازك فقط، ولا تُرسل ولا تُحفظ، '
-              'ويتم التسوية مباشرة مع الجامعة.',
+          'تخضع حجوزات المنشآت والمشاركة في الفعاليات للتوافر ولتأكيد الجامعة. '
+              'تحدد الجامعة أو المنشأة أي رسوم وترتيبات للسداد. وأي معلومات رسوم '
+                  'يعرضها التطبيق للنشاط غير مؤكدة ما لم يوضّح التطبيق خلاف ذلك. '
+                  'تأكد من المبلغ النهائي وطريقة السداد من الجامعة أو المنشأة قبل التسجيل.',
+          'لا يجمع MUSTER Sport المدفوعات ولا يعالجها. يُدفع أي مبلغ مستحق مباشرة '
+              'إلى الجامعة أو المنشأة؛ ولا يطلب التطبيق بيانات الدفع ولا يحفظها.',
         ],
       ),
       LegalSection(
         '٥. المحتوى والنتائج',
         [
           'تُدار النقاط والترتيبات والإنجازات لغرض لوحة المتصدرين، أما النتائج النهائية '
-              'والأهلية وأي إجراء تأديبي فيقررها универси لا التطبيق.',
+              'والأهلية وأي إجراء تأديبي فتقررها الجامعة لا التطبيق.',
         ],
       ),
       LegalSection(
@@ -620,8 +636,9 @@ class LegalContent {
     kind: LegalDocumentKind.refund,
     title: 'سياسة الاسترجاع',
     intro:
-        'توضّح هذه السياسة ما الذي تدفع مقابله، ومتى تُطبَّق رسوم، وكيف يتم الاسترجاع. '
-        ' باختصار: يُعرض أي مبلغ عليك قبل التأكيد، ولا توجد رسوم خفية.',
+        'توضّح هذه السياسة كيفية التعامل مع رسوم المنشآت واستردادها. لا يحدد '
+        'MUSTER Sport الرسوم ولا يجمع مدفوعات المنشآت ولا يعالجها؛ تواصل مع '
+        'الجامعة أو المنشأة لتأكيد المبلغ وسياسة الاسترداد.',
     sections: [
       LegalSection(
         '١. تكلفة التطبيق',
@@ -634,35 +651,32 @@ class LegalContent {
         '٢. الرسوم التي قد تظهر',
         [
           'قد يترتب على حجز منشأة أو فعالية منظّمة رسم تحدّده الجامعة. '
-              'يُعرض هذا المبلغ كاملًا مع المنشأة أو الفعالية ذات الصلة قبل تأكيد الحجز، '
-              'ولا يتغير السعر بعد التأكيد.',
-          'لا يضيف MUSTER Sport رسوم خدمة أو توصيل أو أي إضافة على هذا المبلغ.',
+              'تأكد من المبلغ وترتيبات السداد مباشرةً مع الجامعة أو المنشأة '
+              'قبل الحجز. وأي رسم يظهر للنشاط غير مؤكد ما لم يُذكر صراحةً أنه مؤكد.',
+          'لا يضيف MUSTER Sport رسوم خدمة أو توصيل أو رسومًا إضافية.',
         ],
       ),
       LegalSection(
         '٣. طريقة السداد',
         [
-          'لا يعالج التطبيق المدفوعات. وإذا أدخلت بيانات بطاقة في نموذج الحجز '
-              'فإنها تُتحقق من شكلها على جهازك فقط، ولا تُرسل إلينا ولا تُحفظ لدينا. '
-              'ويُسوّى أي مبلغ مستحق مباشرة مع الجامعة عبر القنوات التي توفرها.',
+          'لا يحدد MUSTER Sport رسوم المنشآت ولا يجمعها ولا يعالجها. '
+              'تواصل مع الجامعة أو المنشأة مباشرة لتأكيد الرسوم وطرق السداد.',
         ],
       ),
       LegalSection(
         '٤. استرجاع مبالغ الحجوزات الملغاة',
         [
-          'إذا ألغت الجامعة حجزًا دفعت مقابله، يُعاد المبلغ بنفس وسيلة الدفع التي '
-              'استخدمتها، وعلى المدة التي يطبقها مقدم الخدمة.',
-          'وإذا ألغيت أنت بنفسك، فيعتمد ردّ الرسوم على مدة الإشعار التي تحدّدها '
-              'الجامعة لتلك المنشأة. وتُعرض عليك هذه السياسة قبل التأكيد، '
-              'فتراها قبل الالتزام.',
+          'تتولى الجامعة أو المنشأة أي استرداد لرسوم الحجز وفق سياسة الاسترداد '
+              'المعلنة لديها. تواصل معها مباشرة لمعرفة الإجراءات والمدة.',
+          'إذا ألغيت الحجز بنفسك، فيعتمد ردّ الرسوم على سياسة الجامعة أو المنشأة. '
+              'تواصل معها مباشرةً لمعرفة الإجراءات والمدة.',
         ],
       ),
       LegalSection(
         '٥. الرسوم المكررة أو غير الصحيحة',
         [
-          'إذا رأيت أنك حُسبت مرتين أو حُسبت مقابل حجز خاطئ، فتواصل معنا '
-              'وسنتحقق من ذلك ونصحّحه.',
-          'التواصل: ${LegalConfig.contactDisplay}',
+          'إذا اعتقدت أن رسومًا قد حُصلت منك خطأً، فتواصل مع الجامعة أو المنشأة '
+              'التي استلمت المبلغ.',
         ],
       ),
     ],
@@ -673,7 +687,7 @@ class LegalContent {
     title: 'سياسة ملفات تعريف الارتباط',
     intro: 'توضّح هذه السياسة كيف يستخدم MUSTER Sport ملفات تعريف الارتباط '
         'والتخزين المحلي المشابه. باختصار: لا يستخدم التطبيق على الهاتف ملفات '
-        'تعريف ارتباط إطلاقًا، ويستخدم تطبيق الويب التخزين لإبقائك مسجّل الدخول فقط.',
+        'تعريف ارتباط إطلاقًا، ويستخدم الويب التخزين لتسجيل الدخول والتفضيلات وبيانات التطبيق المحلية.',
     sections: [
       LegalSection(
         '١. على تطبيقات أندرويد و iOS',
@@ -687,28 +701,30 @@ class LegalContent {
           'اللغة التي اخترتها ونمط العرض الفاتح أو الداكن.',
           'تفضيلات الإشعارات.',
           'علامة تسجيل دخول مرتبطة بحسابك، تنتهي صلاحيتها بعد ٣٠ يومًا وتُحذف عند تسجيل الخروج.',
-          'نسخة مخزّنة من ملفك الشخصي، تُستخدم للعرض فقط.',
+          'نسخ محلية من الملف الشخصي والحجوزات والتسجيلات والإشعارات.',
           'لا توجد ملفات تعريف ارتباط، ولا معرّفات إعلانية، ولا تتبّع عبر المواقع.',
         ],
       ),
       LegalSection(
         '٢. على نسخة الويب',
         [
-          'قد يخزّن إصدار الويب قدرًا صغيرًا من البيانات في متصفحك لإبقائك مسجّل '
-              'الدخول ولتذكّر تفضيلاتك.',
+          'يستخدم إصدار الويب تخزين المتصفح لإبقائك مسجّل الدخول وتذكّر '
+              'التفضيلات والاحتفاظ ببيانات التطبيق المحلية.',
         ],
         bullets: [
           'بيانات تسجيل الدخول والجلسة، المطلوبة لبقائك مسجّلًا.',
           'تفضيلات مثل اللغة ونمط العرض.',
+          'نسخ محلية من الملف الشخصي والحجوزات والتسجيلات والإشعارات.',
+          'لا نستخدم ملفات تعريف ارتباط للإعلانات أو التحليلات.',
         ],
       ),
       LegalSection(
         '٣. كيفية التحكم',
         [
-          'على الهاتف، يؤدي مسح بيانات التطبيق أو تسجيل الخروج إلى إزالة البيانات '
-              'المحلية، وإزالة التطبيق تحذفها بالكامل.',
+          'على الهاتف، يؤدي مسح بيانات التطبيق أو إزالة التطبيق إلى حذف البيانات '
+              'المحلية. يزيل تسجيل الخروج علامة الجلسة، لكنه قد يترك بيانات أخرى مخزّنة.',
           'وفي المتصفح يمكنك مسح ملفات تعريف الارتباط وبيانات الموقع في أي وقت. '
-              'و يؤدي ذلك إلى إخراجك من الحساب لكنه لا يحذف حسابك.',
+              'يؤدي ذلك إلى إخراجك من الحساب ومسح البيانات المحلية، لكنه لا يحذف حسابك.',
         ],
       ),
     ],

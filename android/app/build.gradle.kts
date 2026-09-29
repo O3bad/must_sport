@@ -20,12 +20,37 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
-    signingConfigs {
-        create("release") {
-            keyAlias = System.getenv("KEY_ALIAS") ?: "muster"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: "muster_key"
-            storeFile = file(System.getenv("KEYSTORE_PATH") ?: "keystore/muster-release.jks")
-            storePassword = System.getenv("STORE_PASSWORD") ?: "muster_key"
+    val releaseKeyAlias = System.getenv("KEY_ALIAS")
+    val releaseKeyPassword = System.getenv("KEY_PASSWORD")
+    val releaseStorePath = System.getenv("KEYSTORE_PATH")
+    val releaseStorePassword = System.getenv("STORE_PASSWORD")
+    val releaseSigningConfigured = listOf(
+        releaseKeyAlias,
+        releaseKeyPassword,
+        releaseStorePath,
+        releaseStorePassword,
+    ).all { !it.isNullOrBlank() }
+    val releaseBuildRequested = gradle.startParameter.taskNames.any {
+        it.contains("release", ignoreCase = true)
+    }
+
+    if (releaseBuildRequested && !releaseSigningConfigured) {
+        throw GradleException(
+            "Release signing is not configured. Set KEY_ALIAS, KEY_PASSWORD, " +
+                "KEYSTORE_PATH, and STORE_PASSWORD.",
+        )
+    }
+
+    if (releaseSigningConfigured) {
+        val releaseKeystore = file(requireNotNull(releaseStorePath))
+        if (releaseBuildRequested && !releaseKeystore.isFile) {
+            throw GradleException("Release keystore does not exist: $releaseKeystore")
+        }
+        signingConfigs.create("release") {
+            keyAlias = requireNotNull(releaseKeyAlias)
+            keyPassword = requireNotNull(releaseKeyPassword)
+            storeFile = releaseKeystore
+            storePassword = requireNotNull(releaseStorePassword)
         }
     }
 
@@ -39,7 +64,9 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            if (releaseSigningConfigured) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

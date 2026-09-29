@@ -1,40 +1,39 @@
-# Bundled Font Licenses
+# Font License and Delivery Notes
 
-MUSTER Sport bundles the following typefaces. Each is licensed under the
-**SIL Open Font License, Version 1.1** (OFL-1.1). The full license text for each
-family is reproduced in its own directory.
+The app uses the typefaces listed below under the **SIL Open Font License,
+Version 1.1** (OFL-1.1). The currently active families are fetched at runtime
+through the `google_fonts` package; their font requests disclose the user's IP
+address and request metadata to Google. These fonts are not bundled in the
+Flutter font manifest.
 
-## Bundled fonts
+## Fonts used by the app
 
-| Family | Copyright holder | License | Source |
+| Family | Copyright holder | License | Delivery |
 |---|---|---|---|
-| Cairo | Copyright 2009 The Cairo Project Authors | OFL-1.1 | `assets/fonts/Cairo/OFL.txt` |
-| Noto Sans Arabic | Copyright 2022 The Noto Project Authors | OFL-1.1 | `assets/fonts/Noto_Sans_Arabic/OFL.txt` |
-| Poppins | Copyright 2020 The Poppins Project Authors | OFL-1.1 | `assets/fonts/Poppins/OFL.txt` |
+| Inter | Copyright 2016 The Inter Project Authors | OFL-1.1 | Google Fonts at runtime |
+| Plus Jakarta Sans | Copyright 2020 The Plus Jakarta Sans Project Authors | OFL-1.1 | Google Fonts at runtime |
+| Noto Kufi Arabic | Copyright 2021 The Noto Project Authors | OFL-1.1 | Google Fonts at runtime |
 
-## Fonts fetched at runtime
+## Font files present in this repository
 
-The following families are **not** bundled. They are resolved and cached by the
-`google_fonts` package at runtime, and are also distributed under OFL-1.1:
-
-| Family | Copyright holder | License |
-|---|---|---|
-| Inter | Copyright 2016 The Inter Project Authors | OFL-1.1 |
-| Plus Jakarta Sans | Copyright 2020 The Plus Jakarta Sans Project Authors | OFL-1.1 |
-| Noto Kufi Arabic | Copyright 2021 The Noto Project Authors | OFL-1.1 |
+The Cairo, Noto Sans Arabic and Poppins font files and OFL texts are present
+under this directory, but `pubspec.yaml` does not declare those font files as
+Flutter assets or font families. They are therefore not treated as fonts
+shipped by the current app build. Their OFL texts are included in the app's
+asset list.
 
 ## Other third-party assets
 
-The bundled app icon, splash artwork, and any photographs uploaded by users are
-**not** covered by this file. No stock photography or third-party illustrations
-are redistributed in this repository. `assets/users_cache.json` contains demo
-account fixtures authored for this project.
+The rights and provenance for the app icon and splash artwork are **not
+established by this font audit** and must be confirmed by the project owner
+before redistribution. `assets/users_cache.json` contains demo account
+fixtures authored for this project; do not use those identities as real users.
 
 ## Attribution
 
-OFL-1.1 requires that the fonts are not sold on their own and that reserved font
-names are not reused for modified versions. MUSTER Sport uses the unmodified
-upstream font binaries, satisfies both conditions, and displays this
-attribution in-app under **Settings → Open Source Licenses**.
+The app displays font attribution under **Settings → Open Source Licenses**.
+Confirm attribution and asset provenance against the exact font files delivered
+in each release. OFL-1.1 requires that fonts are not sold on their own and that
+reserved font names are not reused for modified versions.
 
 Full license text: <https://openfontlicense.org>

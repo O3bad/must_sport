@@ -196,17 +196,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get legal => 'الشؤون القانونية';
 
   @override
-  String get cookieBannerTitle => 'ملفات تعريف الارتباط على نسخة الويب';
+  String get cookieBannerTitle => 'تخزين المتصفح في MUSTER Sport';
 
   @override
   String get cookieBannerBody =>
-      'نستخدم التخزين لإبقائك مسجّل الدخول ولتذكّر تفضيلاتك. لا توجد إعلانات ولا تتبّع عبر المواقع.';
+      'يستخدم تطبيق الويب تخزين المتصفح لتسجيل الدخول والتفضيلات وبيانات التطبيق المخزنة محليًا. لا نستخدم ملفات تعريف ارتباط للإعلانات أو التحليلات.';
 
   @override
-  String get cookieBannerAccept => 'قبول';
-
-  @override
-  String get cookieBannerDecline => 'رفض';
+  String get cookieBannerContinue => 'متابعة';
 
   @override
   String get cookieBannerLearnMore => 'اقرأ سياسة ملفات تعريف الارتباط';
@@ -569,6 +566,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get bookingFailedTryAgain => 'فشل الحجز. حاول مرة أخرى.';
+
+  @override
+  String get firebaseUnavailableTitle => 'ماستر غير متاح مؤقتاً';
+
+  @override
+  String get firebaseUnavailableMessage =>
+      'تعذر الاتصال بخدمة Firebase. تحقق من اتصالك وحاول مجدداً. إذا استمرت المشكلة، تواصل مع الدعم.';
+
+  @override
+  String get retry => 'إعادة المحاولة';
 
   @override
   String get notificationsTitle => 'التنبيهات';
@@ -1025,6 +1032,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get regFee => 'رسوم التسجيل';
 
   @override
+  String get feeConfirmWithUniversity => 'تأكد من المبلغ لدى الجامعة';
+
+  @override
   String studentsCount(int count) {
     return '$count طالب';
   }
@@ -1135,6 +1145,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paymentMethod => 'طريقة الدفع';
+
+  @override
+  String get payAtFacility => 'الدفع في المنشأة';
+
+  @override
+  String get appDoesNotProcessPayments =>
+      'لا يجمع MUSTER المدفوعات ولا يعالجها داخل التطبيق.';
 
   @override
   String get payInstaPay => 'إنستا باي';
@@ -1470,11 +1487,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notificationSent => 'تم إرسال الإشعار!';
 
   @override
-  String get signupTermsConsent =>
-      'أوافق على شروط الخدمة وسياسة الخصوصية، وأؤكد أن عمري لا يقل عن ١٨ عامًا.';
+  String get signupTermsConsent => 'أوافق على شروط الخدمة وسياسة الخصوصية.';
 
   @override
   String get signupTermsConsentError => 'يجب الموافقة على الشروط لإنشاء حساب.';
+
+  @override
+  String signupAgeConsent(int minimumAge) {
+    return 'أؤكد أن عمري لا يقل عن $minimumAge عامًا.';
+  }
+
+  @override
+  String signupAgeConsentError(int minimumAge) {
+    return 'يجب تأكيد أن عمرك لا يقل عن $minimumAge عامًا لإنشاء حساب.';
+  }
 
   @override
   String get deleteAccount => 'حذف الحساب';
@@ -1518,6 +1544,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String deleteAccountFailed(Object reason) {
     return 'تعذّر حذف حسابك: $reason';
   }
+
+  @override
+  String get deleteAccountDataRemovalFailed =>
+      'تعذّر حذف جميع بياناتك، لذلك لم يتم حذف حسابك. يُرجى المحاولة مرة أخرى.';
 
   @override
   String get licenses => 'تراخيص المصادر المفتوحة';
@@ -1566,9 +1596,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get back => 'رجوع';
-
-  @override
-  String get retry => 'إعادة المحاولة';
 
   @override
   String get loading => 'جارٍ التحميل';

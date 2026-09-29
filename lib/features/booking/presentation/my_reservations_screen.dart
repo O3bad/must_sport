@@ -253,20 +253,9 @@ class _ReservationCard extends StatelessWidget {
     'Gym': Icons.fitness_center_rounded,
   };
 
-// FIX #6: helpers for showing payment method in history
-  static String _payLabel(String method) => switch (method) {
-        'instapay' => 'InstaPay',
-        'vodafone_cash' => 'Vodafone Cash',
-        'fawry' => 'Fawry',
-        _ => 'Credit Card',
-      };
+  static String _payLabel(AppLocalizations l) => l.payAtFacility;
 
-  static IconData _payIcon(String method) => switch (method) {
-        'instapay' => Icons.flash_on_rounded,
-        'vodafone_cash' => Icons.phone_android_rounded,
-        'fawry' => Icons.store_rounded,
-        _ => Icons.credit_card_rounded,
-      };
+  static IconData _payIcon() => Icons.payments_outlined;
 
   Color _statusColor(BuildContext ctx) => switch (booking.status) {
         BookingStatus.confirmed => ctx.secondaryColor,
@@ -393,11 +382,11 @@ class _ReservationCard extends StatelessWidget {
                   const SizedBox(height: 4),
 // FIX #6: Show persisted payment method in booking history
                   Row(children: [
-                    Icon(_payIcon(booking.paymentMethod),
+                    Icon(_payIcon(),
                         size: 11, color: muted),
                     const SizedBox(width: 4),
                     Expanded(
-                      child: Text(_payLabel(booking.paymentMethod),
+                      child: Text(_payLabel(l),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.body(11, color: muted)),

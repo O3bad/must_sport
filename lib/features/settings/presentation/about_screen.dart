@@ -349,8 +349,8 @@ class _AboutScreenState extends State<AboutScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Cairo, Noto Sans Arabic, Poppins, Inter and '
-                          'Plus Jakarta Sans — SIL Open Font License 1.1',
+                          'Inter, Plus Jakarta Sans and Noto Kufi Arabic — '
+                          'SIL Open Font License 1.1 (Google Fonts, loaded at runtime)',
                           style: AppTextStyles.body(12,
                               color: context.mutedSubtleColor,
                               context: context),

@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../models/mock_data.dart';
+import 'activity_state.dart';
+import 'notification_state.dart';
 import '../services/cache_service.dart';
 import '../services/fcm_service.dart';
 import '../services/firebase_auth_service.dart';
@@ -301,36 +303,54 @@ class AppState extends ChangeNotifier {
       return 'reauthFailed';
     }
 
-    // 2a. Drop the push token so no further messages are delivered to a UID
-    // that no longer exists.
+    // Remove local registration records before starting remote deletion.
     try {
-      await FCMService().deleteToken();
-    } catch (_) {
-      // Best-effort — the token expires on its own.
+      final email =
+          _currentUser?.email ?? FirebaseAuthService.instance.currentUser?.email;
+      if (email == null || email.isEmpty) {
+        return 'dataDeletionFailed';
+      }
+      await ActivityRegistrationState.instance.deleteForStudent(email);
+      await NotificationState.instance.clearForAccountDeletion();
+    } catch (error, stackTrace) {
+      debugPrint('Local account data deletion failed: $error\n$stackTrace');
+      return 'dataDeletionFailed';
     }
 
-    // 2b. Purge remote data while we still have permission.
+    // Remove the push token while the account is still active.
+    try {
+      await FCMService().deleteToken();
+    } catch (error, stackTrace) {
+      debugPrint('Push token deletion failed: $error\n$stackTrace');
+      return 'dataDeletionFailed';
+    }
+
+    // Purge remote and cached user data before deleting the Auth account.
     try {
       await FirestoreService.instance.deleteAllUserData(uid);
-    } catch (_) {
-      // Partial failure is tolerable: the Auth record is removed below and the
-      // orphaned documents become unreachable.
+      await CacheService.instance.deleteUser(uid);
+      if (!await CacheService.instance.logout() ||
+          !await CacheService.instance.saveEnrolledIds({}) ||
+          !await CacheService.instance.saveBookings([])) {
+        throw StateError('Could not persist local account data deletion.');
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Account data deletion failed: $error\n$stackTrace');
+      return 'dataDeletionFailed';
     }
-    // 3. Destroy the account.
+
+    // Destroy the account only after the data purge succeeds.
     try {
       await FirebaseAuthService.instance.deleteCurrentAccount();
     } catch (_) {
       return 'deleteFailed';
     }
 
-    // 4. Clear every local trace of the session.
-    await CacheService.instance.deleteUser(uid);
-    await CacheService.instance.logout();
-    await CacheService.instance.saveEnrolledIds({});
-    await CacheService.instance.saveBookings([]);
     try {
       await FirebaseAuthService.instance.signOut();
-    } catch (_) {}
+    } catch (error, stackTrace) {
+      debugPrint('Sign-out after account deletion failed: $error\n$stackTrace');
+    }
 
     _currentUser = null;
     _enrolledIds = {};

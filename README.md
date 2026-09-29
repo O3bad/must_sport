@@ -143,8 +143,8 @@ The app supports **English** and **Arabic** with full RTL layout support. Langua
 
 3. **Configure Firebase**
    - Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-   - Enable Email/Password and Google Sign-In authentication
-   - Enable Cloud Firestore, Firebase Storage, and Cloud Messaging
+   - Enable Email/Password authentication
+   - Enable Cloud Firestore and Cloud Messaging
    - Run `flutterfire configure` to generate `lib/firebase_options.dart`
    - Place `google-services.json` in `android/app/` and `GoogleService-Info.plist` in `ios/Runner/`
 
@@ -158,7 +158,19 @@ The app supports **English** and **Arabic** with full RTL layout support. Langua
    flutter run
    ```
 
-> **Note:** The app includes mock/demo data and falls back gracefully if Firebase is not fully configured, making it possible to explore the UI without a live backend. Demo credentials for all three roles (Student, Admin, Coach) are available on the login screen.
+> **Release note:** Firebase must be configured and reachable for sign-in and live data. Do not ship a build that uses demo credentials or presents sample data as live university data. Firebase client configuration files contain public app identifiers and should be included in source control; never commit service-account keys or signing credentials.
+
+### Android release signing
+
+Release builds require a real release keystore and credentials supplied through
+the `KEY_ALIAS`, `KEY_PASSWORD`, `KEYSTORE_PATH`, and `STORE_PASSWORD`
+environment variables. The credentials have no source-code defaults. Store the
+keystore and passwords in a secure secret manager; do not commit them. For
+example, in PowerShell, set these values in the build environment and run:
+
+```powershell
+flutter build appbundle --release
+```
 
 ---
 

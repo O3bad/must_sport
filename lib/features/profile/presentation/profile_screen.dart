@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/accessible_tap.dart';
 import '../../../core/theme/widgets.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/services/firebase_auth_service.dart';
@@ -147,7 +148,8 @@ class ProfileScreen extends StatelessWidget {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 // Avatar with tap to open avatar editor
-                GestureDetector(
+                AccessibleTap(
+                  label: AppLocalizations.of(context)!.tapToChangePhoto,
                   onTap: () => showAvatarEditor(context, state),
                   child: Stack(children: [
                     AppAvatar(
