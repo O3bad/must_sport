@@ -6,8 +6,7 @@
 //   * no advertising, no data sale, no behavioural analytics SDK is present
 //   * the only processors are Firebase (Auth / Firestore / Cloud Messaging)
 //     and google_fonts, which fetches font files from Google
-//   * card details entered in the booking form are validated locally and are
-//     never transmitted or persisted
+//   * the booking flow collects no payment credentials or processes payments
 //   * deletion is available in-app (Settings -> Delete account)
 // Anything the repository cannot prove (a registered legal entity, a governing
 // jurisdiction) is deliberately left generic rather than invented.
@@ -135,14 +134,11 @@ class LegalContent {
         ],
       ),
       LegalSection(
-        '7. Payment and card data',
+        '7. Payments',
         [
-          'MUSTER Sport does not process payments. If you select the card option '
-              'while booking a facility, the card number, expiry and security code '
-              'are typed into the app and checked locally for format only. They are '
-              'never transmitted to us, never written to our servers, and never '
-              'stored on the device. Any amount due is settled directly with the '
-              'university through the channels it provides.',
+          'MUSTER Sport does not collect or process payments. The app does not '
+              'request or store payment credentials. Any amount due is paid '
+              'directly to the university or facility using the channels it provides.',
         ],
       ),
       LegalSection(
@@ -240,13 +236,13 @@ class LegalContent {
       LegalSection(
         '4. Bookings and payments',
         [
-          'Facility bookings and event entries are subject to availability and to '
-              'confirmation by the university. Any amount due is shown before you '
-              'confirm, and MUSTER Sport does not add charges at a later step.',
-          'The app does not process card payments. If you enter card details during '
-              'booking, they are used for a local format check only, are not '
-              'transmitted or stored, and settlement happens directly with the '
-              'university.',
+          'Facility bookings and event entries are subject to availability and '
+              'confirmation by the university. Fees and payment arrangements, if '
+              'any, are set by the university or facility and must be confirmed '
+              'directly with it; MUSTER Sport does not display or collect them.',
+          'MUSTER Sport does not collect or process payment. Any amount due is '
+              'paid directly to the university or facility; no payment credentials '
+              'are requested or stored in the app.',
         ],
       ),
       LegalSection(
@@ -295,9 +291,9 @@ class LegalContent {
     kind: LegalDocumentKind.refund,
     title: 'Refund Policy',
     intro:
-        'This policy explains what you pay for, when a fee applies, and how a '
-        'refund is handled. The short version: any charge is shown to you before '
-        'you confirm, and there are no hidden fees.',
+        'This policy explains how facility fees and refunds are handled. MUSTER '
+        'Sport does not set, display, collect, or process facility payments; '
+        'contact the university or facility for its current fee and refund rules.',
     sections: [
       LegalSection(
         '1. What the app costs',
@@ -309,10 +305,10 @@ class LegalContent {
       LegalSection(
         '2. Fees you may see',
         [
-          'A facility booking or an organised event may carry a fee set by the '
-              'university. That amount is displayed in full, together with the '
-              'facility or event it applies to, before you confirm the booking. The '
-              'price does not change after you confirm.',
+          'A facility booking or organised event may carry a fee set by the '
+              'university. MUSTER Sport does not display or collect that fee. '
+              'Confirm the applicable amount and payment arrangements directly '
+              'with the university or facility before booking.',
           'MUSTER Sport does not add service charges, delivery fees, or any other '
               'surcharge on top of that amount.',
         ],
@@ -320,29 +316,27 @@ class LegalContent {
       LegalSection(
         '3. How payment is taken',
         [
-          'The app does not process payments. If you enter card details in the '
-              'booking form, they are checked for format on your device only, and '
-              'are not transmitted to or stored by us. Any amount due is settled '
-              'directly with the university through the channels it provides.',
+          'MUSTER Sport does not collect or process payment. Any amount due is '
+              'paid directly to the university or facility through the channels '
+              'it provides.',
         ],
       ),
       LegalSection(
         '4. Refunds for cancelled bookings',
         [
-          'If a booking you paid for is cancelled by the university, the amount is '
-              'returned through the same payment method you used, on the timescale '
-              'that provider applies.',
-          'If you cancel yourself, whether a fee is refundable depends on the '
-              'notice period set by the university for that facility. That policy is '
-              'shown to you before you confirm, so you can see it before committing.',
+          'Any refund for a booking fee is handled by the university or facility '
+              'under its published refund policy. Contact it directly for the '
+              'applicable process and timescale.',
+          'If you cancel yourself, any refund depends on the policy set by the '
+              'university or facility. Contact it directly for the applicable '
+              'conditions and process.',
         ],
       ),
       LegalSection(
         '5. Duplicate or incorrect charges',
         [
-          'If you believe you have been charged twice or charged for the wrong '
-              'booking, contact us and we will investigate and correct it.',
-          'Contact: ${LegalConfig.contactDisplay}',
+          'If you believe a payment was charged incorrectly, contact the university '
+              'or facility that collected it.',
         ],
       ),
     ],
@@ -476,12 +470,11 @@ class LegalContent {
         ],
       ),
       LegalSection(
-        '٧. المدفوعات وبيانات البطاقات',
+        '٧. المدفوعات',
         [
-          'لا يعالج MUSTER Sport المدفوعات. إذا اخترت خيار البطاقة أثناء حجز منشأة، '
-              'فإن رقم البطاقة وتاريخ الانتهاء ورمز الأمان تُكتب داخل التطبيق '
-              'ويُتحقق من شكلها على جهازك فقط، ولا تُرسل إلينا ولا تُحفظ على خوادمنا '
-              'ولا على الجهاز. أي مبلغ مستحق يُسوّى مباشرة مع الجامعة عبر القنوات التي توفرها.',
+          'لا يجمع MUSTER Sport المدفوعات ولا يعالجها. لا يطلب التطبيق بيانات '
+              'الدفع ولا يحفظها. يُدفع أي مبلغ مستحق مباشرة إلى الجامعة أو المنشأة '
+              'عبر القنوات التي توفرها.',
         ],
       ),
       LegalSection(
@@ -569,12 +562,11 @@ class LegalContent {
       LegalSection(
         '٤. الحجوزات والمدفوعات',
         [
-          'تخضع حجوزات المنشآت والمشاركة في الفعاليات للتوافر وللتأكيد من الجامعة. '
-              'يظهر أي مبلغ مستحق بالكامل قبل التأكيد، ولا يضيف MUSTER Sport أي '
-              'رسوم إضافية في خطوة لاحقة.',
-          'لا يعالج التطبيق مدفوعات البطاقات. وإذا أدخلت بيانات بطاقة أثناء الحجز '
-              'فإنها تُستخدم للتحقق من الشكل على جهازك فقط، ولا تُرسل ولا تُحفظ، '
-              'ويتم التسوية مباشرة مع الجامعة.',
+          'تخضع حجوزات المنشآت والمشاركة في الفعاليات للتوافر ولتأكيد الجامعة. '
+              'تحدد الجامعة أو المنشأة أي رسوم وترتيبات للسداد، ويجب تأكيدها '
+              'مباشرةً معها؛ لا يعرضها MUSTER Sport ولا يجمعها.',
+          'لا يجمع MUSTER Sport المدفوعات ولا يعالجها. يُدفع أي مبلغ مستحق مباشرة '
+              'إلى الجامعة أو المنشأة؛ ولا يطلب التطبيق بيانات الدفع ولا يحفظها.',
         ],
       ),
       LegalSection(
@@ -620,8 +612,9 @@ class LegalContent {
     kind: LegalDocumentKind.refund,
     title: 'سياسة الاسترجاع',
     intro:
-        'توضّح هذه السياسة ما الذي تدفع مقابله، ومتى تُطبَّق رسوم، وكيف يتم الاسترجاع. '
-        ' باختصار: يُعرض أي مبلغ عليك قبل التأكيد، ولا توجد رسوم خفية.',
+        'توضّح هذه السياسة كيفية التعامل مع رسوم المنشآت واستردادها. لا يحدد '
+        'MUSTER Sport رسوم المنشآت ولا يعرضها ولا يجمعها ولا يعالجها؛ '
+        'تواصل مع الجامعة أو المنشأة لمعرفة الرسوم وسياسة الاسترداد.',
     sections: [
       LegalSection(
         '١. تكلفة التطبيق',
@@ -634,35 +627,32 @@ class LegalContent {
         '٢. الرسوم التي قد تظهر',
         [
           'قد يترتب على حجز منشأة أو فعالية منظّمة رسم تحدّده الجامعة. '
-              'يُعرض هذا المبلغ كاملًا مع المنشأة أو الفعالية ذات الصلة قبل تأكيد الحجز، '
-              'ولا يتغير السعر بعد التأكيد.',
-          'لا يضيف MUSTER Sport رسوم خدمة أو توصيل أو أي إضافة على هذا المبلغ.',
+              'لا يعرض MUSTER Sport هذا الرسم ولا يجمعه. تأكد من المبلغ '
+              'وترتيبات السداد مباشرةً مع الجامعة أو المنشأة قبل الحجز.',
+          'لا يضيف MUSTER Sport رسوم خدمة أو توصيل أو رسومًا إضافية.',
         ],
       ),
       LegalSection(
         '٣. طريقة السداد',
         [
-          'لا يعالج التطبيق المدفوعات. وإذا أدخلت بيانات بطاقة في نموذج الحجز '
-              'فإنها تُتحقق من شكلها على جهازك فقط، ولا تُرسل إلينا ولا تُحفظ لدينا. '
-              'ويُسوّى أي مبلغ مستحق مباشرة مع الجامعة عبر القنوات التي توفرها.',
+          'لا يحدد MUSTER Sport رسوم المنشآت ولا يعرضها ولا يجمعها ولا يعالجها. '
+              'تواصل مع الجامعة أو المنشأة مباشرة لمعرفة الرسوم وطرق السداد.',
         ],
       ),
       LegalSection(
         '٤. استرجاع مبالغ الحجوزات الملغاة',
         [
-          'إذا ألغت الجامعة حجزًا دفعت مقابله، يُعاد المبلغ بنفس وسيلة الدفع التي '
-              'استخدمتها، وعلى المدة التي يطبقها مقدم الخدمة.',
-          'وإذا ألغيت أنت بنفسك، فيعتمد ردّ الرسوم على مدة الإشعار التي تحدّدها '
-              'الجامعة لتلك المنشأة. وتُعرض عليك هذه السياسة قبل التأكيد، '
-              'فتراها قبل الالتزام.',
+          'تتولى الجامعة أو المنشأة أي استرداد لرسوم الحجز وفق سياسة الاسترداد '
+              'المعلنة لديها. تواصل معها مباشرة لمعرفة الإجراءات والمدة.',
+          'إذا ألغيت الحجز بنفسك، فيعتمد ردّ الرسوم على سياسة الجامعة أو المنشأة. '
+              'تواصل معها مباشرةً لمعرفة الإجراءات والمدة.',
         ],
       ),
       LegalSection(
         '٥. الرسوم المكررة أو غير الصحيحة',
         [
-          'إذا رأيت أنك حُسبت مرتين أو حُسبت مقابل حجز خاطئ، فتواصل معنا '
-              'وسنتحقق من ذلك ونصحّحه.',
-          'التواصل: ${LegalConfig.contactDisplay}',
+          'إذا اعتقدت أن رسومًا قد حُصلت منك خطأً، فتواصل مع الجامعة أو المنشأة '
+              'التي استلمت المبلغ.',
         ],
       ),
     ],

@@ -572,6 +572,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookingFailedTryAgain => 'Booking failed. Please try again.';
 
   @override
+  String get firebaseUnavailableTitle => 'MUSTER is temporarily unavailable';
+
+  @override
+  String get firebaseUnavailableMessage =>
+      'Firebase could not be reached. Check your connection and try again. If the problem continues, contact support.';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get notificationsTitle => 'Notifications';
 
   @override
@@ -1140,6 +1150,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentMethod => 'Payment Method';
 
   @override
+  String get payAtFacility => 'Pay at the facility';
+
+  @override
+  String get appDoesNotProcessPayments =>
+      'MUSTER does not collect or process payments in the app.';
+
+  @override
   String get payInstaPay => 'InstaPay';
 
   @override
@@ -1573,9 +1590,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get back => 'Back';
-
-  @override
-  String get retry => 'Retry';
 
   @override
   String get loading => 'Loading';

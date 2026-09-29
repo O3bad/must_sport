@@ -22,8 +22,6 @@ const {
   setDoc,
   updateDoc,
   deleteDoc,
-  collection,
-  addDoc,
   serverTimestamp,
 } = require("firebase/firestore");
 const { readFileSync } = require("fs");
@@ -76,6 +74,22 @@ const userPayload = (over = {}) => ({
   points: 0,
   rank: 0,
   isActive: true,
+  ...over,
+});
+
+const bookingIdForSlot = (facilityId, date, timeSlot) =>
+  `${facilityId}|${date}|${timeSlot}`;
+
+const bookingPayload = (uid, over = {}) => ({
+  bookingId: bookingIdForSlot("field-a", "2026-09-30", "10:00 AM"),
+  uid,
+  facilityId: "field-a",
+  facilityName: "Football Field A",
+  date: "2026-09-30",
+  timeSlot: "10:00 AM",
+  status: "confirmed",
+  studentName: `User ${uid}`,
+  paymentMethod: "pay_at_facility",
   ...over,
 });
 
@@ -253,11 +267,74 @@ const userPayload = (over = {}) => ({
 
   await check("booking must be stamped with the caller's uid", () =>
     assertFails(
-      addDoc(collection(alice, "bookings"), {
-        uid: "carol",
-        eventId: "e1",
-        status: "pending",
+      setDoc(
+        doc(alice, "bookings", bookingIdForSlot("field-a", "2026-09-30", "10:00 AM")),
+        bookingPayload("carol"),
+      ),
+    ),
+  );
+
+  const slotId = bookingIdForSlot("field-a", "2026-09-30", "10:00 AM");
+  await check("student may book an available slot with valid payment details", () =>
+    assertSucceeds(setDoc(doc(alice, "bookings", slotId), bookingPayload("alice"))),
+  );
+
+  await check("student may NOT create a second booking for the same slot", () =>
+    assertFails(setDoc(doc(bob, "bookings", slotId), bookingPayload("bob"))),
+  );
+
+  await check("student may NOT use a random booking ID to bypass slot uniqueness", () =>
+    assertFails(
+      setDoc(
+        doc(alice, "bookings", "random-booking-id"),
+        bookingPayload("alice", { bookingId: "random-booking-id" }),
+      ),
+    ),
+  );
+
+  const cardSlotId = bookingIdForSlot("field-a", "2026-09-30", "11:00 AM");
+  await check("student may NOT select an unprocessed payment method", () =>
+    assertFails(
+      setDoc(
+        doc(alice, "bookings", cardSlotId),
+        bookingPayload("alice", {
+          bookingId: cardSlotId,
+          timeSlot: "11:00 AM",
+          paymentMethod: "card",
+        }),
+      ),
+    ),
+  );
+
+  const reclaimableSlotId =
+    bookingIdForSlot("field-a", "2026-09-30", "12:00 PM");
+  await check("student may reserve a slot before cancelling it", () =>
+    assertSucceeds(
+      setDoc(
+        doc(alice, "bookings", reclaimableSlotId),
+        bookingPayload("alice", {
+          bookingId: reclaimableSlotId,
+          timeSlot: "12:00 PM",
+        }),
+      ),
+    ),
+  );
+  await check("student may cancel a booking", () =>
+    assertSucceeds(
+      updateDoc(doc(alice, "bookings", reclaimableSlotId), {
+        status: "cancelled",
       }),
+    ),
+  );
+  await check("another student may reserve a cancelled slot", () =>
+    assertSucceeds(
+      setDoc(
+        doc(bob, "bookings", reclaimableSlotId),
+        bookingPayload("bob", {
+          bookingId: reclaimableSlotId,
+          timeSlot: "12:00 PM",
+        }),
+      ),
     ),
   );
 
@@ -273,6 +350,12 @@ const userPayload = (over = {}) => ({
 
   await check("owner may NOT change an unrelated field", () =>
     assertFails(updateDoc(doc(carol, "bookings", "b1"), { eventId: "e9" })),
+  );
+
+  await check("owner may NOT change the payment method", () =>
+    assertFails(
+      updateDoc(doc(carol, "bookings", "b1"), { paymentMethod: "card" }),
+    ),
   );
 
   await check("non-owner may NOT update the booking", () =>
@@ -328,9 +411,15 @@ const userPayload = (over = {}) => ({
     assertSucceeds(getDoc(doc(ghost, "events", "e1"))),
   );
 
-  await check("profile-less user may book for themselves", () =>
-    assertSucceeds(
-      addDoc(collection(ghost, "bookings"), { uid: "ghost", eventId: "e1" }),
+  await check("profile-less user may NOT create bookings", () =>
+    assertFails(
+      setDoc(
+        doc(ghost, "bookings", cardSlotId),
+        bookingPayload("ghost", {
+          bookingId: cardSlotId,
+          timeSlot: "11:00 AM",
+        }),
+      ),
     ),
   );
 

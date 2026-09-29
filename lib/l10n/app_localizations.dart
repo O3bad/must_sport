@@ -1214,6 +1214,24 @@ abstract class AppLocalizations {
   /// **'Booking failed. Please try again.'**
   String get bookingFailedTryAgain;
 
+  /// No description provided for @firebaseUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MUSTER is temporarily unavailable'**
+  String get firebaseUnavailableTitle;
+
+  /// No description provided for @firebaseUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Firebase could not be reached. Check your connection and try again. If the problem continues, contact support.'**
+  String get firebaseUnavailableMessage;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
   /// No description provided for @notificationsTitle.
   ///
   /// In en, this message translates to:
@@ -2234,6 +2252,18 @@ abstract class AppLocalizations {
   /// **'Payment Method'**
   String get paymentMethod;
 
+  /// No description provided for @payAtFacility.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay at the facility'**
+  String get payAtFacility;
+
+  /// No description provided for @appDoesNotProcessPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'MUSTER does not collect or process payments in the app.'**
+  String get appDoesNotProcessPayments;
+
   /// No description provided for @payInstaPay.
   ///
   /// In en, this message translates to:
@@ -3049,12 +3079,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back'**
   String get back;
-
-  /// No description provided for @retry.
-  ///
-  /// In en, this message translates to:
-  /// **'Retry'**
-  String get retry;
 
   /// No description provided for @loading.
   ///

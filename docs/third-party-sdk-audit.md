@@ -46,11 +46,9 @@ None are present:
 
 Fields collected exist to run the product. Two notable points:
 
-1. **Card details are validated locally and discarded.** The booking form asks
-   for a card number, expiry and CVC and checks their shape, but nothing is
-   transmitted, persisted, or sent to a processor. Because the app takes no
-   payment, this field is arguably unnecessary collection — see
-   `docs/pci-card-form.md` for the recommendation to remove it.
+1. **Payments are handled outside the app.** The booking flow collects no
+   card, wallet, or other payment credentials. Amounts, collection, and refunds
+   are handled directly by the university or facility.
 2. **The leaderboard is a projection.** The public ranking reads
    `leaderboard/{uid}`, not `users/{uid}`, so email, phone and student ID are
    never exposed to other students.
@@ -58,7 +56,5 @@ Fields collected exist to run the product. Two notable points:
 ## Outstanding actions
 
 - [ ] Replace `google_fonts` runtime fetching with bundled font assets.
-- [ ] Remove the card form from the booking flow (removes the PCI question
-      entirely and removes a field we do not need).
 - [ ] Re-run this audit whenever `pubspec.yaml` gains a dependency, and before
       any Play Store / App Store Data Safety declaration is submitted.

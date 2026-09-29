@@ -571,6 +571,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bookingFailedTryAgain => 'فشل الحجز. حاول مرة أخرى.';
 
   @override
+  String get firebaseUnavailableTitle => 'ماستر غير متاح مؤقتاً';
+
+  @override
+  String get firebaseUnavailableMessage =>
+      'تعذر الاتصال بخدمة Firebase. تحقق من اتصالك وحاول مجدداً. إذا استمرت المشكلة، تواصل مع الدعم.';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
   String get notificationsTitle => 'التنبيهات';
 
   @override
@@ -1137,6 +1147,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get paymentMethod => 'طريقة الدفع';
 
   @override
+  String get payAtFacility => 'الدفع في المنشأة';
+
+  @override
+  String get appDoesNotProcessPayments =>
+      'لا يجمع MUSTER المدفوعات ولا يعالجها داخل التطبيق.';
+
+  @override
   String get payInstaPay => 'إنستا باي';
 
   @override
@@ -1566,9 +1583,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get back => 'رجوع';
-
-  @override
-  String get retry => 'إعادة المحاولة';
 
   @override
   String get loading => 'جارٍ التحميل';
