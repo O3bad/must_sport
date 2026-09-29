@@ -300,6 +300,10 @@ const List<ActivityModel> kAllActivities = [
       level: 'All Levels'),
 ];
 
+// The bundled activity catalog below is a development fixture, not a
+// university-approved live schedule. Do not expose it to users.
+const List<ActivityModel> kPublishedActivities = [];
+
 const List<String> kFaculties = [
   'IT Faculty',
   'Engineering',
@@ -339,14 +343,14 @@ class ActivityRegistrationState extends ChangeNotifier {
   // ── IMPROVEMENT #13: capacity check ──────────────────────────────────────
   /// Returns true if the activity still has slots available.
   bool hasCapacity(String activityId) {
-    final activity = kAllActivities.firstWhere((a) => a.id == activityId,
-        orElse: () => kAllActivities.first);
+    final activity = kPublishedActivities.where((a) => a.id == activityId);
+    if (activity.isEmpty) return false;
     final approved = _registrations
         .where((r) =>
             r.activity.id == activityId &&
             r.status == RegistrationStatus.approved)
         .length;
-    return approved < activity.slots;
+    return approved < activity.first.slots;
   }
 
   void addRegistration(ActivityRegistration reg) {
@@ -393,17 +397,20 @@ class ActivityRegistrationState extends ChangeNotifier {
       if (raw != null) {
         final list = jsonDecode(raw) as List<dynamic>;
         final loaded = list
-            .map((e) => _regFromJson(e as Map<String, dynamic>))
+            .map((e) => e as Map<String, dynamic>)
+            .where((registration) =>
+                !(registration['id'] as String).startsWith('seed-'))
+            .map(_regFromJson)
             .whereType<ActivityRegistration>()
             .toList();
         _registrations.addAll(loaded);
+        if (loaded.length != list.length) {
+          await _save();
+        }
         notifyListeners();
         return;
       }
     } catch (_) {}
-    // Seed demo data on first launch
-    _seedDemo();
-    await _save();
     notifyListeners();
   }
 
@@ -413,89 +420,6 @@ class ActivityRegistrationState extends ChangeNotifier {
       await prefs.setString(
           _kRegsKey, jsonEncode(_registrations.map(_regToJson).toList()));
     } catch (_) {}
-  }
-
-  void _seedDemo() {
-    _registrations.addAll([
-      ActivityRegistration(
-          id: 'seed-1',
-          studentEmail: 'student@must.edu.eg',
-          studentName: 'Mohamed Salah',
-          studentId: 'MUST-2024-0088',
-          faculty: 'IT Faculty',
-          phone: '01012345678',
-          semester: 'Spring 2026',
-          level: 'Advanced',
-          message: 'Playing football for 5 years.',
-          activity: kAllActivities[0],
-          status: RegistrationStatus.approved,
-          createdAt: DateTime(2026, 2, 15)),
-      ActivityRegistration(
-          id: 'seed-2',
-          studentEmail: 'student@must.edu.eg',
-          studentName: 'Mohamed Salah',
-          studentId: 'MUST-2024-0088',
-          faculty: 'IT Faculty',
-          phone: '01012345678',
-          semester: 'Spring 2026',
-          level: 'Intermediate',
-          message: 'Keen to improve my basketball skills.',
-          activity: kAllActivities[2],
-          status: RegistrationStatus.pending,
-          createdAt: DateTime(2026, 3, 1)),
-      ActivityRegistration(
-          id: 'seed-3',
-          studentEmail: 'other@must.edu.eg',
-          studentName: 'Sara Mahmoud',
-          studentId: 'MUST-2024-0045',
-          faculty: 'Medicine',
-          phone: '01098765432',
-          semester: 'Spring 2026',
-          level: 'Advanced',
-          message: 'Swimming competitively since high school.',
-          activity: kAllActivities[6],
-          status: RegistrationStatus.pending,
-          createdAt: DateTime(2026, 3, 2)),
-      ActivityRegistration(
-          id: 'seed-4',
-          studentEmail: 'other2@must.edu.eg',
-          studentName: 'Ahmed Hassan',
-          studentId: 'MUST-2024-0021',
-          faculty: 'Engineering',
-          phone: '01123456789',
-          semester: 'Spring 2026',
-          level: 'Beginner',
-          message: 'Always wanted to try acting.',
-          activity: kAllActivities[12],
-          status: RegistrationStatus.pending,
-          createdAt: DateTime(2026, 3, 3)),
-      ActivityRegistration(
-          id: 'seed-5',
-          studentEmail: 'other3@must.edu.eg',
-          studentName: 'Nour Adel',
-          studentId: 'MUST-2024-0067',
-          faculty: 'Pharmacy',
-          phone: '01234567890',
-          semester: 'Spring 2026',
-          level: 'Intermediate',
-          message: 'Trained for 3 years in classical Arabic music.',
-          activity: kAllActivities[13],
-          status: RegistrationStatus.approved,
-          createdAt: DateTime(2026, 2, 28)),
-      ActivityRegistration(
-          id: 'seed-6',
-          studentEmail: 'other4@must.edu.eg',
-          studentName: 'Layla Ibrahim',
-          studentId: 'MUST-2024-0089',
-          faculty: 'Education',
-          phone: '01156789012',
-          semester: 'Spring 2026',
-          level: 'Beginner',
-          message: 'I write poetry in my spare time.',
-          activity: kAllActivities[19],
-          status: RegistrationStatus.pending,
-          createdAt: DateTime(2026, 3, 4)),
-    ]);
   }
 
   // ── JSON helpers ──────────────────────────────────────────────────────────
@@ -516,8 +440,9 @@ class ActivityRegistrationState extends ChangeNotifier {
 
   ActivityRegistration? _regFromJson(Map<String, dynamic> j) {
     try {
-      final activity = kAllActivities.firstWhere((a) => a.id == j['activityId'],
-          orElse: () => kAllActivities.first);
+      final activity = kAllActivities.firstWhere(
+        (a) => a.id == j['activityId'],
+      );
       final status = RegistrationStatus.values.byName(j['status'] as String);
       return ActivityRegistration(
         id: j['id'],

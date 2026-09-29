@@ -35,7 +35,7 @@ class CoachDashboardScreen extends StatelessWidget {
         allRegs.where((r) => r.status == RegistrationStatus.approved).length;
     // Matches on the coach's full name since activities don't yet carry a
     // stable coachId — a name-substring match is the best available signal.
-    final myActivities = kAllActivities
+    final myActivities = kPublishedActivities
         .where((a) => a.coach.toLowerCase().contains(user.name.toLowerCase()))
         .take(6)
         .toList();

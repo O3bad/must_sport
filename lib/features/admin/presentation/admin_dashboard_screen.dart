@@ -81,8 +81,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       _StatData(l.registrations, '$totalRegs', Icons.assignment_outlined, errC),
       _StatData(l.pendingReview, '$pendingRegs', Icons.hourglass_empty_rounded,
           const Color(0xFFFFB547)),
-      _StatData(l.activities, '24', Icons.theater_comedy_outlined,
-          const Color(0xFF00BCD4)),
+      _StatData(l.activities, '${kPublishedActivities.length}',
+          Icons.theater_comedy_outlined, const Color(0xFF00BCD4)),
     ];
 
     final sectionTabs = _sectionTabs(l);

@@ -1,8 +1,9 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/models.dart';
-import '../models/mock_data.dart';
 import 'activity_state.dart';
 import 'notification_state.dart';
 import '../services/cache_service.dart';
@@ -16,6 +17,25 @@ import '../services/firestore_service.dart';
 // Further splitting into separate Providers is the next step (see STEPS.md).
 
 class AppState extends ChangeNotifier {
+  static const UserModel _emptyUser = UserModel(
+    uid: '',
+    role: UserRole.student,
+    name: '',
+    studentId: '',
+    email: '',
+    faculty: '',
+    semester: '',
+    points: 0,
+    rank: 0,
+    cgpa: 0,
+    creditHours: '0/0',
+    targetEvents: 0,
+    stats: UserStats(eventsJoined: 0, bookingsMade: 0, wins: 0),
+    achievements: [],
+  );
+
+  StreamSubscription<List<SportEvent>>? _eventsSubscription;
+
   // ── Init ──────────────────────────────────────────────────────────────────
   bool _initialized = false;
   bool get initialized => _initialized;
@@ -81,6 +101,7 @@ class AppState extends ChangeNotifier {
         _currentUser = profile;
         _privilegeVerified = true;
       }
+      _listenToEvents();
     }
 
     _enrolledIds = CacheService.instance.enrolledIds;
@@ -152,6 +173,7 @@ class AppState extends ChangeNotifier {
     }
 
     _enrolledIds = await FirestoreService.instance.getEnrolledIds(uid);
+    _listenToEvents();
     _authError = null;
     _navIndex = 0;
     _leaderboardCache = null;
@@ -238,6 +260,7 @@ class AppState extends ChangeNotifier {
 
     await CacheService.instance.upsertUser(finalUser);
     CacheService.instance.setSession(finalUser.uid);
+    _listenToEvents();
     _authError = null;
     _currentUser = finalUser;
     _navIndex = 0;
@@ -248,6 +271,9 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    final subscription = _eventsSubscription;
+    _eventsSubscription = null;
+    if (subscription != null) await subscription.cancel();
     await CacheService.instance.logout();
     await CacheService.instance.saveEnrolledIds({});
     try {
@@ -261,7 +287,34 @@ class AppState extends ChangeNotifier {
     _navIndex = 0;
     _toastMessage = null;
     _leaderboardCache = null;
+    _events.clear();
     notifyListeners();
+  }
+
+  void _listenToEvents() {
+    final previous = _eventsSubscription;
+    if (previous != null) unawaited(previous.cancel());
+    _events.clear();
+    _eventsSubscription = FirestoreService.instance.eventsStream().listen(
+      (events) {
+        _events
+          ..clear()
+          ..addAll(events);
+        notifyListeners();
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        debugPrint('Could not load published events: $error\n$stackTrace');
+        _events.clear();
+        notifyListeners();
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    final subscription = _eventsSubscription;
+    if (subscription != null) unawaited(subscription.cancel());
+    super.dispose();
   }
 
   void clearAuthError() {
@@ -305,8 +358,8 @@ class AppState extends ChangeNotifier {
 
     // Remove local registration records before starting remote deletion.
     try {
-      final email =
-          _currentUser?.email ?? FirebaseAuthService.instance.currentUser?.email;
+      final email = _currentUser?.email ??
+          FirebaseAuthService.instance.currentUser?.email;
       if (email == null || email.isEmpty) {
         return 'dataDeletionFailed';
       }
@@ -368,7 +421,7 @@ class AppState extends ChangeNotifier {
     return FirebaseAuthService.instance.sendPasswordResetEmail(email);
   }
 
-  UserModel get user => _currentUser ?? MockData.user;
+  UserModel get user => _currentUser ?? _emptyUser;
 
   // ── Profile ───────────────────────────────────────────────────────────────
   String? _profileImagePath;
@@ -403,7 +456,7 @@ class AppState extends ChangeNotifier {
   }
 
   // ── Events ────────────────────────────────────────────────────────────────
-  final List<SportEvent> _events = List.from(MockData.events);
+  final List<SportEvent> _events = [];
   List<SportEvent> get events => List.unmodifiable(_events);
 
   Set<String> _enrolledIds = {};
@@ -451,23 +504,14 @@ class AppState extends ChangeNotifier {
         : 'Unenrolled from ${event.title}';
   }
 
-  void adminAddEvent(SportEvent e) {
-    _events.insert(0, e);
-    notifyListeners();
-  }
+  Future<void> adminAddEvent(SportEvent e) =>
+      FirestoreService.instance.addEvent(e);
 
-  void adminUpdateEvent(SportEvent u) {
-    final idx = _events.indexWhere((e) => e.id == u.id);
-    if (idx >= 0) {
-      _events[idx] = u;
-      notifyListeners();
-    }
-  }
+  Future<void> adminUpdateEvent(SportEvent u) =>
+      FirestoreService.instance.updateEvent(u);
 
-  void adminRemoveEvent(String id) {
-    _events.removeWhere((e) => e.id == id);
-    notifyListeners();
-  }
+  Future<void> adminRemoveEvent(String id) =>
+      FirestoreService.instance.deleteEvent(id);
 
   List<UserModel> get adminAllUsers => CacheService.instance.allUsers;
   Future<bool> adminDeleteUser(String uid) async {

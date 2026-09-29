@@ -5,7 +5,6 @@ import '../../../core/theme/widgets.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/state/notification_state.dart';
 import '../../../core/models/models.dart';
-import '../../../core/models/mock_data.dart';
 import '../../../l10n/app_localizations.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -15,6 +14,17 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
+  static const _verifiedFacilities = <Facility>[];
+  static const _timeSlots = [
+    '8:00 AM',
+    '10:00 AM',
+    '12:00 PM',
+    '2:00 PM',
+    '4:00 PM',
+    '6:00 PM',
+    '8:00 PM',
+  ];
+
   Facility? _field;
   String? _time;
   DateTime _date = DateTime.now();
@@ -24,11 +34,6 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    _field = MockData.facilities.firstWhere(
-      (f) => f.isAvailable,
-      orElse: () => MockData.facilities.first,
-    );
-    _time = MockData.timeSlots[4];
   }
 
   String get _dateLabel {
@@ -178,6 +183,40 @@ class _BookingScreenState extends State<BookingScreen> {
     final facilityCols = context.isTablet ? 3 : (context.isSmallPhone ? 1 : 2);
 
     final l = AppLocalizations.of(context)!;
+    if (_verifiedFacilities.isEmpty) {
+      return Scaffold(
+        backgroundColor: context.bgColor,
+        appBar: AppBar(
+          backgroundColor: context.bgColor,
+          surfaceTintColor: Colors.transparent,
+          leading: IconButton(
+            icon: Icon(
+              Directionality.of(context) == TextDirection.rtl
+                  ? Icons.arrow_forward_ios
+                  : Icons.arrow_back_ios_new,
+              color: context.textColor,
+              size: 20,
+            ),
+            onPressed: () => context.read<AppState>().setNavIndex(0),
+          ),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              l.bookingUnavailable,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.body(
+                16,
+                context: context,
+                color: context.mutedColor,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: context.bgColor,
       appBar: AppBar(
@@ -261,7 +300,7 @@ class _BookingScreenState extends State<BookingScreen> {
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             childAspectRatio: context.isSmallPhone ? 2.2 : 2.6,
-            children: MockData.facilities.map((f) {
+            children: _verifiedFacilities.map((f) {
               final active = _field?.id == f.id;
               return GestureDetector(
                 onTap: () {
@@ -307,7 +346,7 @@ class _BookingScreenState extends State<BookingScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: MockData.timeSlots.map((t) {
+            children: _timeSlots.map((t) {
               final active = _time == t;
               final hasConflict = _field != null &&
                   context

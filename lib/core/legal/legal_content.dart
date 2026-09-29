@@ -100,6 +100,11 @@ class LegalContent {
               'registrations and in-app notifications on your device or browser. '
               'Signing out removes the session marker but does not clear all cached '
               'data; account deletion clears the cached data associated with your account.',
+          'We do not send marketing emails or operate a mailing list. The app only '
+              'offers user-requested account email, such as password-reset messages, '
+              'which is not marketing and has no unsubscribe link. If marketing email '
+              'is introduced, every message must include an English unsubscribe link '
+              'and a working opt-out.',
         ],
       ),
       LegalSection(
@@ -247,10 +252,9 @@ class LegalContent {
         '4. Bookings and payments',
         [
           'Facility bookings and event entries are subject to availability and '
-              'confirmation by the university. Any fee information shown for an '
-              'activity is unverified unless explicitly confirmed in the app. '
-              'Confirm the final amount and payment arrangements with the university '
-              'or facility before registering.',
+              'confirmation by the university. Fees and payment arrangements, if '
+              'any, are set by the university or facility and must be confirmed '
+              'directly with it; MUSTER Sport does not display or collect them.',
           'MUSTER Sport does not collect or process payment. Any amount due is '
               'paid directly to the university or facility; no payment credentials '
               'are requested or stored in the app.',
@@ -303,8 +307,8 @@ class LegalContent {
     title: 'Refund Policy',
     intro:
         'This policy explains how facility fees and refunds are handled. MUSTER '
-        'Sport does not set, collect, or process facility payments; contact the '
-        'university or facility to confirm the current amount and refund rules.',
+        'Sport does not set, display, collect, or process facility payments; '
+        'contact the university or facility for its current fee and refund rules.',
     sections: [
       LegalSection(
         '1. What the app costs',
@@ -317,9 +321,9 @@ class LegalContent {
         '2. Fees you may see',
         [
           'A facility booking or organised event may carry a fee set by the '
-              'university. Confirm the applicable amount and payment arrangements '
-              'directly with the university or facility before booking. Any fee '
-              'shown for an activity is unverified unless explicitly marked as confirmed.',
+              'university. MUSTER Sport does not display or collect that fee. '
+              'Confirm the applicable amount and payment arrangements directly '
+              'with the university or facility before booking.',
           'MUSTER Sport does not add service charges, delivery fees, or any other '
               'surcharge on top of that amount.',
         ],
@@ -453,6 +457,11 @@ class LegalContent {
           'قد يحتفظ التطبيق بنسخة محلية من ملفك الشخصي وحجوزاتك وتسجيلاتك '
               'وإشعاراتك على الجهاز أو المتصفح. يؤدي تسجيل الخروج إلى إزالة علامة '
               'الجلسة لكنه لا يمسح كل البيانات المخزّنة؛ وحذف الحساب يمسح بياناته المحلية.',
+          'لا نرسل رسائل تسويقية ولا ندير قائمة بريدية. يتيح التطبيق فقط رسائل '
+              'الحساب التي يطلبها المستخدم، مثل رسائل إعادة تعيين كلمة المرور، '
+              'وهي ليست رسائل تسويقية ولا تتطلب رابط إلغاء اشتراك. إذا أُضيف البريد '
+              'التسويقي مستقبلًا، يجب أن تتضمن كل رسالة رابط إلغاء اشتراك باللغة '
+              'الإنجليزية وخيارًا فعّالًا لإيقافها.',
         ],
       ),
       LegalSection(
@@ -586,9 +595,8 @@ class LegalContent {
         '٤. الحجوزات والمدفوعات',
         [
           'تخضع حجوزات المنشآت والمشاركة في الفعاليات للتوافر ولتأكيد الجامعة. '
-              'تحدد الجامعة أو المنشأة أي رسوم وترتيبات للسداد. وأي معلومات رسوم '
-                  'يعرضها التطبيق للنشاط غير مؤكدة ما لم يوضّح التطبيق خلاف ذلك. '
-                  'تأكد من المبلغ النهائي وطريقة السداد من الجامعة أو المنشأة قبل التسجيل.',
+              'تحدد الجامعة أو المنشأة أي رسوم وترتيبات للسداد، ويجب تأكيدها '
+              'مباشرةً معها؛ لا يعرضها MUSTER Sport ولا يجمعها.',
           'لا يجمع MUSTER Sport المدفوعات ولا يعالجها. يُدفع أي مبلغ مستحق مباشرة '
               'إلى الجامعة أو المنشأة؛ ولا يطلب التطبيق بيانات الدفع ولا يحفظها.',
         ],
@@ -637,8 +645,8 @@ class LegalContent {
     title: 'سياسة الاسترجاع',
     intro:
         'توضّح هذه السياسة كيفية التعامل مع رسوم المنشآت واستردادها. لا يحدد '
-        'MUSTER Sport الرسوم ولا يجمع مدفوعات المنشآت ولا يعالجها؛ تواصل مع '
-        'الجامعة أو المنشأة لتأكيد المبلغ وسياسة الاسترداد.',
+        'MUSTER Sport رسوم المنشآت ولا يعرضها ولا يجمعها ولا يعالجها؛ '
+        'تواصل مع الجامعة أو المنشأة لمعرفة الرسوم وسياسة الاسترداد.',
     sections: [
       LegalSection(
         '١. تكلفة التطبيق',
@@ -651,16 +659,16 @@ class LegalContent {
         '٢. الرسوم التي قد تظهر',
         [
           'قد يترتب على حجز منشأة أو فعالية منظّمة رسم تحدّده الجامعة. '
-              'تأكد من المبلغ وترتيبات السداد مباشرةً مع الجامعة أو المنشأة '
-              'قبل الحجز. وأي رسم يظهر للنشاط غير مؤكد ما لم يُذكر صراحةً أنه مؤكد.',
+              'لا يعرض MUSTER Sport هذا الرسم ولا يجمعه. تأكد من المبلغ '
+              'وترتيبات السداد مباشرةً مع الجامعة أو المنشأة قبل الحجز.',
           'لا يضيف MUSTER Sport رسوم خدمة أو توصيل أو رسومًا إضافية.',
         ],
       ),
       LegalSection(
         '٣. طريقة السداد',
         [
-          'لا يحدد MUSTER Sport رسوم المنشآت ولا يجمعها ولا يعالجها. '
-              'تواصل مع الجامعة أو المنشأة مباشرة لتأكيد الرسوم وطرق السداد.',
+          'لا يحدد MUSTER Sport رسوم المنشآت ولا يعرضها ولا يجمعها ولا يعالجها. '
+              'تواصل مع الجامعة أو المنشأة مباشرة لمعرفة الرسوم وطرق السداد.',
         ],
       ),
       LegalSection(

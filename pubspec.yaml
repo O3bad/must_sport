@@ -32,7 +32,6 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    - assets/users_cache.json
     # Font licence texts (SIL OFL 1.1) surfaced in Settings → Open Source Licenses.
     - assets/fonts/LICENSES.md
     - assets/fonts/Cairo/OFL.txt

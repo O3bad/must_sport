@@ -257,8 +257,7 @@ class _RegistrationFormScreenState extends State<RegistrationFormScreen> {
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return l.fieldLabelPhone;
                 if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(v.trim())) {
-                  return l
-                      .errorVodafoneNumber; // Using an existing valid phone error key
+                  return l.errorEgyptianPhone;
                 }
                 return null;
               },

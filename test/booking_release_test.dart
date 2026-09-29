@@ -30,7 +30,7 @@ void main() {
     expect(booking.paymentMethod, 'pay_at_facility');
   });
 
-  testWidgets('booking collects no payment credentials', (tester) async {
+  testWidgets('unverified mock facilities cannot be booked', (tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => AppState(),
@@ -43,16 +43,13 @@ void main() {
       ),
     );
 
-    await tester.scrollUntilVisible(
-      find.text('Pay at the facility'),
-      300,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(find.text('Pay at the facility'), findsOneWidget);
     expect(
-      find.text('MUSTER does not collect or process payments in the app.'),
+      find.text(
+        'Facility booking is unavailable until the university publishes verified facilities and availability. Please contact the university to arrange a booking.',
+      ),
       findsOneWidget,
     );
     expect(find.byType(TextField), findsNothing);
+    expect(find.text('Confirm Booking'), findsNothing);
   });
 }

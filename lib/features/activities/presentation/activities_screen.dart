@@ -40,11 +40,11 @@ class _ActivitiesScreenState extends State<ActivitiesScreen>
   List<ActivityModel> _baseList(int tabIdx) {
     switch (tabIdx) {
       case 0:
-        return kAllActivities.where((a) => !a.category.isArts).toList();
+        return kPublishedActivities.where((a) => !a.category.isArts).toList();
       case 1:
-        return kAllActivities.where((a) => a.category.isArts).toList();
+        return kPublishedActivities.where((a) => a.category.isArts).toList();
       default:
-        return kAllActivities;
+        return kPublishedActivities;
     }
   }
 

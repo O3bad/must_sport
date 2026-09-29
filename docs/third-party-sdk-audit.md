@@ -36,8 +36,8 @@ None are present:
   AppsFlyer, Branch, Singular — none.
 - Analytics / tracking: Firebase Analytics, Google Analytics, Mixpanel,
   Amplitude, Segment, Sentry, Crashlytics — none.
-- Location: no geolocation, no location permission requested. Booking asks the
-  user to type a facility; the app never reads GPS.
+- Location: no geolocation, no location permission requested. The current
+  booking flow is disabled until verified facility data is published.
 - Contacts, SMS, call log, camera, microphone, health, "background location":
   no permission is declared in `AndroidManifest.xml` or `Info.plist`.
 - Advertising ID: never requested. `android:allowBackup="false"`, no
@@ -49,14 +49,14 @@ Fields collected are defined by the current product implementation; their
 necessity has not been approved by the university. Confirm each field before
 production. Activity registration currently requests contact phone, faculty,
 semester, experience level and an optional message. Team registration may also
-request teammates' names, student IDs and faculties. Remove fields that the
-university cannot justify as necessary.
+request teammates' names, student IDs and faculties. The activity catalog is
+not published until the university verifies its details.
 
 Other findings:
 
 1. **Payments are handled outside the app.** The booking flow collects no
-   card, wallet, or other payment credentials. Amounts, collection, and refunds
-   are handled directly by the university or facility.
+   card, wallet, or other payment credentials. Facility booking is disabled
+   until the university publishes verified facility and availability data.
 2. **The leaderboard is a projection.** The public ranking reads
    `leaderboard/{uid}`, not `users/{uid}`, so email, phone and student ID are
    never exposed to other students.
@@ -64,13 +64,9 @@ Other findings:
 ## Outstanding actions
 
 - [ ] Replace `google_fonts` runtime fetching with bundled font assets.
-- [ ] Confirm licensing/provenance for the app icon and splash artwork; this
-      repository audit does not establish their redistribution rights.
-- [ ] Verify the operator's legal status and whether email-only contact is
-      sufficient for the privacy notice in each target jurisdiction. The
-      provided project contact requested publishing the email without a postal
-      address.
+- [ ] Confirm that each activity-registration field is required by the
+      university workflow; remove fields that are not.
 - [ ] Verify approved facilities, activities, availability and fee data are
-      configured; the current repository still contains mock fixtures.
+      configured; unverified catalog data is not shown to users.
 - [ ] Re-run this audit whenever `pubspec.yaml` gains a dependency, and before
       any Play Store / App Store Data Safety declaration is submitted.

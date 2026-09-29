@@ -143,12 +143,8 @@ class FirestoreService {
   // ── Events ────────────────────────────────────────────────────────────────
   /// IMPROVEMENT #10: handleError returns empty list on failure
   Stream<List<SportEvent>> eventsStream() {
-    return _events
-        .orderBy('startDate')
-        .snapshots()
-        .map((s) =>
-            s.docs.map((d) => SportEvent.fromJson(d.id, d.data())).toList())
-        .handleError((_) => <SportEvent>[]);
+    return _events.orderBy('startDate').snapshots().map(
+        (s) => s.docs.map((d) => SportEvent.fromJson(d.id, d.data())).toList());
   }
 
   Future<void> addEvent(SportEvent e) async =>

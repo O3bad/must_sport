@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
 
@@ -32,86 +31,41 @@ class CacheService {
     await _loadBundledUsers();
   }
 
-  // Bundled demo users — used when no asset file exists (e.g. fresh clone).
-  static const _kDemoUsers = [
-    {
-      'uid': 'demo-student-001',
-      'role': 'student',
-      'name': 'Mohamed Salah',
-      'studentId': 'MUST-2024-0088',
-      'email': 'student@must.edu.eg',
-      'faculty': 'IT Faculty',
-      'semester': 'Spring 2026',
-      'points': 1240,
-      'rank': 12,
-      'cgpa': 3.43,
-      'creditHours': '87/140',
-      'targetEvents': 5,
-      'stats': {'eventsJoined': 12, 'bookingsMade': 34, 'wins': 7},
-      'achievements': [],
-    },
-    {
-      'uid': 'demo-admin-001',
-      'role': 'admin',
-      'name': 'Admin User',
-      'studentId': 'MUST-ADMIN-001',
-      'email': 'admin@must.edu.eg',
-      'faculty': 'Administration',
-      'semester': 'Spring 2026',
-      'points': 0,
-      'rank': 0,
-      'cgpa': 0.0,
-      'creditHours': '0/140',
-      'targetEvents': 0,
-      'stats': {'eventsJoined': 0, 'bookingsMade': 0, 'wins': 0},
-      'achievements': [],
-    },
-    {
-      'uid': 'demo-coach-001',
-      'role': 'coach',
-      'name': 'Coach Ahmed',
-      'studentId': 'MUST-COACH-001',
-      'email': 'coach@must.edu.eg',
-      'faculty': 'Sports Faculty',
-      'semester': 'Spring 2026',
-      'points': 0,
-      'rank': 0,
-      'cgpa': 0.0,
-      'creditHours': '0/140',
-      'targetEvents': 0,
-      'stats': {'eventsJoined': 0, 'bookingsMade': 0, 'wins': 0},
-      'achievements': [],
-    },
-  ];
-
   Future<void> _loadBundledUsers() async {
-    // 1. Prefer previously-persisted user list (includes registered users)
     final stored = _prefs.getString(_kUsersJson);
     if (stored != null) {
       try {
         final decoded = jsonDecode(stored) as Map<String, dynamic>;
         _allUsers = List<Map<String, dynamic>>.from(decoded['users'] as List);
+        final countBeforeCleanup = _allUsers.length;
+        _allUsers.removeWhere(_isDemoProfile);
+        if (_allUsers.length != countBeforeCleanup) {
+          await _persistUsers();
+        }
         return;
       } catch (_) {
-        // Corrupted cache — fall through and rebuild
         await _prefs.remove(_kUsersJson);
       }
     }
 
-    // 2. Try to load from the bundled asset file
-    try {
-      final raw = await rootBundle.loadString('assets/users_cache.json');
-      final decoded = jsonDecode(raw) as Map<String, dynamic>;
-      _allUsers = List<Map<String, dynamic>>.from(decoded['users'] as List);
-      await _persistUsers();
-      return;
-    } catch (_) {
-      // Asset missing (common in fresh checkouts) — seed from inline defaults
-    }
-
-    // 3. Use hardcoded demo users so the app is always usable offline
-    _allUsers = _kDemoUsers.map((u) => Map<String, dynamic>.from(u)).toList();
+    _allUsers = [];
     await _persistUsers();
+  }
+
+  bool _isDemoProfile(Map<String, dynamic> user) {
+    const demoUids = {
+      'u-001',
+      'demo-student-001',
+      'demo-admin-001',
+      'demo-coach-001',
+    };
+    const demoEmails = {
+      'student@must.edu.eg',
+      'admin@must.edu.eg',
+      'coach@must.edu.eg',
+    };
+    return demoUids.contains(user['uid']) ||
+        demoEmails.contains((user['email'] as String?)?.toLowerCase());
   }
 
   Future<void> _persistUsers() async {
@@ -140,9 +94,8 @@ class CacheService {
   //      credentials, making "wrong password" a path to a successful login.
   //
   // The passwords have been removed from source and the local authenticator
-  // deleted. Firebase Auth is the only authentication authority. The demo
-  // accounts still exist as *profiles* (so the UI has something to show) but
-  // they carry no credential and no privilege until Firebase says so.
+  // deleted. Firebase Auth is the only authentication authority. No demo
+  // profiles are shipped or used as local authentication fallbacks.
 
   /// Looks up a cached profile by uid. Read-only: it never writes a session
   /// marker, because a lookup is not an authentication event.

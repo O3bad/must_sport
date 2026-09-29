@@ -383,6 +383,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectDateVenueTime => 'Select date, venue, and time slot';
 
   @override
+  String get bookingUnavailable =>
+      'Facility booking is unavailable until the university publishes verified facilities and availability. Please contact the university to arrange a booking.';
+
+  @override
   String get selectDate => '📅  Select Date';
 
   @override
@@ -437,7 +441,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchActivities => '🔍  Search activities...';
 
   @override
-  String get noActivitiesFound => 'No activities found';
+  String get noActivitiesFound =>
+      'No activities are currently published. Please check back later or contact the university.';
 
   @override
   String get viewDetails => 'View Details';
@@ -1157,118 +1162,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'MUSTER does not collect or process payments in the app.';
 
   @override
-  String get payInstaPay => 'InstaPay';
-
-  @override
-  String get payVodafoneCash => 'Vodafone Cash';
-
-  @override
-  String get payFawry => 'Fawry';
-
-  @override
-  String get payCard => 'Card';
-
-  @override
-  String get payCentralBank => 'Central Bank';
-
-  @override
-  String get payMobileWallet => 'Mobile Wallet';
-
-  @override
-  String get payAtOutlet => 'Pay at outlet';
-
-  @override
-  String get payVisaMastercard => 'Visa / Mastercard';
-
-  @override
-  String get securePayment => 'Secure Payment';
-
-  @override
-  String get cardNumber => 'Card Number';
-
-  @override
-  String get expiryDate => 'MM/YY';
-
-  @override
-  String get cvc => 'CVC';
-
-  @override
-  String get cardholderName => 'Cardholder Name';
-
-  @override
-  String get payInstantlyCentralBank =>
-      'Pay instantly via Central Bank of Egypt';
-
-  @override
-  String get payViaVodafoneCash => 'Pay via Vodafone Cash mobile wallet';
-
-  @override
-  String get instaPayHint => 'InstaPay username or +20xxxxxxxxxx';
-
-  @override
-  String get vodafoneCashHint => 'Vodafone Cash number (010xxxxxxxx)';
-
-  @override
-  String get instaPayInfo =>
-      'A payment request will be sent to your InstaPay account.';
-
-  @override
-  String get vodafoneCashInfo =>
-      'You will receive an OTP on your Vodafone number to confirm.';
-
-  @override
-  String get fawryInstruction => 'Pay at any Fawry outlet or Fawry app';
-
-  @override
-  String get referenceNumber => 'REFERENCE NUMBER';
-
-  @override
-  String get fawryStep1 => 'Visit any Fawry outlet or open Fawry app';
-
-  @override
-  String get fawryStep2 => 'Select \"Bill Payment\" > \"Universities\"';
-
-  @override
-  String get fawryStep3 => 'Enter the reference number above';
-
-  @override
-  String get fawryStep4 => 'Complete payment within 48 hours';
-
-  @override
-  String get errorCardNumber => 'Enter a valid 16-digit card number';
-
-  @override
-  String get errorExpiry => 'Enter expiry as MM/YY';
-
-  @override
-  String get errorExpired => 'Card has expired';
-
-  @override
-  String get errorCVC => 'Enter a valid CVC (3-4 digits)';
-
-  @override
-  String get errorCardholder => 'Enter the cardholder name';
-
-  @override
-  String errorEnterPhone(String method) {
-    return 'Please enter your $method';
-  }
-
-  @override
-  String get errorVodafoneNumber =>
-      'Enter a valid Vodafone Cash number starting with 010 (11 digits)';
-
-  @override
-  String get errorInstaPayFormat =>
-      'Enter a valid InstaPay username or Egyptian mobile number';
-
-  @override
-  String paidVia(String method) {
-    return 'Paid via $method';
-  }
-
-  @override
-  String get refCopied => 'Reference number copied';
+  String get errorEgyptianPhone => 'Enter a valid Egyptian mobile number';
 
   @override
   String get january => 'Jan';

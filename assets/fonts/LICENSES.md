@@ -26,8 +26,8 @@ asset list.
 
 The rights and provenance for the app icon and splash artwork are **not
 established by this font audit** and must be confirmed by the project owner
-before redistribution. `assets/users_cache.json` contains demo account
-fixtures authored for this project; do not use those identities as real users.
+before redistribution. The sample `assets/users_cache.json` file is no longer
+bundled or loaded by the app.
 
 ## Attribution
 

@@ -191,9 +191,23 @@ class _AdminEventCard extends StatelessWidget {
                   style: AppTextStyles.body(15,
                       color: context.mutedColor, context: context))),
           TextButton(
-            onPressed: () {
-              state.adminRemoveEvent(event.id);
-              Navigator.pop(context);
+            onPressed: () async {
+              try {
+                await state.adminRemoveEvent(event.id);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+              } catch (error, stackTrace) {
+                debugPrint(
+                    'Could not delete event ${event.id}: $error\n$stackTrace');
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(isAr
+                        ? 'تعذر حذف الفعالية. تحقق من الاتصال والصلاحيات.'
+                        : 'Could not delete the event. Check your connection and permissions.'),
+                  ),
+                );
+              }
             },
             child: Text(isAr ? 'حذف' : 'Delete',
                 style: AppTextStyles.body(15,
@@ -524,7 +538,7 @@ class _EventSheetState extends State<_EventSheet> {
     );
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final title = _titleCtrl.text.trim();
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     // FIX: Validate title length
@@ -558,7 +572,20 @@ class _EventSheetState extends State<_EventSheet> {
             ? 'TBD'
             : _locationCtrl.text.trim(),
       );
-      state.adminUpdateEvent(updated);
+      try {
+        await state.adminUpdateEvent(updated);
+      } catch (error, stackTrace) {
+        debugPrint('Could not update event ${updated.id}: $error\n$stackTrace');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isAr
+                ? 'تعذر حفظ الفعالية. تحقق من الاتصال والصلاحيات.'
+                : 'Could not save the event. Check your connection and permissions.'),
+          ),
+        );
+        return;
+      }
       state.showToast(isAr
           ? '✓ تم تحديث الفعالية "${updated.title}"'
           : '✓ Event "${updated.title}" updated');
@@ -577,11 +604,25 @@ class _EventSheetState extends State<_EventSheet> {
             ? 'TBD'
             : _locationCtrl.text.trim(),
       );
-      state.adminAddEvent(event);
+      try {
+        await state.adminAddEvent(event);
+      } catch (error, stackTrace) {
+        debugPrint('Could not create event ${event.id}: $error\n$stackTrace');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isAr
+                ? 'تعذر إنشاء الفعالية. تحقق من الاتصال والصلاحيات.'
+                : 'Could not create the event. Check your connection and permissions.'),
+          ),
+        );
+        return;
+      }
       state.showToast(isAr
           ? '✓ تم إنشاء الفعالية "${event.title}"'
           : '✓ Event "${event.title}" created');
     }
+    if (!mounted) return;
     Navigator.pop(context);
   }
 

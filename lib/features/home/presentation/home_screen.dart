@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/widgets.dart';
 import '../../../core/theme/animations.dart';
 import '../../../core/state/app_state.dart';
+import '../../../core/models/models.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../notifications/presentation/notifications_screen.dart';
 import '../../events/presentation/events_screen.dart';
@@ -23,6 +24,9 @@ class HomeScreen extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final state = context.watch<AppState>();
     final user = state.user;
+    final featuredEvent = state.events
+        .where((event) => event.startDate.isAfter(DateTime.now()))
+        .firstOrNull;
     final primary = context.primaryColor;
     final second = context.secondaryColor;
     final accent = context.accentColor;
@@ -165,12 +169,16 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Tournament banner with shimmer
-          StaggerItem(
-            delay: const Duration(milliseconds: 290),
-            child: _TournamentBanner(
-                onTap: () => context.read<AppState>().setNavIndex(3)),
-          ),
-          const SizedBox(height: 24),
+          if (featuredEvent != null) ...[
+            StaggerItem(
+              delay: const Duration(milliseconds: 290),
+              child: _TournamentBanner(
+                event: featuredEvent,
+                onTap: () => context.read<AppState>().setNavIndex(3),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
 
           StaggerItem(
               delay: const Duration(milliseconds: 340),
@@ -200,8 +208,9 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _TournamentBanner extends StatelessWidget {
+  final SportEvent event;
   final VoidCallback onTap;
-  const _TournamentBanner({required this.onTap});
+  const _TournamentBanner({required this.event, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -251,13 +260,13 @@ class _TournamentBanner extends StatelessWidget {
             children: [
               AppPill(label: l.upcomingTournament, color: accent),
               const SizedBox(height: 12),
-              Text(l.featuredTournamentName,
+              Text(event.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.heading(17,
                       color: Colors.white, context: context)),
               const SizedBox(height: 4),
-              Text(l.featuredTournamentDate,
+              Text(event.dateRangeLabel,
                   style: AppTextStyles.body(16,
                       color: Colors.white60, context: context)),
               const SizedBox(height: 14),

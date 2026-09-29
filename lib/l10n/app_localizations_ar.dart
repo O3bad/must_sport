@@ -383,6 +383,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get selectDateVenueTime => 'اختر التاريخ والمكان والوقت';
 
   @override
+  String get bookingUnavailable =>
+      'حجز المنشآت غير متاح حتى تنشر الجامعة المنشآت ومواعيد التوافر المعتمدة. يُرجى التواصل مع الجامعة لترتيب الحجز.';
+
+  @override
   String get selectDate => '📅  اختر التاريخ';
 
   @override
@@ -437,7 +441,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get searchActivities => '🔍  ابحث عن الأنشطة...';
 
   @override
-  String get noActivitiesFound => 'لا توجد أنشطة';
+  String get noActivitiesFound =>
+      'لا توجد أنشطة معتمدة منشورة حاليًا. يُرجى التحقق لاحقًا أو التواصل مع الجامعة.';
 
   @override
   String get viewDetails => 'عرض التفاصيل';
@@ -1154,116 +1159,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يجمع MUSTER المدفوعات ولا يعالجها داخل التطبيق.';
 
   @override
-  String get payInstaPay => 'إنستا باي';
-
-  @override
-  String get payVodafoneCash => 'فودافون كاش';
-
-  @override
-  String get payFawry => 'فوري';
-
-  @override
-  String get payCard => 'بطاقة';
-
-  @override
-  String get payCentralBank => 'البنك المركزي';
-
-  @override
-  String get payMobileWallet => 'محفظة هاتف';
-
-  @override
-  String get payAtOutlet => 'الدفع عند المنفذ';
-
-  @override
-  String get payVisaMastercard => 'فيزا / ماستر كارد';
-
-  @override
-  String get securePayment => 'دفع آمن';
-
-  @override
-  String get cardNumber => 'رقم البطاقة';
-
-  @override
-  String get expiryDate => 'شهر/سنة';
-
-  @override
-  String get cvc => 'رمز الأمان';
-
-  @override
-  String get cardholderName => 'اسم حامل البطاقة';
-
-  @override
-  String get payInstantlyCentralBank => 'ادفع فورياً عبر البنك المركزي المصري';
-
-  @override
-  String get payViaVodafoneCash => 'ادفع عبر محفظة فودافون كاش';
-
-  @override
-  String get instaPayHint => 'اسم مستخدم إنستا باي أو +20xxxxxxxxxx';
-
-  @override
-  String get vodafoneCashHint => 'رقم فودافون كاش (010xxxxxxxx)';
-
-  @override
-  String get instaPayInfo => 'سيتم إرسال طلب دفع إلى حساب إنستا باي الخاص بك.';
-
-  @override
-  String get vodafoneCashInfo =>
-      'ستتلقى رمز تحقق (OTP) على رقم فودافون الخاص بك للتأكيد.';
-
-  @override
-  String get fawryInstruction => 'ادفع في أي منفذ فوري أو عبر تطبيق فوري';
-
-  @override
-  String get referenceNumber => 'رقم المرجع';
-
-  @override
-  String get fawryStep1 => 'قم بزيارة أي منفذ فوري أو افتح تطبيق فوري';
-
-  @override
-  String get fawryStep2 => 'اختر \"سداد فواتير\" ثم \"الجامعات\"';
-
-  @override
-  String get fawryStep3 => 'أدخل رقم المرجع أعلاه';
-
-  @override
-  String get fawryStep4 => 'أكمل الدفع خلال 48 ساعة';
-
-  @override
-  String get errorCardNumber => 'أدخل رقم بطاقة صالح مكون من 16 رقماً';
-
-  @override
-  String get errorExpiry => 'أدخل تاريخ الانتهاء بصيغة شهر/سنة';
-
-  @override
-  String get errorExpired => 'البطاقة منتهية الصلاحية';
-
-  @override
-  String get errorCVC => 'أدخل رمز أمان صالح (3-4 أرقام)';
-
-  @override
-  String get errorCardholder => 'أدخل اسم حامل البطاقة';
-
-  @override
-  String errorEnterPhone(String method) {
-    return 'يرجى إدخال $method';
-  }
-
-  @override
-  String get errorVodafoneNumber =>
-      'أدخل رقم فودافون كاش صالح يبدأ بـ 010 (11 رقماً)';
-
-  @override
-  String get errorInstaPayFormat =>
-      'أدخل اسم مستخدم إنستا باي صالح أو رقم هاتف مصري';
-
-  @override
-  String paidVia(String method) {
-    return 'تم الدفع عبر $method';
-  }
-
-  @override
-  String get refCopied => 'تم نسخ رقم المرجع';
+  String get errorEgyptianPhone => 'أدخل رقم هاتف مصريًا صالحًا';
 
   @override
   String get january => 'يناير';

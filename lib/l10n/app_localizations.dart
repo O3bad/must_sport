@@ -842,6 +842,12 @@ abstract class AppLocalizations {
   /// **'Select date, venue, and time slot'**
   String get selectDateVenueTime;
 
+  /// No description provided for @bookingUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Facility booking is unavailable until the university publishes verified facilities and availability. Please contact the university to arrange a booking.'**
+  String get bookingUnavailable;
+
   /// No description provided for @selectDate.
   ///
   /// In en, this message translates to:
@@ -953,7 +959,7 @@ abstract class AppLocalizations {
   /// No description provided for @noActivitiesFound.
   ///
   /// In en, this message translates to:
-  /// **'No activities found'**
+  /// **'No activities are currently published. Please check back later or contact the university.'**
   String get noActivitiesFound;
 
   /// No description provided for @viewDetails.
@@ -2264,215 +2270,11 @@ abstract class AppLocalizations {
   /// **'MUSTER does not collect or process payments in the app.'**
   String get appDoesNotProcessPayments;
 
-  /// No description provided for @payInstaPay.
+  /// No description provided for @errorEgyptianPhone.
   ///
   /// In en, this message translates to:
-  /// **'InstaPay'**
-  String get payInstaPay;
-
-  /// No description provided for @payVodafoneCash.
-  ///
-  /// In en, this message translates to:
-  /// **'Vodafone Cash'**
-  String get payVodafoneCash;
-
-  /// No description provided for @payFawry.
-  ///
-  /// In en, this message translates to:
-  /// **'Fawry'**
-  String get payFawry;
-
-  /// No description provided for @payCard.
-  ///
-  /// In en, this message translates to:
-  /// **'Card'**
-  String get payCard;
-
-  /// No description provided for @payCentralBank.
-  ///
-  /// In en, this message translates to:
-  /// **'Central Bank'**
-  String get payCentralBank;
-
-  /// No description provided for @payMobileWallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Mobile Wallet'**
-  String get payMobileWallet;
-
-  /// No description provided for @payAtOutlet.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay at outlet'**
-  String get payAtOutlet;
-
-  /// No description provided for @payVisaMastercard.
-  ///
-  /// In en, this message translates to:
-  /// **'Visa / Mastercard'**
-  String get payVisaMastercard;
-
-  /// No description provided for @securePayment.
-  ///
-  /// In en, this message translates to:
-  /// **'Secure Payment'**
-  String get securePayment;
-
-  /// No description provided for @cardNumber.
-  ///
-  /// In en, this message translates to:
-  /// **'Card Number'**
-  String get cardNumber;
-
-  /// No description provided for @expiryDate.
-  ///
-  /// In en, this message translates to:
-  /// **'MM/YY'**
-  String get expiryDate;
-
-  /// No description provided for @cvc.
-  ///
-  /// In en, this message translates to:
-  /// **'CVC'**
-  String get cvc;
-
-  /// No description provided for @cardholderName.
-  ///
-  /// In en, this message translates to:
-  /// **'Cardholder Name'**
-  String get cardholderName;
-
-  /// No description provided for @payInstantlyCentralBank.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay instantly via Central Bank of Egypt'**
-  String get payInstantlyCentralBank;
-
-  /// No description provided for @payViaVodafoneCash.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay via Vodafone Cash mobile wallet'**
-  String get payViaVodafoneCash;
-
-  /// No description provided for @instaPayHint.
-  ///
-  /// In en, this message translates to:
-  /// **'InstaPay username or +20xxxxxxxxxx'**
-  String get instaPayHint;
-
-  /// No description provided for @vodafoneCashHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Vodafone Cash number (010xxxxxxxx)'**
-  String get vodafoneCashHint;
-
-  /// No description provided for @instaPayInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'A payment request will be sent to your InstaPay account.'**
-  String get instaPayInfo;
-
-  /// No description provided for @vodafoneCashInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'You will receive an OTP on your Vodafone number to confirm.'**
-  String get vodafoneCashInfo;
-
-  /// No description provided for @fawryInstruction.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay at any Fawry outlet or Fawry app'**
-  String get fawryInstruction;
-
-  /// No description provided for @referenceNumber.
-  ///
-  /// In en, this message translates to:
-  /// **'REFERENCE NUMBER'**
-  String get referenceNumber;
-
-  /// No description provided for @fawryStep1.
-  ///
-  /// In en, this message translates to:
-  /// **'Visit any Fawry outlet or open Fawry app'**
-  String get fawryStep1;
-
-  /// No description provided for @fawryStep2.
-  ///
-  /// In en, this message translates to:
-  /// **'Select \"Bill Payment\" > \"Universities\"'**
-  String get fawryStep2;
-
-  /// No description provided for @fawryStep3.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter the reference number above'**
-  String get fawryStep3;
-
-  /// No description provided for @fawryStep4.
-  ///
-  /// In en, this message translates to:
-  /// **'Complete payment within 48 hours'**
-  String get fawryStep4;
-
-  /// No description provided for @errorCardNumber.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a valid 16-digit card number'**
-  String get errorCardNumber;
-
-  /// No description provided for @errorExpiry.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter expiry as MM/YY'**
-  String get errorExpiry;
-
-  /// No description provided for @errorExpired.
-  ///
-  /// In en, this message translates to:
-  /// **'Card has expired'**
-  String get errorExpired;
-
-  /// No description provided for @errorCVC.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a valid CVC (3-4 digits)'**
-  String get errorCVC;
-
-  /// No description provided for @errorCardholder.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter the cardholder name'**
-  String get errorCardholder;
-
-  /// No description provided for @errorEnterPhone.
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter your {method}'**
-  String errorEnterPhone(String method);
-
-  /// No description provided for @errorVodafoneNumber.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a valid Vodafone Cash number starting with 010 (11 digits)'**
-  String get errorVodafoneNumber;
-
-  /// No description provided for @errorInstaPayFormat.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a valid InstaPay username or Egyptian mobile number'**
-  String get errorInstaPayFormat;
-
-  /// No description provided for @paidVia.
-  ///
-  /// In en, this message translates to:
-  /// **'Paid via {method}'**
-  String paidVia(String method);
-
-  /// No description provided for @refCopied.
-  ///
-  /// In en, this message translates to:
-  /// **'Reference number copied'**
-  String get refCopied;
+  /// **'Enter a valid Egyptian mobile number'**
+  String get errorEgyptianPhone;
 
   /// No description provided for @january.
   ///
